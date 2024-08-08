@@ -11,7 +11,9 @@ const CountPage: React.FC<ICountPage> = () => {
   return (
     <div>
       <CountPageHeader></CountPageHeader>
-      <CountPageHero></CountPageHero>
+      <div className="md:hidden  items-center">
+        <CountPageHero></CountPageHero>
+      </div>
       {/* <div id="count-body">
         <p>current count</p>
         <div>
