@@ -1,8 +1,8 @@
 import React from "react";
-import { ButtonClasses, InputVariant, FormSize } from "../themes";
 import classNames from "classnames";
 // import { mdiLoading } from '@mdi/js';
 import { IButton } from "./button";
+import { ButtonVariant, InputVariant, FormSize } from "../themes";
 // import Icon from '@mdi/react';
 
 export const Button: React.FC<
@@ -15,7 +15,7 @@ export const Button: React.FC<
   className = "",
   children,
   size = "sm",
-  // variant = "primary",
+  variant = "primary",
   input = "square",
   disabled,
   loading,
@@ -26,11 +26,10 @@ export const Button: React.FC<
 }): any => {
   const classes = classNames(
     `w-full ${isSelected ? "bg-error" : "bg-primary hover:bg-primary-light"}`,
-    ButtonClasses,
-    FormSize[size],
-    InputVariant[input]
-    // ButtonVariant,
-    // className
+
+    ButtonVariant[variant],
+    InputVariant[input],
+    FormSize[size]
   );
 
   return (

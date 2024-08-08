@@ -1,4 +1,4 @@
-import { PlanCardVariant } from "@components/planCard/PlanCard";
+// import { PlanCardVariant } from "@components/planCard/PlanCard";
 
 export type IButton = {
   className?: string;
@@ -11,19 +11,19 @@ export type IButton = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   as?: React.ElementType<any>;
 
-  variant?:
-    | "primary"
-    | "primary-outline"
-    | "secondary"
-    | "secondary-outline"
-    | "success"
-    | "success-outline"
-    | "error"
-    | "error-outline"
-    | "light"
-    | "light-outline"
-    | "black"
-    | "social"
-    | "white"
-    | PlanCardVariant;
+  variant?: "primary";
+
+  // | "primary-outline"
+  // | "secondary"
+  // | "secondary-outline"
+  // | "success"
+  // | "success-outline"
+  // | "error"
+  // | "error-outline"
+  // | "light"
+  // | "light-outline"
+  // | "black"
+  // | "social"
+  // | "white"
+  // | PlanCardVariant;
 };
