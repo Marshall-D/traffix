@@ -1,18 +1,18 @@
 import { useState } from "react";
 import logo from "../src/assets/logo-new.png";
 import logoSmall from "../src/assets/logo-small.png";
-// import { Button } from "../components/button";
-// import { Input } from "../components/input";
+
 import { mdiEmailOutline } from "@mdi/js";
 import { mdiKeyOutline } from "@mdi/js";
 import { useFormik } from "formik";
 import { object } from "yup";
 
-import toast, { Toaster } from "react-hot-toast";
 import * as Yup from "yup";
 import { Input } from "@/src/components/input";
 import { Button } from "@/src/components/button";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import ROUTES from "@/src/utils/routes";
 
 const schema = object().shape({
   email: Yup.string()
@@ -21,8 +21,9 @@ const schema = object().shape({
   password: Yup.string().required("Please enter your password"),
 });
 
-function LoginPage() {
+const LoginPage: React.FC = () => {
   const [isSelected, setIsSelected] = useState(false);
+  const router = useRouter();
 
   //formik
   const formik = useFormik({
@@ -33,9 +34,10 @@ function LoginPage() {
     },
     validationSchema: schema,
 
-    onSubmit: (values, { resetForm }) => {
-      toast.success(`Welcome ${values.email}`);
-      resetForm();
+    onSubmit: async (values, { resetForm }) => {
+      // resetForm();
+
+      router.push(ROUTES.COUNT_PAGE);
     },
   });
   const handleClick = () => {
@@ -97,11 +99,8 @@ function LoginPage() {
           </div>
         </div>{" "}
       </div>
-      <div>
-        <Toaster />
-      </div>
     </>
   );
-}
+};
 
 export default LoginPage;
