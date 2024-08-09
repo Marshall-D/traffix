@@ -27,52 +27,57 @@ const CountPage: React.FC<ICountPage> = () => {
     setShowModal(false);
   };
   return (
-    <div>
-      <CountPageHeader></CountPageHeader>
+    <>
+      <div>
+        <CountPageHeader></CountPageHeader>
 
-      <div className="md:hidden  items-center ">
-        <CountPageHero></CountPageHero>
-      </div>
+        <div className="md:hidden  items-center ">
+          <CountPageHero></CountPageHero>
+        </div>
 
-      <div id="count-body" className=" w-full max-w-[1000px] mt-48 mx-auto">
-        <div className="flex items-center justify-between ">
-          <div id="IconButton-minus">
-            <div className="md:hidden">
-              <IconButton
-                hoverColor=" hover:text-primary-light"
-                disabled={count === 0}
-                size={2}
-                path={mdiMinusCircle}
-                iconColor="text-primary"
-                onClick={() => {
-                  setInfoButton(false), setShowModal(true);
-                }}
-              ></IconButton>{" "}
-            </div>{" "}
-            <div className="hidden md:block">
-              <IconButton
-                hoverColor=" hover:text-primary-light"
-                disabled={count === 0}
-                size={4}
-                path={mdiMinusCircle}
-                iconColor="text-primary"
-                onClick={() => {
-                  setInfoButton(false), setShowModal(true);
-                }}
-              ></IconButton>{" "}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="flex items-center mb-2">
-              <p className="md:text-lg">Current Count</p>
-
-              <div
-                data-tooltip-id="my-tooltip"
-                data-tooltip-content="Hello world!"
-                data-tooltip-place="top"
-              >
+        <div id="count-body" className=" w-full max-w-[1000px] mt-48 mx-auto">
+          <div className="flex items-center justify-between ">
+            <div id="IconButton-minus">
+              <div className="md:hidden">
                 <IconButton
+                  data-tooltip-id="tooltip-minus"
+                  data-tooltip-content="Delete Entry"
+                  data-tooltip-place="top"
+                  hoverColor=" hover:text-primary-light"
+                  disabled={count === 0}
+                  size={2}
+                  path={mdiMinusCircle}
+                  iconColor="text-primary"
+                  onClick={() => {
+                    setInfoButton(false), setShowModal(true);
+                  }}
+                ></IconButton>{" "}
+              </div>{" "}
+              <div className="hidden md:block">
+                <IconButton
+                  data-tooltip-id="tooltip-minus"
+                  data-tooltip-content="Delete Entry"
+                  data-tooltip-place="top"
+                  hoverColor=" hover:text-primary-light"
+                  disabled={count === 0}
+                  size={4}
+                  path={mdiMinusCircle}
+                  iconColor="text-primary"
+                  onClick={() => {
+                    setInfoButton(false), setShowModal(true);
+                  }}
+                ></IconButton>{" "}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="flex items-center mb-2">
+                <p className="md:text-lg">Current Count</p>
+
+                <IconButton
+                  data-tooltip-id="tooltip-info"
+                  data-tooltip-content="Learn More"
+                  data-tooltip-place="top"
                   hoverColor=" hover:text-grey-1"
                   size={0.8}
                   path={mdiAlphaICircleOutline}
@@ -80,38 +85,43 @@ const CountPage: React.FC<ICountPage> = () => {
                     setInfoButton(true), setShowModal(true);
                   }}
                 ></IconButton>
-                <Tooltip id="my-tooltip" />
+              </div>
+
+              <div className="mb-10">
+                <p className="text-5xl md:text-8xl font-extrabold">{count}</p>
               </div>
             </div>
 
-            <div className="mb-10">
-              <p className="text-5xl md:text-8xl font-extrabold">{count}</p>
-            </div>
-          </div>
-
-          <div id="IconButton-plus">
-            <div className="md:hidden">
-              <IconButton
-                hoverColor=" hover:text-primary-light"
-                onClick={handleIncrement}
-                size={2}
-                path={mdiPlusCircle}
-                iconColor="text-primary"
-              ></IconButton>{" "}
-            </div>{" "}
-            <div className="hidden md:block">
-              <IconButton
-                hoverColor=" hover:text-primary-light"
-                onClick={handleIncrement}
-                size={4}
-                path={mdiPlusCircle}
-                iconColor="text-primary"
-              ></IconButton>{" "}
+            <div id="IconButton-plus">
+              <div className="md:hidden">
+                <IconButton
+                  data-tooltip-id="tooltip-plus"
+                  data-tooltip-content="Create Entry"
+                  data-tooltip-place="top"
+                  hoverColor=" hover:text-primary-light"
+                  onClick={handleIncrement}
+                  size={2}
+                  path={mdiPlusCircle}
+                  iconColor="text-primary"
+                ></IconButton>{" "}
+              </div>{" "}
+              <div className="hidden md:block">
+                <IconButton
+                  data-tooltip-id="tooltip-plus"
+                  data-tooltip-content="Create Entry"
+                  data-tooltip-place="top"
+                  hoverColor=" hover:text-primary-light"
+                  onClick={handleIncrement}
+                  size={4}
+                  path={mdiPlusCircle}
+                  iconColor="text-primary"
+                ></IconButton>{" "}
+              </div>
             </div>
           </div>
         </div>
       </div>
-
+      {/* modal and tooltip */}
       <Modal
         isOpen={showModal}
         bgColor="bg-white"
@@ -152,7 +162,34 @@ const CountPage: React.FC<ICountPage> = () => {
           )}
         </div>
       </Modal>
-    </div>
+      <Tooltip
+        style={{
+          boxShadow: "5px 5px 10px 2px rgba(0,0,0,.8)",
+          borderRadius: "10px",
+          backgroundColor: "white",
+          color: "black",
+        }}
+        id="tooltip-info"
+      />{" "}
+      <Tooltip
+        style={{
+          boxShadow: "5px 5px 10px 2px rgba(0,0,0,.8)",
+          borderRadius: "10px",
+          backgroundColor: "white",
+          color: "black",
+        }}
+        id="tooltip-minus"
+      />{" "}
+      <Tooltip
+        style={{
+          boxShadow: "5px 5px 10px 2px rgba(0,0,0,.8)",
+          borderRadius: "10px",
+          backgroundColor: "white",
+          color: "black",
+        }}
+        id="tooltip-plus"
+      />
+    </>
   );
 };
 
