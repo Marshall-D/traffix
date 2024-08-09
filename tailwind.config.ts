@@ -16,10 +16,7 @@ const config: Config = {
       },
     },
     colors: {
-      // success: { dark: "#006e00", DEFAULT: "#3CC13B", light: "#c8ecc6" },
-      // warning: { dark: "#ee7800", DEFAULT: "#F3BB1C", light: "#faf198" },
       error: { dark: "#c2151d", DEFAULT: "#F03738", light: "#ffced4" },
-      // transparent: "transparent",
       primary: {
         DEFAULT: "#0056B3",
         light: "#5286BE",
@@ -27,6 +24,9 @@ const config: Config = {
 
       black: {
         DEFAULT: "#000000",
+      },
+      white: {
+        DEFAULT: "#ffffff",
       },
       grey: {
         DEFAULT: "#f3f1f1",

@@ -8,7 +8,6 @@ import { IconButton } from "@/src/components/iconButton";
 import { mdiAlphaICircleOutline, mdiPlusCircle, mdiMinusCircle } from "@mdi/js";
 import ProfileCard from "@/src/components/profileCard";
 import { Modal } from "@/src/components/modal";
-import { Tooltip } from "@/src/components/tooltip";
 
 const CountPage: React.FC<ICountPage> = () => {
   const [showModal, setShowModal] = useState(false);
@@ -43,15 +42,13 @@ const CountPage: React.FC<ICountPage> = () => {
             <div className="flex items-center mb-2">
               <p className="md:text-lg">Current Count</p>
 
-              <Tooltip text="Coming soon">
-                <div>
-                  <IconButton
-                    size={0.8}
-                    path={mdiAlphaICircleOutline}
-                    onClick={() => setShowModal(true)}
-                  ></IconButton>{" "}
-                </div>
-              </Tooltip>
+              <div>
+                <IconButton
+                  size={0.8}
+                  path={mdiAlphaICircleOutline}
+                  onClick={() => setShowModal(true)}
+                ></IconButton>{" "}
+              </div>
             </div>
             <div className="mb-10">
               <p className="text-5xl md:text-8xl font-extrabold">0</p>
@@ -86,25 +83,17 @@ const CountPage: React.FC<ICountPage> = () => {
         footer={
           <div className="flex justify-end gap-2 min-w-[350px]">
             <Button
-              //   variant="light"
-              size="sm"
+              type="submit"
               onClick={() => setShowModal(false)}
+              variant="social"
             >
               No
             </Button>
             <Button
-              // className=""
-              variant="primary"
-              size="sm"
+              className=" bg-primary hover:bg-primary-light text-grey"
+              type="submit"
               onClick={() => setShowModal(false)}
-
-              //   disabled={updatingInvoiceStatus}
-              //   loading={updatingInvoiceStatus}
-              //   onClick={() =>
-              //     updatedInvoiceStatus
-              //       ? mutateUpdateInvoiceStatus()
-              //       : setShowModal(false)
-              //   }
+              variant="primary"
             >
               Yes
             </Button>

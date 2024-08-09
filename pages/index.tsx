@@ -86,14 +86,15 @@ const LoginPage: React.FC = () => {
           </div>
           <div className="my-24  w-[300px] md:w-[330px]  text-grey">
             <Button
+              className={`w-full ${
+                isSelected ? "bg-error" : "bg-primary hover:bg-primary-light"
+              }`}
               type="submit"
-              isSelected={isSelected}
               onClick={() => {
                 return handleClick(), formik.handleSubmit();
               }}
-              // variant="primary"
+              variant="error"
             >
-              {" "}
               Sign in
             </Button>{" "}
           </div>

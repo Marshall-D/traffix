@@ -1,9 +1,23 @@
 import React from "react";
 import classNames from "classnames";
-// import { mdiLoading } from '@mdi/js';
+import { mdiLoading } from "@mdi/js";
+
+// import {
+//   FormSize,
+//   ButtonVariant,
+//   Disabled,
+//   ButtonClasses,
+//   InputVariant,
+// } from '';
 import { IButton } from "./button";
-import { ButtonVariant, InputVariant, FormSize } from "../themes";
-// import Icon from '@mdi/react';
+import Icon from "@mdi/react";
+import {
+  FormSize,
+  ButtonVariant,
+  Disabled,
+  ButtonClasses,
+  InputVariant,
+} from "../themes";
 
 export const Button: React.FC<
   IButton &
@@ -21,15 +35,15 @@ export const Button: React.FC<
   loading,
   onClick,
   type,
-  isSelected,
   ...rest
 }): any => {
   const classes = classNames(
-    `w-full ${isSelected ? "bg-error" : "bg-primary hover:bg-primary-light"}`,
-
+    ButtonClasses,
     ButtonVariant[variant],
+    FormSize[size],
     InputVariant[input],
-    FormSize[size]
+    { [Disabled]: disabled },
+    className
   );
 
   return (
@@ -40,8 +54,7 @@ export const Button: React.FC<
       onClick={onClick}
       {...rest}
     >
-      {/* {loading ? <Icon spin size={1} path={mdiLoading}></Icon> : children} */}
-      {children}
+      {loading ? <Icon spin size={1} path={mdiLoading}></Icon> : children}
     </button>
   );
 };
