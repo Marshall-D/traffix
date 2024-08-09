@@ -26,11 +26,12 @@ const config: Config = {
       black: {
         DEFAULT: "#000000",
       },
-      white: {
+      white2: {
         DEFAULT: "#ffffff",
       },
       grey: {
         DEFAULT: "#f3f1f1",
+        1: "#6b6a6a",
       },
     },
   },

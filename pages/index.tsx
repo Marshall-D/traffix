@@ -13,6 +13,7 @@ import { Button } from "@/src/components/button";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ROUTES from "@/src/utils/routes";
+import "react-tooltip/dist/react-tooltip.css";
 
 const schema = object().shape({
   email: Yup.string()

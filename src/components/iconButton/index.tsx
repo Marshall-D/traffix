@@ -8,8 +8,8 @@ export const IconButton: React.FC<IIconButton> = ({
   path,
   onClick,
   bgColor = "bg-white",
-  iconColor = "text-grey-1",
-  // hoverColor = ,
+  iconColor,
+  hoverColor,
   size = 1,
   enclose = true,
   disabled,
@@ -19,20 +19,14 @@ export const IconButton: React.FC<IIconButton> = ({
   const classes = classNames(
     `${iconColor}`,
     `${bgColor}`,
+    `${hoverColor}`,
     `rounded-full`,
     { "p-2": enclose },
     { [Disabled]: disabled },
-
     className
   );
   return (
-    <button
-      // data-tooltip-target="tooltip-default"
-      className={classes}
-      {...rest}
-      onClick={onClick}
-      disabled={disabled}
-    >
+    <button className={classes} {...rest} onClick={onClick} disabled={disabled}>
       <Icon path={path} size={size}></Icon>
     </button>
   );

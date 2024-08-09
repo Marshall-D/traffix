@@ -6,8 +6,8 @@ import CountPageHeader from "@/src/components/countPageHeader";
 import CountPageHero from "@/src/components/countPageHero";
 import { IconButton } from "@/src/components/iconButton";
 import { mdiAlphaICircleOutline, mdiPlusCircle, mdiMinusCircle } from "@mdi/js";
-import ProfileCard from "@/src/components/profileCard";
 import { Modal } from "@/src/components/modal";
+import { Tooltip } from "react-tooltip";
 
 const CountPage: React.FC<ICountPage> = () => {
   const [showModal, setShowModal] = useState(false);
@@ -39,6 +39,7 @@ const CountPage: React.FC<ICountPage> = () => {
           <div id="IconButton-minus">
             <div className="md:hidden">
               <IconButton
+                hoverColor=" hover:text-primary-light"
                 disabled={count === 0}
                 size={2}
                 path={mdiMinusCircle}
@@ -50,6 +51,7 @@ const CountPage: React.FC<ICountPage> = () => {
             </div>{" "}
             <div className="hidden md:block">
               <IconButton
+                hoverColor=" hover:text-primary-light"
                 disabled={count === 0}
                 size={4}
                 path={mdiMinusCircle}
@@ -65,24 +67,20 @@ const CountPage: React.FC<ICountPage> = () => {
             <div className="flex items-center mb-2">
               <p className="md:text-lg">Current Count</p>
 
-              <div data-tooltip-target="tooltip-default">
+              <div
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content="Hello world!"
+                data-tooltip-place="top"
+              >
                 <IconButton
+                  hoverColor=" hover:text-grey-1"
                   size={0.8}
                   path={mdiAlphaICircleOutline}
                   onClick={() => {
                     setInfoButton(true), setShowModal(true);
                   }}
                 ></IconButton>
-              </div>
-
-              {/* tooltip */}
-              <div
-                id="tooltip-default"
-                role="tooltip"
-                className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-              >
-                Tooltip content
-                <div className="tooltip-arrow" data-popper-arrow></div>
+                <Tooltip id="my-tooltip" />
               </div>
             </div>
 
@@ -94,6 +92,7 @@ const CountPage: React.FC<ICountPage> = () => {
           <div id="IconButton-plus">
             <div className="md:hidden">
               <IconButton
+                hoverColor=" hover:text-primary-light"
                 onClick={handleIncrement}
                 size={2}
                 path={mdiPlusCircle}
@@ -102,6 +101,7 @@ const CountPage: React.FC<ICountPage> = () => {
             </div>{" "}
             <div className="hidden md:block">
               <IconButton
+                hoverColor=" hover:text-primary-light"
                 onClick={handleIncrement}
                 size={4}
                 path={mdiPlusCircle}
