@@ -1,14 +1,6 @@
 import React from "react";
 import classNames from "classnames";
 import { mdiLoading } from "@mdi/js";
-
-// import {
-//   FormSize,
-//   ButtonVariant,
-//   Disabled,
-//   ButtonClasses,
-//   InputVariant,
-// } from '';
 import { IButton } from "./button";
 import Icon from "@mdi/react";
 import {

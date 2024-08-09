@@ -7,4 +7,5 @@ export type IIconButton = {
   hoverColor?: string;
   size?: number;
   enclose?: boolean;
+  disabled?: boolean;
 };

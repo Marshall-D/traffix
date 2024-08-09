@@ -62,7 +62,7 @@ export const Modal: React.FC<IModal> = ({
                 </div> */}
                 <Dialog.Panel
                   className={classNames(
-                    `${bgColor} w-full  transform text-left align-middle shadow-xl  rounded-2xl transition-all pt-8 md:pt-0`,
+                    `${bgColor} w-full  transform text-left align-middle shadow-xl bg-white rounded-2xl transition-all pt-8 md:pt-0`,
                     maxWidth
                   )}
                 >
@@ -85,7 +85,7 @@ export const Modal: React.FC<IModal> = ({
                   <div className="p-1">{children}</div>
 
                   {footer && (
-                    <div className="bg-grey-6 rounded-b-2xl py-5 px-6">
+                    <div className="bg-grey-6 rounded-b-2xl py-5 items-center px-6">
                       {footer}
                     </div>
                   )}
