@@ -4,7 +4,6 @@ import React, { forwardRef } from "react";
 
 import { IInput } from "./input";
 import InputLabel from "../inputLabel";
-// import Image from 'next/image';
 
 // eslint-disable-next-line react/display-name
 export const Input = forwardRef<HTMLInputElement, IInput>(

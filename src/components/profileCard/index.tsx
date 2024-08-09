@@ -3,11 +3,7 @@ import Image from "next/image";
 import React, { FC } from "react";
 import avatar from "../../assets/avatar.png";
 
-interface Props {
-  label?: string;
-}
-
-const ProfileCard: FC<Props> = ({ label }) => {
+const ProfileCard: FC = () => {
   return (
     <div className="flex rounded-2xl md:border-2 md:border-grey md:px-4 md:py-1 md:gap-4 shadow-lg ">
       <div className="w-[40px]  h-[40px] md:w-[49px]  md:h-[49px]  relative">
