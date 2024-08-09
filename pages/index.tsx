@@ -33,13 +33,12 @@ const LoginPage: React.FC = () => {
       password: "",
     },
     validationSchema: schema,
-
     onSubmit: async (values, { resetForm }) => {
       // resetForm();
-
       router.push(ROUTES.COUNT_PAGE);
     },
   });
+
   const handleClick = () => {
     setIsSelected(true);
     setTimeout(() => {
@@ -49,7 +48,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <>
-      <div className="md:grid md:grid-cols-2 md:h-screen">
+      <div className="md:grid md:grid-cols-2  md:h-screen">
         {" "}
         <div className="hidden md:block bg-primary-light"> </div>
         <div id="right-side" className="bg-white flex flex-col items-center ">

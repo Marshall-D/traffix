@@ -29,10 +29,12 @@ const CountPage: React.FC<ICountPage> = () => {
   return (
     <div>
       <CountPageHeader></CountPageHeader>
-      <div className="md:hidden  items-center mb-24">
+
+      <div className="md:hidden  items-center ">
         <CountPageHero></CountPageHero>
       </div>
-      <div id="count-body" className=" w-full max-w-[1000px] mx-auto">
+
+      <div id="count-body" className=" w-full max-w-[1000px] mt-48 mx-auto">
         <div className="flex items-center justify-between ">
           <div id="IconButton-minus">
             <div className="md:hidden">
@@ -63,16 +65,27 @@ const CountPage: React.FC<ICountPage> = () => {
             <div className="flex items-center mb-2">
               <p className="md:text-lg">Current Count</p>
 
-              <div>
+              <div data-tooltip-target="tooltip-default">
                 <IconButton
                   size={0.8}
                   path={mdiAlphaICircleOutline}
                   onClick={() => {
                     setInfoButton(true), setShowModal(true);
                   }}
-                ></IconButton>{" "}
+                ></IconButton>
+              </div>
+
+              {/* tooltip */}
+              <div
+                id="tooltip-default"
+                role="tooltip"
+                className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+              >
+                Tooltip content
+                <div className="tooltip-arrow" data-popper-arrow></div>
               </div>
             </div>
+
             <div className="mb-10">
               <p className="text-5xl md:text-8xl font-extrabold">{count}</p>
             </div>

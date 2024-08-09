@@ -15,6 +15,7 @@
     "classnames": "^2.5.1",
     "daisyui": "^4.12.10",
     "dayjs": "^1.11.12",
+    "flowbite": "^2.5.1",
     "formik": "^2.4.6",
     "next": "14.2.5",
     "react": "^18",

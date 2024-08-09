@@ -26,7 +26,13 @@ export const IconButton: React.FC<IIconButton> = ({
     className
   );
   return (
-    <button className={classes} {...rest} onClick={onClick} disabled={disabled}>
+    <button
+      // data-tooltip-target="tooltip-default"
+      className={classes}
+      {...rest}
+      onClick={onClick}
+      disabled={disabled}
+    >
       <Icon path={path} size={size}></Icon>
     </button>
   );
