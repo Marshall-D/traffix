@@ -12,6 +12,7 @@
     "@headlessui/react": "^2.1.2",
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
+    "@supabase/supabase-js": "^2.45.1",
     "classnames": "^2.5.1",
     "daisyui": "^4.12.10",
     "dayjs": "^1.11.12",
