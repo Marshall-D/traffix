@@ -1,4 +1,3 @@
-import { Button } from "@/src/components/button";
 import ClientForm from "@/src/components/client-form";
 import useAuthRedirect from "@/src/hooks/useAuthRedirect";
 
