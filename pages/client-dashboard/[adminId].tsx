@@ -17,7 +17,7 @@ const ClientDashboard: React.FC = () => {
       router.push(`/login/${adminId}`);
     }
   }, [adminId, router]);
-
+  console.log("clientData", clientData);
   return (
     <div>
       <h1>Client Dashboard for Admin ID: {adminId}</h1>
