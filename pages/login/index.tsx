@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
         setError("Login failed: " + error.message);
       } else {
         // Redirect to another page upon successful login
-        router.push(ROUTES.COUNT_PAGE);
+        router.push(ROUTES.ADMIN_DASHBOARD);
       }
     },
   });
