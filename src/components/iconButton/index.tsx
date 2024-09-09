@@ -13,6 +13,7 @@ export const IconButton: React.FC<IIconButton> = ({
   size = 1,
   enclose = true,
   disabled,
+  children,
 
   ...rest
 }) => {
@@ -28,6 +29,7 @@ export const IconButton: React.FC<IIconButton> = ({
   return (
     <button className={classes} {...rest} onClick={onClick} disabled={disabled}>
       <Icon path={path} size={size}></Icon>
+      {children}
     </button>
   );
 };

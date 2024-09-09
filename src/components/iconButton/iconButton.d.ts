@@ -8,4 +8,5 @@ export type IIconButton = {
   size?: number;
   enclose?: boolean;
   disabled?: boolean;
+  children?: any;
 };
