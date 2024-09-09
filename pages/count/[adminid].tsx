@@ -253,7 +253,7 @@ const CountPage: React.FC<ICountPage> = () => {
       </Modal>
       <Tooltip
         style={{
-          boxShadow: "5px 5px 10px 2px rgba(0,0,0,.8)",
+          boxShadow: "0.5px 0.5px 10px 0.5px rgba(0, 0, 0, 0.3)",
           borderRadius: "10px",
           backgroundColor: "white",
           color: "black",
@@ -262,7 +262,7 @@ const CountPage: React.FC<ICountPage> = () => {
       />{" "}
       <Tooltip
         style={{
-          boxShadow: "5px 5px 10px 2px rgba(0,0,0,.8)",
+          boxShadow: "0.5px 0.5px 10px 0.5px rgba(0, 0, 0, 0.3)",
           borderRadius: "10px",
           backgroundColor: "white",
           color: "black",
@@ -271,7 +271,7 @@ const CountPage: React.FC<ICountPage> = () => {
       />{" "}
       <Tooltip
         style={{
-          boxShadow: "5px 5px 10px 2px rgba(0,0,0,.8)",
+          boxShadow: "0.5px 0.5px 10px 0.5px rgba(0, 0, 0, 0.3)",
           borderRadius: "10px",
           backgroundColor: "white",
           color: "black",
