@@ -15,18 +15,8 @@ const CountPage: React.FC<ICountPage> = () => {
   const [count, setCount] = useState<number>(0);
   const router = useRouter();
   const { adminid } = router.query;
-  const [clientData, setClientData] = useState<any>(null);
 
   useEffect(() => {
-    // Fetch client data from localStorage
-    const storedClientData = localStorage.getItem("clientData");
-    if (storedClientData) {
-      setClientData(JSON.parse(storedClientData));
-    } else {
-      // Redirect to login if no client data is found
-      router.push(`/login/${adminid}`);
-    }
-
     // Fetch the count of entries from Supabase for the current day
     const fetchCount = async () => {
       const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
