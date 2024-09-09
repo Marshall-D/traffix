@@ -4,12 +4,13 @@ import React, { FC } from "react";
 import ProfileCard from "../profileCard";
 import logo from "../../assets/logo-new.png";
 import CountPageHero from "../countPageHero";
+import ROUTES from "@/src/utils/routes";
 
 interface Props {
-  label?: string;
+  isAdmin?: boolean;
 }
 
-const CountPageHeader: FC<Props> = ({ label }) => {
+const CountPageHeader: FC<Props> = ({ isAdmin = false }) => {
   return (
     <div className="flex  mt-16 mb-8  pb-4 px-4 justify-between border-b-2 border-b-grey md:border-b-0">
       <div className="">
@@ -17,7 +18,13 @@ const CountPageHeader: FC<Props> = ({ label }) => {
           <p>Count Page</p>{" "}
         </div>
         <div className="hidden md:block mt-1 w-[134px]  h-[48px] relative">
-          <Image alt="logo" layout="fill" src={logo} />
+          {isAdmin ? (
+            <a href={ROUTES.ADMIN_DASHBOARD}>
+              <Image alt="logo" layout="fill" src={logo} />
+            </a>
+          ) : (
+            <Image alt="logo" layout="fill" src={logo} />
+          )}
         </div>{" "}
       </div>
 
