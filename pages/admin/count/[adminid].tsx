@@ -9,7 +9,7 @@ import { Tooltip } from "react-tooltip";
 import { useRouter } from "next/router";
 import { supabase } from "@/src/utils/supabaseClient";
 
-const CountPage: React.FC<ICountPage> = () => {
+const AdminCountPage: React.FC<ICountPage> = () => {
   const [showModal, setShowModal] = useState(false);
   // const [infoButton, setInfoButton] = useState(true);
   const [count, setCount] = useState<number>(0);
@@ -109,4 +109,4 @@ const CountPage: React.FC<ICountPage> = () => {
   );
 };
 
-export default CountPage;
+export default AdminCountPage;

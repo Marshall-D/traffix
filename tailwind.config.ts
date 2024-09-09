@@ -32,6 +32,7 @@ const config: Config = {
       grey: {
         DEFAULT: "#f3f1f1",
         1: "#6b6a6a",
+        2: "#273240",
       },
     },
   },

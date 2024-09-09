@@ -1,7 +1,7 @@
 import ClientForm from "@/src/components/client-form";
 import useAuthRedirect from "@/src/hooks/useAuthRedirect";
 
-const AdminDashboard = () => {
+const UserManagement = () => {
   useAuthRedirect();
 
   return (
@@ -14,4 +14,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default UserManagement;
