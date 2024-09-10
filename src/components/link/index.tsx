@@ -19,7 +19,7 @@ export const Link: React.FC<ILink> = ({
   active,
 }) => {
   const classes = classNames(
-    !disabled && LinkVariant[variant],
+    // !disabled && LinkVariant[variant],
     `text-${textColor}`,
     { "cursor-not-allowed": disabled },
     enableShadowHover && "hover:shadow-2xl",

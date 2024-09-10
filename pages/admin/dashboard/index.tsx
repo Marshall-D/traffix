@@ -1,13 +1,15 @@
 import BarChart from "@/src/components/barChart";
 import CountStatsCard from "@/src/components/countStatsCard";
 import DashboardHeader from "@/src/components/dashboardHeader";
+import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import LineChart from "@/src/components/lineChart";
 
 const AdminDashboard = () => {
   return (
-    <div className="m-2">
+    <div className="m-2   lg:pl-72 ">
+      <DashboardSidebar></DashboardSidebar>
       <DashboardHeader title="Dashboard"></DashboardHeader>{" "}
-      <div className="flex flex-col md:flex-row gap-4 w-full">
+      <div className="flex flex-col  md:flex-row gap-4 w-full">
         <CountStatsCard
           title="Average count by hour"
           value="73"
