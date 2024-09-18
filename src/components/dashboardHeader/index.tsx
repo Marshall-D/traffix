@@ -1,12 +1,7 @@
-import classNames from "classnames";
-import Image from "next/image";
 import React, { FC } from "react";
 import ProfileCard from "../profileCard";
-import logo from "../../assets/logo-new.png";
-import CountPageHero from "../countPageHero";
-import ROUTES from "@/src/utils/routes";
-import { SideNav } from "../sidenav";
-import { DashboardSidebar } from "../dashboardSidebar";
+
+import SideNav from "../sidenav";
 
 interface Props {
   title?: string;
@@ -15,30 +10,19 @@ interface Props {
 const DashboardHeader: FC<Props> = ({ title }) => {
   return (
     <>
-      {/* <DashboardSidebar></DashboardSidebar> */}
-
-      <div className="flex  mt-16 mb-8  pb-4 px-4 justify-between border-b-2 border-b-grey md:border-b-0">
-        <div className="">
+      <div className="flex  lg:mt-16 my-8  sticky top-0 z-[999]  bg-white pb-4 px-4 justify-between border-b border-b-grey lg:border-b-0 shadow-lg lg:shadow-none  ">
+        <div className="flex gap-6">
+          <SideNav></SideNav>
           <div className="text-lg font medium mt-2 text-grey-2 ">
             <p>{title}</p>
           </div>
         </div>
-
-        <ProfileCard></ProfileCard>
+        <div>
+          <ProfileCard></ProfileCard>
+        </div>
       </div>
     </>
   );
 };
 
 export default DashboardHeader;
-
-{
-  /* <div
-className={classNames(
-  'pb-10 w-full',
-  // Container,
-  isLoggedIn && 'lg:pl-72'
-)}
-// className={classNames('pb-10 w-full', )}
-> */
-}

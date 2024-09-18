@@ -1,145 +1,128 @@
-import { Dialog, Transition } from "@headlessui/react";
-import { mdiClose, mdiMenu } from "@mdi/js";
+import { IconButton } from "@/src/components/iconButton";
+import {
+  mdiViewDashboard,
+  mdiMenu,
+  mdiPlusBoxOutline,
+  mdiAlphaDBoxOutline,
+  mdiAlphaWBox,
+  mdiAlphaMBox,
+  mdiAccount,
+} from "@mdi/js";
 import Icon from "@mdi/react";
+import { useRouter } from "next/router";
 import classNames from "classnames";
-import React, { Fragment, useMemo, useState } from "react";
-// import { IconButton } from '@components';
-// import { useRootStore } from '@mobx/index';
-// import { SidebarMenu } from '@components/dashboardSidebar';
-import Image from "next/image";
-import { IconButton } from "../iconButton";
-import { SidebarMenu } from "../dashboardSidebar";
-// import { UserRole } from '@utils/enums/user.enum';
-// import { CustomerSidebarMenu } from '@components/customerSidebar';
-// import { observer } from 'mobx-react';
 
-interface items {
-  name: string;
-  url: string;
-}
+import React, { useState } from "react";
+import ROUTES from "@/src/utils/routes";
 
-export type ISideNav = {
-  items?: items[];
-  className: string;
-  isLoggedIn?: boolean;
-};
+const SideNav: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
-export const SideNav: React.FC<ISideNav> = ({
-  className,
-  items = [],
-  isLoggedIn,
-}) => {
-  let [isOpen, setIsOpen] = useState(false);
-  // const { authStore } = useRootStore();
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
 
-  function closeModal() {
-    setIsOpen(false);
-  }
-  function openModal() {
-    setIsOpen(true);
-  }
-
-  const classes = classNames("flex lg:hidden", className);
-
-  // const avatarImage = useMemo(
-  //   () =>
-  //     authStore.activeOrganization?.image ||
-  //     // authStore.user?.image ||
-  //     `https://via.placeholder.com/150/F6B680/FFFFFF?text=${
-  //       authStore.computedName || authStore.computedOrgName || ''
-  //     }`,
-  //   [
-  //     authStore.activeOrganization,
-  //     // authStore.user?.image,
-  //     authStore.computedName,
-  //     authStore.computedOrgName,
-  //   ]
-  // );
-
+  const navItems = [
+    {
+      href: ROUTES.ADMIN_DASHBOARD,
+      label: "Dashboard",
+      icon: mdiViewDashboard,
+    },
+    {
+      href: "",
+      label: "Count Page",
+      icon: mdiPlusBoxOutline,
+    },
+    { href: "", label: "Daily", icon: mdiAlphaDBoxOutline },
+    {
+      href: "",
+      label: "Weekly",
+      icon: mdiAlphaWBox,
+    },
+    { href: "", label: "Monthly", icon: mdiAlphaMBox },
+    {
+      href: ROUTES.ADMIN_USER_MANAGEMENT,
+      label: "User Management",
+      icon: mdiAccount,
+    },
+  ];
   return (
-    <div className={classes}>
-      {/* Cart Icon and item counter */}
-      <div
-        className="flex items-center justify-center cursor-pointer"
-        onClick={openModal}
-      >
-        {/* <Menu /> */}
-        <Icon
-          size={1}
-          className="text-black ml-auto cursor-pointer h-5 w-5"
-          path={mdiMenu}
-        ></Icon>
+    <>
+      {/* Hamburger menu for mobile */}
+      <div className="lg:hidden mt-[-4px] ">
+        {isOpen ? (
+          <IconButton
+            size={1}
+            className="text-black ml-auto cursor-pointer h-5 w-5"
+            path={mdiMenu}
+            iconColor="text-primary"
+            onClick={() => toggleMenu()}
+          ></IconButton>
+        ) : (
+          <IconButton
+            size={1}
+            className="text-black ml-auto cursor-pointer h-5 w-5"
+            path={mdiMenu}
+            onClick={toggleMenu}
+          ></IconButton>
+        )}
       </div>
-      {/* Modal */}
-      <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-[9999]" onClose={closeModal}>
-          {/* Backdrop */}
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-          {/* END Backdrop */}
 
-          {/* Modal */}
-          <div className="fixed left-0 top-0 overflow-y-auto h-full">
-            <div className="flex min-h-full items-center justify-center h-full">
-              <Transition.Child
-                as={Fragment}
-                enter="ease-out duration-300"
-                enterFrom="opacity-0 scale-80"
-                enterTo="opacity-100 scale-100"
-                leave="ease-in duration-200"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <Dialog.Panel className="flex flex-col justify-items-start h-full w-72 max-w-md transform bg-white p-6 text-left shadow-xl transition-all z-[9999] overflow-y-hidden">
-                  {/* Title */}
-                  <Dialog.Title
-                    as="div"
-                    className="text-xl font-medium leading-6 text-gray-900 flex items-center mb-10 justify-between"
+      {/* Dropdown menu for mobile */}
+      <div
+        className={`lg:hidden fixed top-16 left-0 w-full bg-white text-white overflow-hidden transition-all duration-500 ease-in-out ${
+          isOpen ? "max-h-screen" : "max-h-0"
+        }`}
+        style={{
+          height: isOpen ? "auto" : "0",
+        }}
+      >
+        <nav
+          className={`flex text-black flex-col p-4 ${
+            isOpen ? "block" : "hidden"
+          }`}
+        >
+          <ul className="flex-1 mt-10 relative overflow-y-auto h-full  flex flex-col justify-between">
+            <div className="">
+              {navItems.map((navItem) => (
+                <li key={navItem.href} className=" my-1">
+                  <p
+                    className={classNames(
+                      "p-2 hover:bg-primary-lightest hover:rounded-lg duration-200 flex items-center gap-2",
+                      router.pathname == navItem.href
+                        ? "bg-primary-lightest rounded-lg"
+                        : ""
+                    )}
                   >
-                    <IconButton
-                      path={mdiClose}
-                      iconColor="text-black"
-                      size={1}
-                      className=""
-                      onClick={closeModal}
-                    >
-                      close
-                    </IconButton>
-                    <Image
-                      src={"/assets/img/vascan-logo.svg"}
-                      alt="Vascan Logo"
-                      height={30}
-                      width={28}
-                    />
-                  </Dialog.Title>
+                    {navItem.icon && (
+                      <Icon
+                        path={navItem.icon}
+                        size={1}
+                        color={router.pathname == navItem.href ? "#0056B3" : ""}
+                      />
+                    )}
 
-                  {/* Content */}
-                  <div className="relative h-full">
-                    <SidebarMenu
-                    // avatarImage={avatarImage}
-                    // name={`${authStore.user?.firstname || ''} ${
-                    //   authStore.user?.lastname || ''
-                    // }`}
-                    // orgName={authStore.activeOrganization?.name}
-                    // onLogout={() => authStore.logOut()}
-                    />
-                  </div>
-                </Dialog.Panel>
-              </Transition.Child>
+                    <a
+                      href={navItem.href}
+                      className={classNames(
+                        "text-sm text-black",
+                        router.pathname == navItem.href &&
+                          " hover:text-white   text-primary"
+                      )}
+                    >
+                      {" "}
+                      {navItem.label}
+                    </a>
+                  </p>
+                </li>
+              ))}
             </div>
-          </div>
-          {/* END Modal */}
-        </Dialog>
-      </Transition>
-    </div>
+          </ul>
+        </nav>
+      </div>
+    </>
   );
 };
+
+export default SideNav;

@@ -7,7 +7,7 @@ const UserManagement = () => {
   useAuthRedirect();
 
   return (
-    <div className="m-2   lg:pl-72 ">
+    <div className="lg:pl-72 ">
       <DashboardSidebar></DashboardSidebar>
       <DashboardHeader title="User Management"></DashboardHeader>{" "}
       <div className="flex justify-center mt-5">
