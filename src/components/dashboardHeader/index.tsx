@@ -20,7 +20,7 @@ const DashboardHeader: FC<Props> = ({ title, admin }) => {
         <div className="flex gap-6">
           <SideNav admin={admin} onToggleMenu={handleToggleMenu}></SideNav>
           <div
-            className={`text-lg font-medium mt-0 text-grey-2 transition-opacity duration-500 ease-in-out ${
+            className={`text-lg font-medium mt-1 text-grey-2 transition-opacity duration-500 ease-in-out ${
               isTitleVisible ? "opacity-100" : "opacity-0"
             }`}
           >
