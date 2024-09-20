@@ -60,13 +60,13 @@ const AdminCountPage: React.FC<ICountPage> = () => {
         {/* <Button className="bg-red-500 text-white" onClick={handleSignOut}>
           Sign Out
         </Button> */}
-        <div className="md:hidden items-center">
+        <div className="lg:hidden items-center">
           <CountPageHero></CountPageHero>
         </div>
 
         <div className="flex flex-col items-center mt-48">
           <div className="flex items-center mb-2">
-            <p className="md:text-lg">Current Count</p>
+            <p className="lg:text-lg">Current Count</p>
 
             <IconButton
               data-tooltip-id="tooltip-info"
@@ -82,7 +82,7 @@ const AdminCountPage: React.FC<ICountPage> = () => {
           </div>
 
           <div className="mb-10">
-            <p className="text-5xl md:text-8xl font-extrabold">{count}</p>
+            <p className="text-5xl lg:text-8xl font-extrabold">{count}</p>
           </div>
         </div>
       </div>
