@@ -8,7 +8,10 @@ const Monthly = () => {
   return (
     <div className="lg:pl-72 ">
       <DashboardSidebar></DashboardSidebar>
-      <DashboardHeader title="Monthly"></DashboardHeader>{" "}
+      <div className="mb-36 lg:mb-0">
+        <DashboardHeader title="Monthly"></DashboardHeader>{" "}
+      </div>
+
       <div className="flex justify-center mt-5">
         <h1>Monthly </h1>
       </div>

@@ -34,7 +34,9 @@ const AdminDashboard = () => {
   return (
     <div className="  lg:pl-72 ">
       <DashboardSidebar admin={admin}></DashboardSidebar>
-      <DashboardHeader title="Dashboard"></DashboardHeader>{" "}
+      <div className="mb-36 lg:mb-0">
+        <DashboardHeader title="Dashboard" admin={admin}></DashboardHeader>
+      </div>
       <div className="m-3">
         <div className="flex flex-col  md:flex-row gap-4 w-full">
           <CountStatsCard

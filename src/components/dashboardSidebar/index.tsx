@@ -41,13 +41,7 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
                     "hover:text-primary hover:rounded-md hover:border-primary hover:border"
                 )}
               >
-                <span
-                  className={classNames(
-                    "inline-block"
-                    // router.pathname === navItem.href &&
-                    //   "bg-primary text-white rounded-md p-2 "
-                  )}
-                >
+                <span className={classNames("inline-block")}>
                   {navItem.label}
                 </span>
               </a>

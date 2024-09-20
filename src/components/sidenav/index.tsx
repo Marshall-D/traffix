@@ -1,11 +1,11 @@
 import { IconButton } from "@/src/components/iconButton";
 import {
-  mdiViewDashboard,
+  mdiViewDashboardOutline,
   mdiMenu,
   mdiPlusBoxOutline,
   mdiAlphaDBoxOutline,
-  mdiAlphaWBox,
-  mdiAlphaMBox,
+  mdiAlphaWBoxOutline,
+  mdiAlphaMBoxOutline,
   mdiAccount,
 } from "@mdi/js";
 import Icon from "@mdi/react";
@@ -15,82 +15,86 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import ROUTES from "@/src/utils/routes";
 
-const SideNav: React.FC = () => {
+interface Props {
+  admin?: any;
+  onToggleMenu?: (isOpen: boolean) => void; // Callback to communicate with parent
+}
+
+const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
   const toggleMenu = () => {
-    setIsOpen(!isOpen);
+    const newState = !isOpen;
+    setIsOpen(newState);
+    if (onToggleMenu) {
+      onToggleMenu(newState); // Call the parent function to toggle title visibility
+    }
   };
 
   const navItems = [
     {
       href: ROUTES.ADMIN_DASHBOARD,
       label: "Dashboard",
-      icon: mdiViewDashboard,
+      icon: mdiViewDashboardOutline,
     },
     {
-      href: `${ROUTES.ADMIN_COUNT_PAGE}/${router.query.slug}`,
+      href: `${ROUTES.ADMIN_COUNT_PAGE}/${admin}`,
       label: "Count Page",
       icon: mdiPlusBoxOutline,
     },
-    { href: "", label: "Daily", icon: mdiAlphaDBoxOutline },
     {
-      href: "",
-      label: "Weekly",
-      icon: mdiAlphaWBox,
+      href: ROUTES.ADMIN_DAILY_PAGE,
+      label: "Daily",
+      icon: mdiAlphaDBoxOutline,
     },
-    { href: "", label: "Monthly", icon: mdiAlphaMBox },
+    {
+      href: ROUTES.ADMIN_WEEKLY_PAGE,
+      label: "Weekly",
+      icon: mdiAlphaWBoxOutline,
+    },
+    {
+      href: ROUTES.ADMIN_MONTHLY_PAGE,
+      label: "Monthly",
+      icon: mdiAlphaMBoxOutline,
+    },
     {
       href: ROUTES.ADMIN_USER_MANAGEMENT,
       label: "User Management",
       icon: mdiAccount,
     },
   ];
+
   return (
     <>
       {/* Hamburger menu for mobile */}
-      <div className="lg:hidden mt-[-4px] ">
-        {isOpen ? (
-          <IconButton
-            size={1}
-            className="text-black ml-auto cursor-pointer h-5 w-5"
-            path={mdiMenu}
-            iconColor="text-primary"
-            onClick={() => toggleMenu()}
-          ></IconButton>
-        ) : (
-          <IconButton
-            size={1}
-            className="text-black ml-auto cursor-pointer h-5 w-5"
-            path={mdiMenu}
-            onClick={toggleMenu}
-          ></IconButton>
-        )}
+      <div className="lg:hidden mt-[-4px]">
+        <IconButton
+          size={1}
+          className="text-black ml-auto cursor-pointer h-5 w-5"
+          path={mdiMenu}
+          onClick={toggleMenu}
+        />
       </div>
 
       {/* Dropdown menu for mobile */}
       <div
-        className={`lg:hidden fixed top-16 left-0 w-full bg-white text-white overflow-hidden transition-all duration-500 ease-in-out ${
-          isOpen ? "max-h-screen" : "max-h-0"
+        className={`lg:hidden fixed top-24 left-0 w-full bg-white text-white overflow-hidden transition-all duration-500 ease-in-out shadow-lg lg:shadow-none ${
+          isOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
         }`}
         style={{
-          height: isOpen ? "auto" : "0",
+          transition: "max-height 0.5s ease, opacity 0.5s ease", // Smooth transition for max-height and opacity
         }}
       >
-        <nav
-          className={`flex text-black flex-col p-4 ${
-            isOpen ? "block" : "hidden"
-          }`}
-        >
-          <ul className="flex-1 mt-10 relative overflow-y-auto h-full  flex flex-col justify-between">
+        <nav className="flex text-black flex-col p-4">
+          <ul className="flex-1 mt-10 relative overflow-y-auto h-full flex flex-col justify-between">
             <div className="">
               {navItems.map((navItem) => (
-                <li key={navItem.href} className=" my-1">
+                <li key={navItem.href} className="my-1">
                   <p
                     className={classNames(
                       "p-2 hover:bg-primary-lightest hover:rounded-lg duration-200 flex items-center gap-2",
-                      router.pathname == navItem.href
+                      router.pathname === navItem.href
                         ? "bg-primary-lightest rounded-lg"
                         : ""
                     )}
@@ -99,7 +103,9 @@ const SideNav: React.FC = () => {
                       <Icon
                         path={navItem.icon}
                         size={1}
-                        color={router.pathname == navItem.href ? "#0056B3" : ""}
+                        color={
+                          router.pathname === navItem.href ? "#0056B3" : ""
+                        }
                       />
                     )}
 
@@ -107,11 +113,10 @@ const SideNav: React.FC = () => {
                       href={navItem.href}
                       className={classNames(
                         "text-sm text-black",
-                        router.pathname == navItem.href &&
-                          " hover:text-white   text-primary"
+                        router.pathname === navItem.href &&
+                          "hover:text-white text-primary"
                       )}
                     >
-                      {" "}
                       {navItem.label}
                     </a>
                   </p>

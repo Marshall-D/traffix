@@ -9,7 +9,9 @@ const UserManagement = () => {
   return (
     <div className="lg:pl-72 ">
       <DashboardSidebar></DashboardSidebar>
-      <DashboardHeader title="User Management"></DashboardHeader>{" "}
+      <div className="mb-36 lg:mb-0">
+        <DashboardHeader title="User Management"></DashboardHeader>{" "}
+      </div>
       <div className="flex justify-center mt-5">
         <h1>Admin Dashboard</h1>
       </div>

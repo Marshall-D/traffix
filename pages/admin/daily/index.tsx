@@ -8,7 +8,10 @@ const Daily = () => {
   return (
     <div className="lg:pl-72 ">
       <DashboardSidebar></DashboardSidebar>
-      <DashboardHeader title="Daily"></DashboardHeader>{" "}
+      <div className="mb-36 lg:mb-0">
+        <DashboardHeader title="Daily"></DashboardHeader>{" "}
+      </div>
+
       <div className="flex justify-center mt-5">
         <h1>Daily </h1>
       </div>
