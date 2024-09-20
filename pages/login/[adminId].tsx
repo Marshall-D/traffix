@@ -65,38 +65,39 @@ const ClientLoginPage: React.FC = () => {
           <div className="mb-24 font-medium text-2xl md:text-4xl">
             <p>Client Login</p>
           </div>
-          <div className="mb-2 w-[300px] md:w-[330px]">
-            <Input
-              preppendIcon={mdiEmailOutline}
-              iconSize={0.8}
-              label="Email"
-              placeholder="Email"
-              {...formik.getFieldProps("email")}
-              {...formik.getFieldMeta("email")}
-            />
-          </div>
-          <div className="w-[300px] md:w-[330px]">
-            <Input
-              preppendIcon={mdiKeyOutline}
-              iconSize={0.8}
-              label="Password"
-              type="password"
-              placeholder="Password"
-              {...formik.getFieldProps("password")}
-              {...formik.getFieldMeta("password")}
-            />
-          </div>
-          {error && <p className="text-red-500 mt-4">{error}</p>}
-          <div className="my-24 w-[300px] md:w-[330px] text-grey">
-            <Button
-              className="w-full bg-primary hover:bg-primary-light"
-              type="submit"
-              onClick={() => formik.handleSubmit()}
-              variant="error"
-            >
-              Sign in
-            </Button>
-          </div>
+          <form onSubmit={formik.handleSubmit}>
+            <div className="mb-2 w-[300px] md:w-[330px]">
+              <Input
+                preppendIcon={mdiEmailOutline}
+                iconSize={0.8}
+                label="Email"
+                placeholder="Email"
+                {...formik.getFieldProps("email")}
+                {...formik.getFieldMeta("email")}
+              />
+            </div>
+            <div className="w-[300px] md:w-[330px]">
+              <Input
+                preppendIcon={mdiKeyOutline}
+                iconSize={0.8}
+                label="Password"
+                type="password"
+                placeholder="Password"
+                {...formik.getFieldProps("password")}
+                {...formik.getFieldMeta("password")}
+              />
+            </div>
+            {error && <p className="text-red-500 mt-4">{error}</p>}
+            <div className="my-24 w-[300px] md:w-[330px] text-grey">
+              <Button
+                className="w-full bg-primary hover:bg-primary-light"
+                type="submit"
+                variant="error"
+              >
+                Sign in
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
     </>

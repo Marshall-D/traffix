@@ -81,8 +81,8 @@ const LoginPage: React.FC = () => {
         </div>
 
         {/* Form */}
-        <div
-          // onSubmit={formik.handleSubmit}
+        <form
+          onSubmit={formik.handleSubmit}
           className="flex flex-col items-center space-y-4 md:space-y-4 w-full max-w-[330px]"
         >
           {/* Email Input */}
@@ -122,7 +122,6 @@ const LoginPage: React.FC = () => {
               type="submit"
               onClick={() => {
                 handleClick();
-                formik.handleSubmit();
               }}
               variant="error"
             >
@@ -133,13 +132,13 @@ const LoginPage: React.FC = () => {
           {/* Forgot Password Link */}
           <div className="w-full text-center">
             <a
-              className="underline cursor-pointer"
+              className="underline cursor-pointer hover:text-primary"
               onClick={() => router.push(ROUTES.FORGOT_PASSWORD)}
             >
               Forgot password?
             </a>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
