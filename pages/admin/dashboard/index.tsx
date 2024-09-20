@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     };
 
     fetchClients();
-  }, []);
+  }, [admin]);
   return (
     <div className="  lg:pl-72 ">
       <DashboardSidebar admin={admin}></DashboardSidebar>

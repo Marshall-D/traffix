@@ -8,6 +8,7 @@ import { Modal } from "@/src/components/modal";
 import { Tooltip } from "react-tooltip";
 import { useRouter } from "next/router";
 import { supabase } from "@/src/utils/supabaseClient";
+import DashboardHeader from "@/src/components/dashboardHeader";
 
 const AdminCountPage: React.FC<ICountPage> = () => {
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +51,12 @@ const AdminCountPage: React.FC<ICountPage> = () => {
   return (
     <>
       <div>
-        <CountPageHeader isAdmin={true}></CountPageHeader>
+        <div className="hidden lg:block">
+          <CountPageHeader isAdmin={true}></CountPageHeader>{" "}
+        </div>
+        <div className="lg:hidden mb-36 lg:mb-0 ">
+          <DashboardHeader title="Count" admin={adminid}></DashboardHeader>
+        </div>
         {/* <Button className="bg-red-500 text-white" onClick={handleSignOut}>
           Sign Out
         </Button> */}
