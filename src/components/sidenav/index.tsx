@@ -30,7 +30,7 @@ const SideNav: React.FC = () => {
       icon: mdiViewDashboard,
     },
     {
-      href: "",
+      href: `${ROUTES.ADMIN_COUNT_PAGE}/${router.query.slug}`,
       label: "Count Page",
       icon: mdiPlusBoxOutline,
     },
