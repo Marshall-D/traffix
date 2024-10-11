@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -19,7 +19,12 @@ ChartJS.register(
   Legend
 );
 
-const BarChart = () => {
+interface Props {
+  chartTitle?: string;
+  chartData?: any;
+}
+
+const BarChart: FC<Props> = ({ chartTitle, chartData }) => {
   const data = {
     labels: [
       "Monday",
@@ -32,12 +37,11 @@ const BarChart = () => {
     ],
     datasets: [
       {
-        label: "",
-        data: [12, 19, 3, 5, 2, 3, 7], // Example data for each day of the week
-        backgroundColor: "#0056B3",
-        borderColor: "#0056B3",
+        label: chartData?.label || "",
+        data: chartData?.data || [0, 0, 0, 0, 0, 0, 0], // Default data if not provided
+        backgroundColor: chartData?.backgroundColor || "#0056B3",
+        borderColor: chartData?.borderColor || "#0056B3",
         borderWidth: 1,
-        // innerHeight: 4,
       },
     ],
   };
@@ -50,7 +54,7 @@ const BarChart = () => {
       },
       title: {
         display: true,
-        text: "busiest days",
+        text: chartTitle || "", // Default title if not provided
       },
     },
     scales: {
@@ -58,14 +62,9 @@ const BarChart = () => {
         beginAtZero: true,
       },
     },
-    // style: {
-
-    //   height: "5000px",
-    // },
   };
 
   return (
-    // <div className=" w-full justify-stretch   rounded-2xl p-2  border-2 border-grey gap-4 shadow-lg hover:bg-grey">
     <div>
       <Bar data={data} options={options} />
     </div>

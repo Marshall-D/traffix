@@ -31,6 +31,31 @@ const AdminDashboard = () => {
 
     fetchClients();
   }, [admin]);
+
+  const dashboardBarChartData = {
+    // label: "Sales",
+    data: [12, 19, 3, 5, 2, 3, 7], // Example dynamic data
+    // backgroundColor: "#FF5733",
+    // borderColor: "#FF5733",
+  };
+  const dashboardLineChartData = {
+    // label: "Sales",
+    data: [12, 19, 3, 5, 2, 3, 7], // Example dynamic data
+    // backgroundColor: "#FF5733",
+    // borderColor: "#FF5733",
+  };
+  const dashboardLineChartDataTwo = {
+    // label: "Sales",
+    data: [2, 1, 13, 9, 6, 5, 1], // Example dynamic data
+    backgroundColor: "#FF5733",
+    borderColor: "#FF5733",
+  };
+
+  const dashboardLineChartTitle = [
+    "Congestion Trends",
+    "From May 1 - 14 May, 2024",
+  ];
+
   return (
     <div className="  lg:pl-72 ">
       <DashboardSidebar admin={admin}></DashboardSidebar>
@@ -58,10 +83,17 @@ const AdminDashboard = () => {
         </div>
         <div className="flex mt-5 gap-5 flex-col w-full md:flex-row">
           <div className=" w-full justify-center   rounded-2xl p-9  border-2 border-grey gap-4 shadow-lg hover:bg-grey">
-            <BarChart></BarChart>
+            <BarChart
+              chartData={dashboardBarChartData}
+              chartTitle="Busiest days"
+            ></BarChart>
           </div>
           <div className=" w-full  justify-center   rounded-2xl p-9  border-2 border-grey gap-4 shadow-lg hover:bg-grey">
-            <LineChart></LineChart>{" "}
+            <LineChart
+              chartDataTwo={dashboardLineChartDataTwo}
+              chartData={dashboardLineChartData}
+              chartTitle={dashboardLineChartTitle}
+            ></LineChart>{" "}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -21,7 +21,12 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = () => {
+interface Props {
+  chartTitle?: any;
+  chartData?: any;
+  chartDataTwo?: any;
+}
+const LineChart: FC<Props> = ({ chartTitle, chartData, chartDataTwo }) => {
   const data = {
     labels: [
       "Monday",
@@ -34,22 +39,22 @@ const LineChart = () => {
     ],
     datasets: [
       {
-        label: "Last 7 days",
-        data: [10, 15, 8, 12, 18, 9, 14], // Sample data for each day of the week
+        label: chartData?.label || "",
+        data: chartData?.data || [0, 0, 0, 0, 0, 0, 0], // Default data if not provided
         fill: false,
-        borderColor: "#0056B3",
+        borderColor: chartData?.borderColor || "#0056B3",
         tension: 0.4, // This adds smooth curves to the line chart
         pointBackgroundColor: "#0056B3",
-        backgroundColor: "#0056B3",
+        backgroundColor: chartData?.backgroundColor || "#0056B3",
         pointBorderColor: "#fff",
         pointBorderWidth: 2,
       },
       {
-        label: "Previous 7 days",
-        data: [12, 10, 14, 16, 9, 13, 8], // Data for Week 2
+        label: chartDataTwo?.label || "",
+        data: chartDataTwo?.data || [0, 0, 0, 0, 0, 0, 0], // Default data if not provided
         fill: false,
-        borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: chartDataTwo?.borderColor || "#0056B3",
+        backgroundColor: chartDataTwo?.backgroundColor || "#0056B3",
         tension: 0.4,
         pointBackgroundColor: "rgba(255, 99, 132, 1)",
         pointBorderColor: "#fff",
@@ -66,7 +71,9 @@ const LineChart = () => {
       },
       title: {
         display: true,
-        text: ["Congestion Trends", "From May 1 - 14 May, 2024"], // Multi-line title
+        text: chartTitle || "", // Default title if not provided
+
+        // text: ["Congestion Trends", "From May 1 - 14 May, 2024"], // Multi-line title
         font: {
           size: 10, // You can customize the font size if needed
         },
