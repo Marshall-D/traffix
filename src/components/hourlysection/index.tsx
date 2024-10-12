@@ -5,17 +5,21 @@ import { mdiCalendarMonth } from "@mdi/js";
 import { Button } from "../button";
 
 interface Props {
-  title?: string;
-  value?: string;
+  onTableItemClick: () => void; // Add this prop
 }
 
-const HourlySectionOne: FC<Props> = ({ title, value }) => {
+const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   return (
     <div className="flex flex-col w-full  rounded-2xl p-8  border-2 border-grey   shadow-lg hover:bg-grey">
       <div id="header" className="flex justify-between gap-3 text-grey-2 ">
         <p className="font-medium">Daily Count</p>{" "}
         <div className="">
-          <Button size="sm" variant="primary" className="text-xs">
+          <Button
+            onClick={onTableItemClick}
+            size="sm"
+            variant="primary"
+            className="text-xs"
+          >
             Back to daily view
           </Button>
         </div>
