@@ -25,18 +25,16 @@ interface Props {
   chartTitle?: any;
   chartData?: any;
   chartDataTwo?: any;
+  chartLabels?: any;
 }
-const LineChart: FC<Props> = ({ chartTitle, chartData, chartDataTwo }) => {
+const LineChart: FC<Props> = ({
+  chartTitle,
+  chartData,
+  chartDataTwo,
+  chartLabels,
+}) => {
   const data = {
-    labels: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
+    labels: chartLabels,
     datasets: [
       {
         label: chartData?.label || "",

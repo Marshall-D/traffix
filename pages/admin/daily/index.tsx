@@ -22,19 +22,28 @@ const Daily = () => {
   };
 
   const dailyLineChartData = {
-    data: [12, 19, 3, 5, 2, 3, 7], // Example dynamic data
+    data: [12, 19, 3, 5, 2, 3, 7, 4, 5, 6], // Example dynamic data
+    label: "Today",
   };
 
   const dailyLineChartDataTwo = {
-    data: [2, 1, 13, 9, 6, 5, 1], // Example dynamic data
+    data: [2, 1, 13, 9, 6, 5, 1, 1, 2, 3], // Example dynamic data
     backgroundColor: "#FF5733",
     borderColor: "#FF5733",
+    label: "Yesterday",
   };
-
-  const dailyLineChartTitle = [
-    "Congestion Trends",
-    "From May 1 - 14 May, 2024",
+  const dailyLineChartLabels = [
+    "9",
+    "10",
+    "11",
+    "12",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
   ];
+  const dailyLineChartTitle = ["Hourly Trend", "9am - 5pm"];
 
   return (
     <div className="lg:pl-72 ">
@@ -54,32 +63,28 @@ const Daily = () => {
         <div className="flex flex-col w-full gap-3 p-4 rounded-2xl border-2 border-grey shadow-lg hover:bg-grey">
           <p className="text-black font-medium">Summary</p>
           <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
+            <p className="">Total Count for last 30 days: </p>
+            <p className="font-bold "> 25,047</p>
           </div>
           <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
+            <p className="">Average daily count: </p>
+            <p className="font-bold "> 251</p>
           </div>
           <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
+            <p className="">Highest daily count:</p>
+            <p className="font-bold "> 347</p>
           </div>
           <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
+            <p className=""> Lowest daily count: </p>
+            <p className="font-bold "> 114</p>
           </div>
           <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
+            <p className=""> Highest hourly count: </p>
+            <p className="font-bold "> 41</p>
           </div>
           <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
-          </div>
-          <div className="flex flex-row gap-1 text-sm text-black">
-            <p className="">Total Count: </p>
-            <p className="font-bold "> 300</p>
+            <p className="">Lowest hourly count: </p>
+            <p className="font-bold "> 8</p>
           </div>
         </div>
 
@@ -92,6 +97,7 @@ const Daily = () => {
             chartDataTwo={dailyLineChartDataTwo}
             chartData={dailyLineChartData}
             chartTitle={dailyLineChartTitle}
+            chartLabels={dailyLineChartLabels}
           ></LineChart>
         </div>
       </div>
