@@ -3,6 +3,8 @@ import { IconButton } from "../iconButton";
 import { mdiCalendarMonth } from "@mdi/js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Modal } from "../modal";
+import { Button } from "../button";
 
 interface Props {
   title?: string;
@@ -13,6 +15,7 @@ interface Props {
 const DailySectionOne: FC<Props> = ({ title, value, onTableItemClick }) => {
   const [showModal, setShowModal] = useState(false); // State to control the modal
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Selected date
+  const [date, setDate] = useState(new Date());
 
   // Function to handle calendar icon click and show modal
   const handleCalendarClick = () => {
@@ -31,17 +34,19 @@ const DailySectionOne: FC<Props> = ({ title, value, onTableItemClick }) => {
   };
 
   return (
-    <div className="flex flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
+    <div className="flex  lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
       <div id="header" className="flex justify-between gap-3 text-grey-2">
         <p className="font-medium">Daily Count</p>
-        <div className="flex">
-          <p className="font-light text-sm">Select date</p>
+        <div
+          className="flex"
+          onClick={handleCalendarClick} // Open modal on calendar icon click
+        >
+          <p className="font-light text-sm  cursor-pointer">Select date</p>
           <div className="mt-[-7px]">
             <IconButton
               hoverColor="hover:text-grey-1"
               size={0.8}
               path={mdiCalendarMonth}
-              onClick={handleCalendarClick} // Open modal on calendar icon click
             />
           </div>
         </div>
@@ -61,49 +66,49 @@ const DailySectionOne: FC<Props> = ({ title, value, onTableItemClick }) => {
         <div id="table-body">
           {/* Rows with click handler */}
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">01/05/2022</p>
             <p>209</p>
           </div>
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">02/05/2022</p>
             <p>125</p>
           </div>
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">03/05/2022</p>
             <p>145</p>
           </div>
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">04/05/2022</p>
             <p>223</p>
           </div>
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">05/05/2022</p>
             <p>301</p>
           </div>{" "}
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">06/05/2022</p>
             <p>289</p>
           </div>{" "}
           <div
-            className="flex justify-between text-sm my-4"
+            className="flex justify-between text-sm my-4  cursor-pointer hover:text-primary"
             onClick={onTableItemClick}
           >
             <p className="ml-16">07/05/2022</p>
@@ -113,28 +118,40 @@ const DailySectionOne: FC<Props> = ({ title, value, onTableItemClick }) => {
       </div>
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-medium mb-4">Select a Date</h2>
+      <Modal
+        isOpen={showModal}
+        bgColor="red"
+        maxWidth="max-w-3xl"
+        handleClose={() => {
+          setShowModal(false);
+        }}
+      >
+        <div className="flex flex-col gap-2 p-12">
+          <h2 className="text-xl font-medium mb-4 flex justify-center">
+            Select a Date
+          </h2>
+          {/* DatePicker with Tailwind styling */}
+          <div className="shadow-[0.5px_0.5px_10px_0.5px_rgba(0,0,0,0.3)] rounded-lg">
             <DatePicker
               selected={selectedDate}
               onChange={handleDateChange} // Handle date selection
               inline
+              // Remove default border with custom styles
+              calendarClassName="!border-none !shadow-none"
             />
+          </div>
 
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={handleViewDateClick}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                disabled={!selectedDate} // Disable button if no date is selected
-              >
-                View Date
-              </button>
-            </div>
+          <div className="mt-4">
+            <Button
+              onClick={handleViewDateClick}
+              className="w-full"
+              // disabled={!selectedDate} // Disable button if no date is selected
+            >
+              View Date
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

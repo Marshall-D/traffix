@@ -37,7 +37,7 @@ export const Modal: React.FC<IModal> = ({
             {/* <div className="fixed inset-0 bg-black bg-opacity-25 overflow-hidden"></div> */}
           </Transition.Child>
 
-          <div className="fixed inset-0 overflow-y-auto z-[25]">
+          <div className="fixed inset-0 overflow-y-auto z-[25]  bg-black bg-opacity-25">
             <div className="flex flex-col min-h-full items-center  justify-center p-4 text-center relative">
               <Transition.Child
                 as={"div"}

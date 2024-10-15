@@ -43,12 +43,14 @@ const AdminDashboard = () => {
     data: [12, 19, 3, 5, 2, 3, 7], // Example dynamic data
     // backgroundColor: "#FF5733",
     // borderColor: "#FF5733",
+    label: "Last 7 days",
   };
   const dashboardLineChartDataTwo = {
     // label: "Sales",
     data: [2, 1, 13, 9, 6, 5, 1], // Example dynamic data
     backgroundColor: "#FF5733",
     borderColor: "#FF5733",
+    label: "Previous 7 days",
   };
 
   const dashboardLineChartTitle = [
@@ -56,6 +58,15 @@ const AdminDashboard = () => {
     "From May 1 - 14 May, 2024",
   ];
 
+  const dashboardLineChartLabels = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
   return (
     <div className="  lg:pl-72 ">
       <DashboardSidebar admin={admin}></DashboardSidebar>
@@ -93,6 +104,7 @@ const AdminDashboard = () => {
               chartDataTwo={dashboardLineChartDataTwo}
               chartData={dashboardLineChartData}
               chartTitle={dashboardLineChartTitle}
+              chartLabels={dashboardLineChartLabels}
             ></LineChart>{" "}
           </div>
         </div>

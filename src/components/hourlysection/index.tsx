@@ -28,7 +28,7 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   const [currentPage, setCurrentPage] = useState(0);
 
   // Set the number of items per page
-  const itemsPerPage = 5;
+  const itemsPerPage = 9;
 
   // Calculate the items for the current page
   const offset = currentPage * itemsPerPage;
@@ -41,7 +41,7 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   };
 
   return (
-    <div className="flex flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
+    <div className="flex lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
       <div id="header" className="flex justify-between gap-3 text-grey-2">
         <p className="font-medium">Daily Count</p>
         <div className="">
@@ -83,7 +83,6 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
         breakClassName={"break-me"}
         pageCount={pageCount}
         marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
         onPageChange={handlePageClick}
         containerClassName={
           "pagination flex justify-center items-center mt-4 space-x-2"
