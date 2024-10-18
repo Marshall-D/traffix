@@ -7,30 +7,26 @@ import { supabase } from "@/src/utils/supabaseClient";
 import { useEffect, useState } from "react";
 
 const AdminDashboard = () => {
-  // const [clients, setClients] = useState<Client[]>([]);
   const [admin, setAdmin] = useState<string | null>(null);
-  // const router = useRouter();
 
-  useEffect(() => {
-    const fetchClients = async () => {
-      // Get the logged-in user
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
+  // useEffect(() => {
+  //   const fetchClients = async () => {
+  //     // Get the logged-in user
+  //     const {
+  //       data: { user },
+  //       error: userError,
+  //     } = await supabase.auth.getUser();
 
-      if (userError || !user) {
-        console.error("Error fetching user: ", userError?.message);
-        return;
-      }
+  //     if (userError || !user) {
+  //       console.error("Error fetching user: ", userError?.message);
+  //       return;
+  //     }
 
-      // Set the dynamic login URL
-      // const dynamicUrl = `${window.location.origin}/login/${user.id}`;
-      setAdmin(user.id);
-    };
+  //     setAdmin(user.id);
+  //   };
 
-    fetchClients();
-  }, [admin]);
+  //   fetchClients();
+  // }, [admin]);
 
   const dashboardBarChartData = {
     // label: "Sales",

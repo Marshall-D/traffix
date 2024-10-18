@@ -1,8 +1,8 @@
 import React, { FC, useState } from "react";
 import ReactPaginate from "react-paginate";
 import { Button } from "../button";
-import { mdiChevronLeft, mdiChevronRight } from "@mdi/js"; // Import icons from MDI
-import Icon from "@mdi/react"; // MDI react icon package
+import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
+import Icon from "@mdi/react";
 
 interface Props {
   onTableItemClick: () => void;

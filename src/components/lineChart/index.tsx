@@ -71,7 +71,6 @@ const LineChart: FC<Props> = ({
         display: true,
         text: chartTitle || "", // Default title if not provided
 
-        // text: ["Congestion Trends", "From May 1 - 14 May, 2024"], // Multi-line title
         font: {
           size: 10, // You can customize the font size if needed
         },

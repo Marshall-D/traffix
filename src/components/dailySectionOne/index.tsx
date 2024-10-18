@@ -7,15 +7,12 @@ import { Modal } from "../modal";
 import { Button } from "../button";
 
 interface Props {
-  title?: string;
-  value?: string;
   onTableItemClick: () => void;
 }
 
-const DailySectionOne: FC<Props> = ({ title, value, onTableItemClick }) => {
+const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
   const [showModal, setShowModal] = useState(false); // State to control the modal
   const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Selected date
-  const [date, setDate] = useState(new Date());
   const [selectedRow, setSelectedRow] = useState<number | null>(0); // State to track selected row
   const [isClickedOnce, setIsClickedOnce] = useState<number | null>(null); // Track if row has been clicked once
 

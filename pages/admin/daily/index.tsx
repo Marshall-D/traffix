@@ -5,10 +5,10 @@ import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import HourlySectionOne from "@/src/components/hourlysection";
 import LineChart from "@/src/components/lineChart";
-import useAuthRedirect from "@/src/hooks/useAuthRedirect";
+// import useAuthRedirect from "@/src/hooks/useAuthRedirect";
 
 const Daily = () => {
-  useAuthRedirect();
+  // useAuthRedirect();
 
   const [showHourlySection, setShowHourlySection] = useState(false);
 
