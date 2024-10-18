@@ -71,7 +71,9 @@ const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
       <div className="lg:hidden mt-[-4px]">
         <IconButton
           size={1}
-          className="text-black ml-auto cursor-pointer h-5 w-5"
+          className={`${
+            isOpen ? "text-primary" : "text-black"
+          } ml-auto cursor-pointer h-5 w-5`}
           path={mdiMenu}
           onClick={toggleMenu}
         />

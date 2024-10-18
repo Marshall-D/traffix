@@ -49,9 +49,16 @@ const Daily = () => {
     <div className="lg:pl-72  flex">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col ">
-        <div className="mb-36 lg:mb-0">
+        <div className="mb-36 lg:mb-0 block lg:hidden">
+          {/* For mobile and tablet screens (default) */}
+          <DashboardHeader title="Daily Count" />
+        </div>
+
+        {/* For desktop screens */}
+        <div className="mb-36 lg:mb-0 hidden lg:block">
           <DashboardHeader title="Daily Count Overview" />
         </div>
+
         <div className="flex-1 flex flex-col lg:flex-row gap-4 justify-center mt-5 mx-4 lg:mb-4">
           <div className="flex-1 ">
             {!showHourlySection ? (
