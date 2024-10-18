@@ -59,7 +59,7 @@ const Daily = () => {
           <DashboardHeader title="Daily Count Overview" />
         </div>
 
-        <div className="flex-1 flex flex-col lg:flex-row gap-4 justify-center mt-5 mx-4 lg:mb-4">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 justify-center mt-5 mx-4 mb-4">
           <div className="flex-1 ">
             {!showHourlySection ? (
               <DailySectionOne onTableItemClick={handleTableItemClick} />
