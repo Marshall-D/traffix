@@ -5,15 +5,15 @@ import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import HourlySectionOne from "@/src/components/hourlysection";
 import LineChart from "@/src/components/lineChart";
-// import useAuthRedirect from "@/src/hooks/useAuthRedirect";
+import { formatDate } from "@/src/utils/helpers";
 
 const Daily = () => {
-  // useAuthRedirect();
-
   const [showHourlySection, setShowHourlySection] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null); // State to store the selected date
 
-  const handleTableItemClick = () => {
-    setShowHourlySection(!showHourlySection);
+  const handleTableItemClick = (date: string) => {
+    setSelectedDate(date); // Update selected date
+    setShowHourlySection(!showHourlySection); // Toggle view
   };
 
   const dailyData = {
@@ -46,25 +46,36 @@ const Daily = () => {
   const dailyLineChartTitle = ["Hourly Trend", "9am - 5pm"];
 
   return (
-    <div className="lg:pl-72  flex">
+    <div className="lg:pl-72 flex">
       <DashboardSidebar />
-      <div className="flex-1 flex flex-col ">
+      <div className="flex-1 flex flex-col">
         <div className="mb-36 lg:mb-0 block lg:hidden">
           {/* For mobile and tablet screens (default) */}
-          <DashboardHeader title="Daily Count" />
+          <DashboardHeader title={"Daily Count"} />
         </div>
 
         {/* For desktop screens */}
         <div className="mb-36 lg:mb-0 hidden lg:block">
-          <DashboardHeader title="Daily Count Overview" />
+          <DashboardHeader
+            title={
+              showHourlySection && selectedDate
+                ? formatDate(selectedDate)
+                : "Daily Count Overview"
+            }
+          />
         </div>
 
         <div className="flex-1 flex flex-col lg:flex-row gap-4 justify-center mt-5 mx-4 mb-4">
-          <div className="flex-1 ">
+          <div className="flex-1">
+            <p className="lg:hidden text-lg font-medium ">
+              {showHourlySection && selectedDate && formatDate(selectedDate)}
+            </p>
             {!showHourlySection ? (
               <DailySectionOne onTableItemClick={handleTableItemClick} />
             ) : (
-              <HourlySectionOne onTableItemClick={handleTableItemClick} />
+              <HourlySectionOne
+                onTableItemClick={() => setShowHourlySection(false)} // Handle back navigation
+              />
             )}
           </div>
           <div className="flex flex-col gap-4">

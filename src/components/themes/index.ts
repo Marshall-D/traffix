@@ -25,7 +25,7 @@ const ButtonVariant = {
 };
 
 const ButtonClasses =
-  "font-bold capitalize flex items-center justify-center  whitespace-nowrap rounded-3xl text-sm px-6";
+  "font-bold capitalize flex items-center justify-center  whitespace-nowrap rounded-3xl text-sm px-6 hover:bg-primary-light";
 const FormSize = {
   sm: "py-2.5",
   md: "py-3",

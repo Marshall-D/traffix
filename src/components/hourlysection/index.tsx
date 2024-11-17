@@ -43,13 +43,13 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   return (
     <div className="flex lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
       <div id="header" className="flex justify-between gap-3 text-grey-2">
-        <p className="font-medium">Daily Count</p>
-        <div className="">
+        <p className="font-medium">Hourly Count</p>
+        <div>
           <Button
             onClick={onTableItemClick}
             size="sm"
             variant="primary"
-            className="text-xs"
+            className="text-xs  "
           >
             Back to daily view
           </Button>
@@ -72,13 +72,13 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
               <p>{item.count}</p>
             </div>
           ))}
-        </div>
+        </div>{" "}
       </div>
 
       {/* Pagination Component */}
       <ReactPaginate
-        previousLabel={<Icon path={mdiChevronLeft} size={0.7} />} // Previous Icon
-        nextLabel={<Icon path={mdiChevronRight} size={0.7} />} // Next Icon
+        previousLabel={<Icon path={mdiChevronLeft} size={0.7} />}
+        nextLabel={<Icon path={mdiChevronRight} size={0.7} />}
         breakLabel={"..."}
         breakClassName={"break-me"}
         pageCount={pageCount}
@@ -87,18 +87,21 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
         containerClassName={
           "pagination flex justify-center items-center mt-4 space-x-2"
         }
-        activeClassName={"active"}
-        pageClassName={"page-item"}
+        activeClassName={"active text-white rounded-lg"} // Active page styling
+        pageClassName={"page-item"} // Wrapper for page link
         pageLinkClassName={
-          "page-link px-3 py-1 text-gray-600 " // Removed border classes
-        }
-        previousClassName={"prev-item text-grey-1"}
-        nextClassName={"next-item text-grey-1"}
-        disabledClassName={"disabled opacity-50 cursor-not-allowed"}
-        // Styling for the active page number
+          "page-link px-3 py-1 text-black hover:bg-grey-3 hover:text-black rounded-lg"
+        } // Added hover styles
+        previousClassName={
+          "prev-item text-grey-1 hover:bg-grey-3 hover:text-black rounded-lg"
+        } // Added hover styles for prev arrow
+        nextClassName={
+          "next-item text-grey-1 hover:bg-grey-3 hover:text-black rounded-lg"
+        } // Added hover styles for next arrow
+        disabledClassName={"disabled opacity-50 cursor-not-allowed"} // Disabled styles
         activeLinkClassName={
           "bg-primary-blue text-primary px-3 py-1 rounded-lg"
-        } // Dark blue for active page
+        } // Active link styling
       />
     </div>
   );

@@ -34,6 +34,7 @@ const config: Config = {
         DEFAULT: "#f3f1f1",
         1: "#6b6a6a",
         2: "#273240",
+        3: " #E5E7EB",
       },
     },
   },
