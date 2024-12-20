@@ -26,6 +26,10 @@ const config: Config = {
 
       black: {
         DEFAULT: "#000000",
+        2: "#0F1419",
+      },
+      green: {
+        DEFAULT: "#48BB78",
       },
       white2: {
         DEFAULT: "#ffffff",
@@ -35,6 +39,7 @@ const config: Config = {
         1: "#6b6a6a",
         2: "#273240",
         3: " #E5E7EB",
+        4: "#A0AEC0",
       },
     },
   },
