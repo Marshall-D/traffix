@@ -66,3 +66,13 @@ export const WeeklyData = [
   { date: "2024-12-16", count: 295, week: 51 },
   { date: "2024-12-23", count: 285, week: 52 },
 ];
+
+export const dailyData = [
+  { date: "2024-05-01", count: 209, day: "Monday" },
+  { date: "2024-05-02", count: 125, day: "Tuesday" },
+  { date: "2024-05-03", count: 145, day: "Wednesday" },
+  { date: "2024-05-04", count: 223, day: "Thursday" },
+  { date: "2024-05-05", count: 301, day: "Friday" },
+  { date: "2024-05-06", count: 289, day: "Saturday" },
+  { date: "2024-05-07", count: 179, day: "Sunday" },
+];
