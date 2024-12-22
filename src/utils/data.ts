@@ -73,6 +73,6 @@ export const dailyData = [
   { date: "2024-05-03", count: 145, day: "Wednesday" },
   { date: "2024-05-04", count: 223, day: "Thursday" },
   { date: "2024-05-05", count: 301, day: "Friday" },
-  { date: "2024-05-06", count: 289, day: "Saturday" },
+  { date: "2024-05-06", count: 2689, day: "Saturday" },
   { date: "2024-05-07", count: 179, day: "Sunday" },
 ];

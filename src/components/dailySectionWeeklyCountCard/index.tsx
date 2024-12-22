@@ -1,25 +1,19 @@
 import React, { FC, useState } from "react";
-import ReactPaginate from "react-paginate";
 import { Button } from "../button";
-import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
-import Icon from "@mdi/react";
-
+interface DailyData {
+  date: string;
+  count: number;
+  day: string;
+}
 interface Props {
   onTableItemClick: () => void;
+  dailyData: DailyData[];
 }
 
-// Sample data for the table (hourly count)
-const data = [
-  { date: "2024-05-01", count: 209, day: "Monday" },
-  { date: "2024-05-02", count: 125, day: "Tuesday" },
-  { date: "2024-05-03", count: 145, day: "Wednesday" },
-  { date: "2024-05-04", count: 223, day: "Thursday" },
-  { date: "2024-05-05", count: 301, day: "Friday" },
-  { date: "2024-05-06", count: 289, day: "Saturday" },
-  { date: "2024-05-07", count: 179, day: "Sunday" },
-];
-
-const DailySectionWeeklyCountCard: FC<Props> = ({ onTableItemClick }) => {
+const DailySectionWeeklyCountCard: FC<Props> = ({
+  onTableItemClick,
+  dailyData,
+}) => {
   const [currentPage, setCurrentPage] = useState(0);
 
   // Set the number of items per page
@@ -27,8 +21,8 @@ const DailySectionWeeklyCountCard: FC<Props> = ({ onTableItemClick }) => {
 
   // Calculate the items for the current page
   const offset = currentPage * itemsPerPage;
-  const currentItems = data.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(data.length / itemsPerPage);
+  const currentItems = dailyData.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(dailyData.length / itemsPerPage);
 
   // Handle page change
   const handlePageClick = (event: { selected: number }) => {

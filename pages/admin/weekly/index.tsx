@@ -1,28 +1,33 @@
-import React, { useState } from "react";
-import BarChart from "@/src/components/barChart";
-import DailySectionOne from "@/src/components/dailySectionOne";
+import React, { useState, useEffect } from "react";
 import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
-import HourlySectionOne from "@/src/components/hourlysection";
-import LineChart from "@/src/components/lineChart";
-import { formatDate } from "@/src/utils/helpers";
 import WeeklyCountCard from "@/src/components/weeklyCountCard";
 import DailySectionWeeklyCountCard from "@/src/components/dailySectionWeeklyCountCard";
-import WeeklyTrendChart from "@/src/components/chart";
 import SummaryWeekly from "@/src/components/summaryWeekly";
-import { WeeklyData, weeklySummary } from "@/src/utils/data";
+import WeeklyTrendChart from "@/src/components/chart";
+import { WeeklyData, weeklySummary, dailyData } from "@/src/utils/data";
 
 const Weekly = () => {
   const [showDailySection, setShowDailySection] = useState(false);
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null); // State to store the selected date
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [busiestDay, setBusiestDay] = useState<string | null>(null);
+
+  // Find the busiest day (day string) when `dailyData` changes
+  useEffect(() => {
+    const maxDay = dailyData.reduce((prev, curr) =>
+      curr.count > prev.count ? curr : prev
+    );
+
+    setBusiestDay(maxDay.day); // Set the `day` string directly
+  }, []);
 
   const handleTableItemClick = (date: string) => {
     const week = WeeklyData.find((item) => item.date === date)?.week || null;
 
-    setSelectedDate(date); // Update selected date
-    setSelectedWeek(week); // Update selected week
-    setShowDailySection(!showDailySection); // Toggle view
+    setSelectedDate(date);
+    setSelectedWeek(week);
+    setShowDailySection(!showDailySection);
   };
 
   const formattedTitle =
@@ -37,12 +42,11 @@ const Weekly = () => {
       <DashboardSidebar />
       <div className="flex-1 flex flex-col">
         <div className="mb-36 lg:mb-0 block lg:hidden">
-          {/* For mobile and tablet screens (default) */}
+          {/* For mobile and tablet screens */}
           <DashboardHeader
             title={showDailySection ? formattedTitle : "Weekly Count Overview"}
             showDailySection={showDailySection}
-            // selectedDate={selectedDate}
-            // busiestDay={busiestDay}
+            busiestDay={busiestDay}
           />
         </div>
 
@@ -51,10 +55,10 @@ const Weekly = () => {
           <DashboardHeader
             title={showDailySection ? formattedTitle : "Weekly Count Overview"}
             showDailySection={showDailySection}
-            // selectedDate={selectedDate}
-            // busiestDay={busiestDay}
+            busiestDay={busiestDay}
           />
         </div>
+
         <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4">
           <div id="weekly-side" className="w-full">
             <p className="lg:hidden text-lg font-medium ">
@@ -67,7 +71,8 @@ const Weekly = () => {
               />
             ) : (
               <DailySectionWeeklyCountCard
-                onTableItemClick={() => setShowDailySection(false)} // Handle back navigation
+                onTableItemClick={() => setShowDailySection(false)}
+                dailyData={dailyData}
               />
             )}
           </div>
@@ -79,8 +84,7 @@ const Weekly = () => {
               ></SummaryWeekly>
 
               <div className="w-full rounded-2xl p-12 border-2 border-grey  shadow-lg hover:bg-grey">
-                {/* <BarChart chartData={dailyData} chartTitle="Daily trend" /> */}
-                <WeeklyTrendChart></WeeklyTrendChart>
+                <WeeklyTrendChart />
               </div>
             </div>
           </div>
