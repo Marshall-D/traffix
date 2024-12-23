@@ -11,6 +11,7 @@ import {
   dailyData,
   monthySummary,
 } from "@/src/utils/data";
+import BusiestDay from "@/src/components/busiestDay";
 
 const Weekly = () => {
   const [showDailySection, setShowDailySection] = useState(false);
@@ -71,9 +72,23 @@ const Weekly = () => {
 
         <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4">
           <div id="weekly-side" className="w-full">
+            {showDailySection && (
+              <p className="lg:hidden">
+                <span className="text-grey-4">Weekly</span> / Count details
+              </p>
+            )}
             <p className="lg:hidden text-lg font-medium ">
               {showDailySection && formattedTitle}
             </p>
+            <div className="lg:hidden my-4">
+              {showDailySection && (
+                <div>
+                  <div className="my-8">
+                    <BusiestDay day={busiestDay || "N/A"} />{" "}
+                  </div>
+                </div>
+              )}
+            </div>
             {!showDailySection ? (
               <WeeklyCountCard
                 onTableItemClick={handleTableItemClick}
