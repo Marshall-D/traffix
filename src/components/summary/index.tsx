@@ -11,7 +11,7 @@ interface Props {
   showDailySection?: boolean;
 }
 
-const SummaryWeekly: FC<Props> = ({ subtitle, details, showDailySection }) => {
+const Summary: FC<Props> = ({ subtitle, details, showDailySection }) => {
   return (
     <div className="flex flex-col w-full gap-5 p-4 rounded-2xl border-2 border-grey shadow-lg hover:bg-grey">
       <div className="mb-4 mt-2">
@@ -34,4 +34,4 @@ const SummaryWeekly: FC<Props> = ({ subtitle, details, showDailySection }) => {
   );
 };
 
-export default SummaryWeekly;
+export default Summary;

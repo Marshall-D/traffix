@@ -3,7 +3,7 @@ import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import WeeklyCountCard from "@/src/components/weeklyCountCard";
 import DailySectionWeeklyCountCard from "@/src/components/dailySectionWeeklyCountCard";
-import SummaryWeekly from "@/src/components/summaryWeekly";
+import SummaryWeekly from "@/src/components/summary";
 import WeeklyTrendChart from "@/src/components/chart";
 import {
   WeeklyData,

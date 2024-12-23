@@ -11,6 +11,16 @@ export const weeklySummary = [
   { label: "Highest Day Count", value: "347" },
   { label: "Lowest Day Count", value: "114" },
 ];
+export const hourlySummary = [
+  { label: "Average Hourly Count", value: "25" },
+  { label: "Highest Hourly Count", value: "34" },
+  { label: "Lowest Hourly Count", value: "8" },
+];
+export const dailySummary = [
+  { label: "Average Daily Count", value: "25" },
+  { label: "Highest Daily Count", value: "34" },
+  { label: "Lowest Daily Count", value: "8" },
+];
 
 export const WeeklyData = [
   { date: "2024-01-01", count: 210, week: 1 },
