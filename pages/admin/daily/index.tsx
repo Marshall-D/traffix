@@ -6,6 +6,7 @@ import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import HourlySectionOne from "@/src/components/hourlysection";
 import LineChart from "@/src/components/lineChart";
 import { formatDate } from "@/src/utils/helpers";
+import TodaysCount from "@/src/components/todaysCount";
 
 const Daily = () => {
   const [showHourlySection, setShowHourlySection] = useState(false);
@@ -51,12 +52,13 @@ const Daily = () => {
       <div className="flex-1 flex flex-col">
         <div className="mb-36 lg:mb-0 block lg:hidden">
           {/* For mobile and tablet screens (default) */}
-          <DashboardHeader title={"Daily Count"} />
+          <DashboardHeader daily={true} title={"Daily Count"} />
         </div>
 
         {/* For desktop screens */}
         <div className="mb-36 lg:mb-0 hidden lg:block">
           <DashboardHeader
+            daily={true}
             title={
               showHourlySection && selectedDate
                 ? formatDate(selectedDate)
@@ -70,6 +72,10 @@ const Daily = () => {
             <p className="lg:hidden text-lg font-medium ">
               {showHourlySection && selectedDate && formatDate(selectedDate)}
             </p>
+
+            <div className="lg:hidden my-4">
+              <TodaysCount count={128} />{" "}
+            </div>
             {!showHourlySection ? (
               <DailySectionOne onTableItemClick={handleTableItemClick} />
             ) : (

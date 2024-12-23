@@ -2,12 +2,14 @@ import React, { FC, useState } from "react";
 import BusiestDay from "../busiestDay";
 import ProfileCard from "../profileCard";
 import SideNav from "../sidenav";
+import TodaysCount from "../todaysCount";
 
 interface Props {
   title?: string;
   admin?: any;
   showDailySection?: boolean;
   busiestDay?: string | null; // Accept the day string
+  daily?: boolean;
 }
 
 const DashboardHeader: FC<Props> = ({
@@ -15,6 +17,7 @@ const DashboardHeader: FC<Props> = ({
   admin,
   showDailySection,
   busiestDay,
+  daily,
 }) => {
   const [isTitleVisible, setIsTitleVisible] = useState(true);
 
@@ -43,6 +46,11 @@ const DashboardHeader: FC<Props> = ({
             {showDailySection && busiestDay && (
               <div className="hidden lg:block">
                 <BusiestDay day={busiestDay} />{" "}
+              </div>
+            )}
+            {daily && (
+              <div className="hidden lg:block">
+                <TodaysCount count={128} />{" "}
               </div>
             )}
           </div>

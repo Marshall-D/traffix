@@ -43,7 +43,7 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   return (
     <div className="flex lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
       <div id="header" className="flex justify-between gap-3 text-grey-2">
-        <p className="font-medium">Hourly Count</p>
+        <p className="text-black text-xl font-semibold">Hourly Count</p>
         <div>
           <Button
             onClick={onTableItemClick}
@@ -69,7 +69,7 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
           {currentItems.map((item, index) => (
             <div key={index} className="flex justify-between text-sm my-4">
               <p className="">{item.hour}</p>
-              <p>{item.count}</p>
+              <p className="font-semibold"> {item.count}</p>
             </div>
           ))}
         </div>{" "}

@@ -118,7 +118,7 @@ const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
         <p className="text-black text-xl font-semibold">Weekly Count</p>
         <div className="flex" onClick={handleCalendarClick}>
           <p className="font-semibold text-xs text-grey-4 cursor-pointer mt-0.5">
-            Select week
+            Select Week
           </p>
           <div className="mt-[-7px]">
             <IconButton
