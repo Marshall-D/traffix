@@ -11,14 +11,15 @@ import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
 import Icon from "@mdi/react";
 
 interface WeeklyData {
-  date: string;
-  count: number;
-  week: number;
+  date: string; // Start date of the week
+  count: number; // Total count for the week
+  week: number; // Week number
 }
 
 interface Props {
-  onTableItemClick: (date: string) => void; // Updated to accept a date parameter
-  weeklyData: WeeklyData[];
+  onTableItemClick: (date: string | null, week: number | null) => void;
+  // Accept both date and week as parameters, or `null` for "no data" case
+  weeklyData: WeeklyData[]; // Array of weekly data
 }
 
 const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
@@ -41,26 +42,58 @@ const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
   };
 
   // Function to handle "View Date" button click
+
+  // };
   const handleViewDateClick = () => {
     if (selectedDate) {
-      // Convert selectedDate to "YYYY-MM-DD" format
+      // Format the selected date to match the weeklyData's date format
       const formattedStringDate = new Intl.DateTimeFormat("en-CA", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
       }).format(selectedDate);
 
-      // const formattedDate = formatDate(formattedStringDate); // Pass the formatted string to the helper
-      onTableItemClick(formattedStringDate); // Pass the formatted date to the parent
+      // Check if the date falls in the range of any week
+      const matchedWeekData = weeklyData.find((item) => {
+        // Get the start and end dates of the week based on item's date
+        const weekStartDate = new Date(item.date); // Starting date of the week
+        const weekEndDate = new Date(weekStartDate);
+        weekEndDate.setDate(weekEndDate.getDate() + 6); // Adding 6 days to get the week range
+
+        const selectedDateObj = new Date(formattedStringDate);
+
+        // Check if the selected date falls within the range
+        return (
+          selectedDateObj >= weekStartDate && selectedDateObj <= weekEndDate
+        );
+      });
+
+      if (matchedWeekData) {
+        // If the date falls in the range of any week, pass it to the parent
+        onTableItemClick(formattedStringDate, matchedWeekData.week);
+        setShowModal(false); // Close the modal
+      } else {
+        // If no week matches the selected date
+        alert("No data available for this date.");
+      }
+    } else {
+      // Handle case when no date is selected
+      alert("Please select a date.");
     }
-    setShowModal(false); // Close the modal
   };
 
   // Function to handle row click
   const handleRowClick = (index: number, date: string) => {
+    const matchedWeekData = weeklyData.find((item) => item.date === date);
+
     if (isClickedOnce === index) {
-      // If the row is clicked for the second time, perform the action
-      onTableItemClick(date); // Pass the clicked date to the parent
+      if (matchedWeekData) {
+        // If the row is clicked for the second time, pass both date and week to the parent
+        onTableItemClick(date, matchedWeekData.week);
+      } else {
+        // Handle case where no data matches (shouldn't happen for rows in the table)
+        onTableItemClick(null, null);
+      }
       setIsClickedOnce(null); // Reset the "clicked once" state
     } else {
       // If it's the first click, just select the row

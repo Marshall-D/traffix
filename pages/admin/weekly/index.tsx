@@ -5,7 +5,12 @@ import WeeklyCountCard from "@/src/components/weeklyCountCard";
 import DailySectionWeeklyCountCard from "@/src/components/dailySectionWeeklyCountCard";
 import SummaryWeekly from "@/src/components/summaryWeekly";
 import WeeklyTrendChart from "@/src/components/chart";
-import { WeeklyData, weeklySummary, dailyData } from "@/src/utils/data";
+import {
+  WeeklyData,
+  weeklySummary,
+  dailyData,
+  monthySummary,
+} from "@/src/utils/data";
 
 const Weekly = () => {
   const [showDailySection, setShowDailySection] = useState(false);
@@ -22,12 +27,15 @@ const Weekly = () => {
     setBusiestDay(maxDay.day); // Set the `day` string directly
   }, []);
 
-  const handleTableItemClick = (date: string) => {
-    const week = WeeklyData.find((item) => item.date === date)?.week || null;
-
+  const handleTableItemClick = (date: string | null, week: number | null) => {
     setSelectedDate(date);
     setSelectedWeek(week);
-    setShowDailySection(!showDailySection);
+
+    if (date && week) {
+      setShowDailySection(true);
+    } else {
+      setShowDailySection(false); // No data case
+    }
   };
 
   const formattedTitle =
@@ -35,6 +43,8 @@ const Weekly = () => {
       ? `Week ${selectedWeek}, ${new Intl.DateTimeFormat("en-GB").format(
           new Date(selectedDate)
         )}`
+      : selectedDate === null
+      ? "No data available for this date"
       : "Weekly Count Overview";
 
   return (
@@ -44,7 +54,7 @@ const Weekly = () => {
         <div className="mb-36 lg:mb-0 block lg:hidden">
           {/* For mobile and tablet screens */}
           <DashboardHeader
-            title={showDailySection ? formattedTitle : "Weekly Count Overview"}
+            title={"Weekly Count"}
             showDailySection={showDailySection}
             busiestDay={busiestDay}
           />
@@ -79,8 +89,9 @@ const Weekly = () => {
           <div id="summary-side" className="flex flex-col gap-4 w-full">
             <div className="flex flex-col  gap-6">
               <SummaryWeekly
-                details={weeklySummary}
+                details={showDailySection ? weeklySummary : monthySummary}
                 subtitle="last 7 days"
+                showDailySection={showDailySection}
               ></SummaryWeekly>
 
               <div className="w-full rounded-2xl p-12 border-2 border-grey  shadow-lg hover:bg-grey">

@@ -8,16 +8,17 @@ interface Detail {
 interface Props {
   subtitle?: string;
   details: Detail[];
+  showDailySection?: boolean;
 }
 
-const SummaryWeekly: FC<Props> = ({ subtitle, details }) => {
+const SummaryWeekly: FC<Props> = ({ subtitle, details, showDailySection }) => {
   return (
     <div className="flex flex-col w-full gap-5 p-4 rounded-2xl border-2 border-grey shadow-lg hover:bg-grey">
       <div className="mb-4 mt-2">
         <p className="text-black text-xl font-semibold">Summary</p>
-        {subtitle && (
+        {subtitle && !showDailySection ? (
           <p className="text-grey-4 text-xs font-semibold">{subtitle}</p>
-        )}
+        ) : null}
       </div>
       {details.map((detail, index) => (
         <div key={index}>
