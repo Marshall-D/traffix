@@ -62,7 +62,7 @@ const WeeklyTrendChart = () => {
   };
 
   return (
-    <div className="p-5 bg-white rounded-xl shadow-md w-full max-w-md">
+    <div className="p-5 bg-white rounded-xl shadow-md w-full ">
       <div className="text-lg font-semibold text-gray-800 mb-2">
         Weekly trend
       </div>

@@ -86,10 +86,10 @@ const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
       <div id="table">
         <div
           id="table-header"
-          className="flex justify-between gap-3 text-grey-2 mt-4"
+          className="flex justify-between gap-3  text-grey-4 my-2 text-xs font-semibold"
         >
-          <p className="font-medium ml-20">Date</p>
-          <p className="font-medium mr-4">Count</p>
+          <p className="font-medium ">Date</p>
+          <p className="font-medium">Count</p>
         </div>
         <hr />
 
@@ -103,8 +103,8 @@ const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
     hover:${selectedRow === index ? "bg-grey" : "text-primary"}`}
               onClick={() => handleRowClick(index, row.date)}
             >
-              <p className="ml-16">{row.date}</p>
-              <p className="mr-8">{row.count}</p>
+              <p className="">{row.date}</p>
+              <p className="">{row.count}</p>
             </div>
           ))}
         </div>
