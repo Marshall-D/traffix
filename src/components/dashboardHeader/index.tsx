@@ -3,6 +3,8 @@ import BusiestDay from "../busiestDay";
 import ProfileCard from "../profileCard";
 import SideNav from "../sidenav";
 import TodaysCount from "../todaysCount";
+import { useRouter } from "next/router";
+import ROUTES from "@/src/utils/routes";
 
 interface Props {
   title?: string;
@@ -23,6 +25,12 @@ const DashboardHeader: FC<Props> = ({
 
   const handleToggleMenu = (isOpen: boolean) => {
     setIsTitleVisible(!isOpen);
+  };
+
+  const router = useRouter();
+
+  const handleRedirect = () => {
+    router.push(ROUTES.ADMIN_USER_MANAGEMENT);
   };
 
   return (
@@ -55,7 +63,7 @@ const DashboardHeader: FC<Props> = ({
             )}
           </div>
         </div>
-        <div>
+        <div onClick={handleRedirect}>
           <ProfileCard></ProfileCard>
         </div>
       </div>

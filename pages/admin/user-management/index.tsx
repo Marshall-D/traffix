@@ -4,7 +4,7 @@ import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import useAuthRedirect from "@/src/hooks/useAuthRedirect";
 
 const UserManagement = () => {
-  useAuthRedirect();
+  // useAuthRedirect();
 
   return (
     <div className="lg:pl-72 ">
