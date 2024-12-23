@@ -71,7 +71,8 @@ const Weekly = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4">
-          <div id="weekly-side" className="w-full">
+          {/* <div id="weekly-side" className="w-full"> */}
+          <div id="weekly-side" className="flex-1">
             {showDailySection && (
               <p className="lg:hidden">
                 <span className="text-grey-4">Weekly</span> / Count details
@@ -101,7 +102,8 @@ const Weekly = () => {
               />
             )}
           </div>
-          <div id="summary-side" className="flex flex-col gap-4 w-full">
+          <div id="summary-side" className="flex-1 flex flex-col gap-4">
+            {/* <div id="summary-side" className="flex flex-col gap-4 w-full"> */}
             <div className="flex flex-col  gap-6">
               <SummaryWeekly
                 details={showDailySection ? weeklySummary : monthySummary}
