@@ -12,7 +12,7 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
   const navItems = [
     { href: ROUTES.ADMIN_DASHBOARD, label: "Dashboard" },
     { href: `${ROUTES.ADMIN_COUNT_PAGE}/${admin}`, label: "Count Page" },
-    { href: ROUTES.ADMIN_MONTHLY_PAGE, label: "Monthly" },
+    // { href: ROUTES.ADMIN_MONTHLY_PAGE, label: "Monthly" },
     { href: ROUTES.ADMIN_WEEKLY_PAGE, label: "Weekly" },
     { href: ROUTES.ADMIN_DAILY_PAGE, label: "Daily" },
     { href: ROUTES.ADMIN_USER_MANAGEMENT, label: "User Management" },

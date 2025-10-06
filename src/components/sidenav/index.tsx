@@ -53,11 +53,11 @@ const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
       label: "Weekly",
       icon: mdiAlphaWBoxOutline,
     },
-    {
-      href: ROUTES.ADMIN_MONTHLY_PAGE,
-      label: "Monthly",
-      icon: mdiAlphaMBoxOutline,
-    },
+    // {
+    //   href: ROUTES.ADMIN_MONTHLY_PAGE,
+    //   label: "Monthly",
+    //   icon: mdiAlphaMBoxOutline,
+    // },
     {
       href: ROUTES.ADMIN_USER_MANAGEMENT,
       label: "User Management",
