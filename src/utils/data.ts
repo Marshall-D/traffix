@@ -86,3 +86,27 @@ export const dailyData = [
   { date: "2024-05-06", count: 2689, day: "Saturday" },
   { date: "2024-05-07", count: 179, day: "Sunday" },
 ];
+
+export const monthlyData = [
+  { month: 1, start: "2024-01-01", count: 21 },
+  { month: 2, start: "2024-02-01", count: 300 },
+  { month: 3, start: "2024-03-01", count: 250 },
+  { month: 4, start: "2024-04-01", count: 190 },
+  { month: 5, start: "2024-05-01", count: 209 },
+  { month: 6, start: "2024-06-01", count: 245 },
+  { month: 7, start: "2024-07-01", count: 290 },
+  { month: 8, start: "2024-08-01", count: 310 },
+  { month: 9, start: "2024-09-01", count: 260 },
+  { month: 10, start: "2024-10-01", count: 205 },
+  { month: 11, start: "2024-11-01", count: 260 },
+  { month: 12, start: "2024-12-01", count: 305 },
+];
+
+export const monthlySummary = [
+  { label: "Total count for last 30 days", value: "9,350" },
+  { label: "Average monthly count", value: "293" },
+  { label: "Highest monthly count", value: "310" },
+  { label: "Lowest monthly count", value: "190" },
+  { label: "Highest hourly count", value: "55" },
+  { label: "Lowest hourly count", value: "8" },
+];
