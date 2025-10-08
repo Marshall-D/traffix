@@ -7,7 +7,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Modal } from "../modal";
 import { Button } from "../button";
 import { formatDate } from "@/src/utils/helpers";
-import { useRouter } from "next/router";
 import { monthlyData } from "@/src/utils/data";
 
 /**
@@ -22,7 +21,6 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
-  const router = useRouter();
 
   const handleViewDateClick = () => {
     if (!selectedDate) {
@@ -38,11 +36,8 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
     // Find month item that contains that date (matching startOfMonth)
     const found = monthlyData.find((m) => m.start === formatted);
     if (found) {
+      // only call parent handler — do not navigate here
       onTableItemClick(found.start, found.month);
-      // recommended: navigate to weekly with query so weekly highlights
-      router.push(
-        `/weekly?start=${encodeURIComponent(found.start)}&month=${found.month}`
-      );
     } else {
       alert("No data available for this date.");
     }
@@ -51,13 +46,13 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
 
   const handleRowClick = (index: number) => {
     const item = monthlyData[index];
+    // toggle highlight on first click
     setSelectedRow(index === selectedRow ? null : index);
+
+    // if row was already selected (second click), trigger parent handler only
     if (selectedRow === index) {
-      // second click => trigger
       onTableItemClick(item.start, item.month);
-      router.push(
-        `/weekly?start=${encodeURIComponent(item.start)}&month=${item.month}`
-      );
+      // DO NOT navigate here — monthly.tsx will switch to the weeks view
     }
   };
 

@@ -8,24 +8,33 @@ import { formatDate } from "@/src/utils/helpers";
 import TodaysCount from "@/src/components/todaysCount";
 import { monthlyData, monthlySummary } from "@/src/utils/data";
 import MonthlyTrendChart from "@/src/components/monthly/MonthlyTrendChart";
+import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
 
 const MonthlyPage: React.FC = () => {
   const [selectedMonthStart, setSelectedMonthStart] = useState<string | null>(
     null
   );
   const [showWeekView, setShowWeekView] = useState(false);
+  const [selectedMonthNumber, setSelectedMonthNumber] = useState<number | null>(
+    null
+  );
 
   const title = selectedMonthStart
-    ? `Month start: ${formatDate(selectedMonthStart)}`
+    ? `${formatDate(selectedMonthStart)}`
     : "Monthly Count Overview";
 
   const handleTableClick = (startOfMonthDate: string, monthNumber: number) => {
     // Set local state (for header/title)
     setSelectedMonthStart(startOfMonthDate);
-    // navigate to weekly page or show weekly view — for now we set showWeekView true
+    setSelectedMonthNumber(monthNumber);
+    // show the weeks view for that month (first click behavior handled in MonthlySectionOne)
     setShowWeekView(true);
-    // recommended: navigate to /weekly with query params so Weekly page can highlight row
-    // router.push(`/weekly?start=${encodeURIComponent(startOfMonthDate)}&month=${monthNumber}`)
+  };
+
+  const handleBackToMonths = () => {
+    setShowWeekView(false);
+    setSelectedMonthNumber(null);
+    setSelectedMonthStart(null);
   };
 
   return (
@@ -52,7 +61,17 @@ const MonthlyPage: React.FC = () => {
               />
             </div>
 
-            <MonthlySectionOne onTableItemClick={handleTableClick} />
+            {/* Show months list OR weeks view (same pattern as your Weekly page) */}
+            {!showWeekView ? (
+              <MonthlySectionOne onTableItemClick={handleTableClick} />
+            ) : (
+              // show weeks for the selected month
+              <MonthlyWeeksCard
+                monthStart={selectedMonthStart!}
+                monthNumber={selectedMonthNumber!}
+                onBack={handleBackToMonths}
+              />
+            )}
           </div>
 
           <div className="flex flex-col gap-4 w-full">

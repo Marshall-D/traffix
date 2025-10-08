@@ -6,7 +6,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Modal } from "../modal";
 import { Button } from "../button";
 import ReactPaginate from "react-paginate";
-// import { Button } from "../button";
 import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
 import Icon from "@mdi/react";
 
