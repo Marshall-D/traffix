@@ -1,67 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { ICountPage } from "@/src/types";
+//pages/admin/count/[adminid].tsx
+import React from "react";
+import { useRouter } from "next/router";
 import CountPageHeader from "@/src/components/countPageHeader";
 import CountPageHero from "@/src/components/countPageHero";
+import DashboardHeader from "@/src/components/dashboardHeader";
 import { IconButton } from "@/src/components/iconButton";
 import { mdiAlphaICircleOutline } from "@mdi/js";
 import { Modal } from "@/src/components/modal";
 import { Tooltip } from "react-tooltip";
-import { useRouter } from "next/router";
-import { supabase } from "@/src/utils/supabaseClient";
-import DashboardHeader from "@/src/components/dashboardHeader";
+import useAdminCount from "@/src/hooks/useAdminCount";
 
-const AdminCountPage: React.FC<ICountPage> = () => {
-  const [showModal, setShowModal] = useState(false);
-  // const [infoButton, setInfoButton] = useState(true);
-  const [count, setCount] = useState<number>(0);
+const AdminCountPage: React.FC = () => {
   const router = useRouter();
   const { adminid } = router.query;
+  const adminId = Array.isArray(adminid) ? adminid[0] : adminid ?? null;
 
-  useEffect(() => {
-    // Fetch the count of entries from Supabase for the current day
-    const fetchCount = async () => {
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
-
-      const { data, error } = await supabase
-        .from("count")
-        .select("*", { count: "exact" })
-        .eq("adminid", adminid)
-        .gte("created_at", `${today}T00:00:00.000Z`) // Filter by entries created from the start of today
-        .lte("created_at", `${today}T23:59:59.999Z`); // Filter by entries created until the end of today
-
-      if (!error && data) {
-        setCount(data.length); // Set count to the number of entries for this adminId and date
-      }
-    };
-
-    if (adminid) {
-      fetchCount();
-    }
-  }, [adminid, router]);
-
-  const handleSignOut = () => {
-    // Clear the client data from localStorage
-    localStorage.removeItem("clientData");
-
-    // Redirect to the login page
-
-    router.push(`/login/${adminid ? adminid : ""}`);
-  };
+  const { count, loading, error } = useAdminCount(adminId);
+  const [showModal, setShowModal] = React.useState(false);
 
   return (
     <>
       <div>
         <div className="hidden lg:block">
-          <CountPageHeader isAdmin={true}></CountPageHeader>{" "}
+          <CountPageHeader isAdmin />
         </div>
+
         <div className="lg:hidden mb-36 lg:mb-0 ">
-          <DashboardHeader title="Count" admin={adminid}></DashboardHeader>
+          <DashboardHeader title="Count" admin={adminId} />
         </div>
-        {/* <Button className="bg-red-500 text-white" onClick={handleSignOut}>
-          Sign Out
-        </Button> */}
+
         <div className="lg:hidden items-center">
-          <CountPageHero></CountPageHero>
+          <CountPageHero />
         </div>
 
         <div className="flex flex-col items-center mt-48">
@@ -75,33 +44,36 @@ const AdminCountPage: React.FC<ICountPage> = () => {
               hoverColor="hover:text-grey-1"
               size={0.8}
               path={mdiAlphaICircleOutline}
-              onClick={() => {
-                setShowModal(true);
-              }}
-            ></IconButton>
+              onClick={() => setShowModal(true)}
+            />
           </div>
 
           <div className="mb-10">
-            <p className="text-5xl lg:text-8xl font-extrabold">{count}</p>
+            {loading ? (
+              <p className="text-3xl lg:text-6xl font-medium">Loading…</p>
+            ) : error ? (
+              <p className="text-xl text-red-600">Could not load count</p>
+            ) : (
+              <p className="text-5xl lg:text-8xl font-extrabold">{count}</p>
+            )}
           </div>
         </div>
       </div>
-      {/* modal and tooltip */}
+
       <Modal
         isOpen={showModal}
         bgColor="bg-white"
         maxWidth="max-w-3xl"
-        handleClose={() => {
-          setShowModal(false);
-        }}
+        handleClose={() => setShowModal(false)}
       >
         <div className="flex flex-col gap-2 items-center justify-center p-12">
-          <p className="">
+          <p>
             This application is used to count the vehicles coming into the site.
             It resets at 12 midnight every day.
           </p>
         </div>
       </Modal>
+
       <Tooltip
         style={{
           boxShadow: "0.5px 0.5px 10px 0.5px rgba(0, 0, 0, 0.3)",
@@ -110,7 +82,7 @@ const AdminCountPage: React.FC<ICountPage> = () => {
           color: "black",
         }}
         id="tooltip-info"
-      />{" "}
+      />
     </>
   );
 };
