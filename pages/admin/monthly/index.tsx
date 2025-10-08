@@ -19,15 +19,24 @@ const MonthlyPage: React.FC = () => {
     null
   );
 
+  // NEW: the specific week start date within the month to highlight
+  const [selectedWeekStart, setSelectedWeekStart] = useState<string | null>(
+    null
+  );
+
   const title = selectedMonthStart
     ? `${formatDate(selectedMonthStart)}`
     : "Monthly Count Overview";
 
-  const handleTableClick = (startOfMonthDate: string, monthNumber: number) => {
-    // Set local state (for header/title)
+  // Now accepts optional third param: highlightedWeekStart
+  const handleTableClick = (
+    startOfMonthDate: string,
+    monthNumber: number,
+    highlightedWeekStart?: string | null
+  ) => {
     setSelectedMonthStart(startOfMonthDate);
     setSelectedMonthNumber(monthNumber);
-    // show the weeks view for that month (first click behavior handled in MonthlySectionOne)
+    setSelectedWeekStart(highlightedWeekStart ?? null);
     setShowWeekView(true);
   };
 
@@ -35,6 +44,7 @@ const MonthlyPage: React.FC = () => {
     setShowWeekView(false);
     setSelectedMonthNumber(null);
     setSelectedMonthStart(null);
+    setSelectedWeekStart(null);
   };
 
   return (
@@ -70,6 +80,7 @@ const MonthlyPage: React.FC = () => {
                 monthStart={selectedMonthStart!}
                 monthNumber={selectedMonthNumber!}
                 onBack={handleBackToMonths}
+                highlightedWeekStart={selectedWeekStart}
               />
             )}
           </div>

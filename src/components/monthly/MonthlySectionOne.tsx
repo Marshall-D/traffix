@@ -7,14 +7,18 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Modal } from "../modal";
 import { Button } from "../button";
 import { formatDate } from "@/src/utils/helpers";
-import { monthlyData } from "@/src/utils/data";
+import { monthlyData, WeeklyData as AllWeeklyData } from "@/src/utils/data";
 
 /**
  * Props:
- * - onTableItemClick(startOfMonthDate: string, monthNumber: number)
+ * - onTableItemClick(startOfMonthDate: string, monthNumber: number, highlightedWeekStart?: string|null)
  */
 interface Props {
-  onTableItemClick: (startOfMonthDate: string, monthNumber: number) => void;
+  onTableItemClick: (
+    startOfMonthDate: string,
+    monthNumber: number,
+    highlightedWeekStart?: string | null
+  ) => void;
 }
 
 const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
@@ -27,17 +31,36 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
       alert("Please select a date.");
       return;
     }
-    // Convert to YYYY-MM-DD (start-of-month)
-    const formatted = new Intl.DateTimeFormat("en-CA", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(selectedDate);
-    // Find month item that contains that date (matching startOfMonth)
-    const found = monthlyData.find((m) => m.start === formatted);
+
+    // Normalize selected date to midnight to avoid TZ issues
+    const selectedDateObj = new Date(selectedDate);
+    selectedDateObj.setHours(0, 0, 0, 0);
+
+    // Find monthlyData item whose range contains the selected date
+    const found = monthlyData.find((m) => {
+      const start = new Date(m.start + "T00:00:00");
+      start.setHours(0, 0, 0, 0);
+      const next = new Date(start);
+      next.setMonth(next.getMonth() + 1); // next month start
+      next.setHours(0, 0, 0, 0);
+      return selectedDateObj >= start && selectedDateObj < next;
+    });
+
     if (found) {
-      // only call parent handler — do not navigate here
-      onTableItemClick(found.start, found.month);
+      // --- compute which week (if any) contains the selected date ---
+      const matchedWeek = AllWeeklyData.find((w) => {
+        const weekStart = new Date(w.date + "T00:00:00");
+        weekStart.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+        return selectedDateObj >= weekStart && selectedDateObj <= weekEnd;
+      });
+
+      const highlightedWeekStart = matchedWeek ? matchedWeek.date : null;
+
+      // call parent handler — monthly.tsx will switch to the weeks view and pass highlightedWeekStart
+      onTableItemClick(found.start, found.month, highlightedWeekStart);
     } else {
       alert("No data available for this date.");
     }
@@ -46,13 +69,12 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
 
   const handleRowClick = (index: number) => {
     const item = monthlyData[index];
-    // toggle highlight on first click
     setSelectedRow(index === selectedRow ? null : index);
 
     // if row was already selected (second click), trigger parent handler only
     if (selectedRow === index) {
-      onTableItemClick(item.start, item.month);
-      // DO NOT navigate here — monthly.tsx will switch to the weeks view
+      onTableItemClick(item.start, item.month, null);
+      // monthly.tsx will switch to the weeks view
     }
   };
 
@@ -112,20 +134,22 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
       >
         <div className="flex flex-col gap-4 p-8">
           <h2 className="text-xl font-medium mb-2 text-center">
-            Select a Month Start
+            Select a Date
           </h2>
           <div className="mx-auto">
+            {/* <-- removed showMonthYearPicker so calendar shows days & months like weekly modal */}
             <DatePicker
               selected={selectedDate}
-              onChange={setSelectedDate}
+              onChange={(date: Date | null) => {
+                setSelectedDate(date);
+              }}
               inline
-              showMonthYearPicker
-              dateFormat="MM/yyyy"
+              // leaving default dateFormat so users see days; you can change to "dd/MM/yyyy" if you prefer
             />
           </div>
           <div>
             <Button onClick={handleViewDateClick} className="w-full">
-              View Month
+              View Date
             </Button>
           </div>
         </div>

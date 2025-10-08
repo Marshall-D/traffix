@@ -1,34 +1,40 @@
 // src/components/monthly/MonthlyWeeksCard.tsx
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useMemo, useState, useEffect } from "react";
 import { Button } from "../button";
 import { WeeklyData as AllWeeklyData } from "@/src/utils/data"; // re-use weekly dataset
 import { formatDate } from "@/src/utils/helpers";
-import { useRouter } from "next/router";
 
 /**
  * Props:
  * - monthStart: "YYYY-MM-DD" (start of month)
  * - monthNumber: 1..12
  * - onBack: () => void
+ * - highlightedWeekStart?: string | null  <-- NEW: the week start date to highlight (YYYY-MM-DD)
  *
  * Behavior:
  * - shows week rows for the month (from WeeklyData if available; otherwise splits monthly total into 4)
- * - single click selects a row, second click navigates to /admin/weekly?start={weekStart}&week={weekNumber}
+ * - single click selects a row, second click currently clears selection (no navigation)
  */
 interface Props {
   monthStart: string;
   monthNumber: number;
   onBack: () => void;
+  highlightedWeekStart?: string | null;
 }
 
 interface WeekRow {
   week: number;
   start: string;
   count: number;
+  weekday?: string;
 }
 
-const MonthlyWeeksCard: FC<Props> = ({ monthStart, monthNumber, onBack }) => {
-  const router = useRouter();
+const MonthlyWeeksCard: FC<Props> = ({
+  monthStart,
+  monthNumber,
+  onBack,
+  highlightedWeekStart = null,
+}) => {
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [isClickedOnce, setIsClickedOnce] = useState<number | null>(null);
 
@@ -46,7 +52,7 @@ const MonthlyWeeksCard: FC<Props> = ({ monthStart, monthNumber, onBack }) => {
     if (matched.length > 0) return matched;
 
     // fallback: no weekly entries in dataset for this month -> create 4 placeholder weeks
-    const monthStartDate = new Date(monthStart);
+    const monthStartDate = new Date(monthStart + "T00:00:00");
     const placeholders: WeekRow[] = [];
     let totalForMonth = 0;
     const perWeek = Math.round((totalForMonth || 0) / 4);
@@ -59,12 +65,27 @@ const MonthlyWeeksCard: FC<Props> = ({ monthStart, monthNumber, onBack }) => {
     return placeholders;
   }, [monthNumber, monthStart]);
 
+  // When parent provides a highlightedWeekStart, auto-select that row
+  useEffect(() => {
+    if (!highlightedWeekStart) {
+      setSelectedRow(null);
+      setIsClickedOnce(null);
+      return;
+    }
+    const idx = weeks.findIndex((w) => w.start === highlightedWeekStart);
+    if (idx >= 0) {
+      setSelectedRow(idx);
+      setIsClickedOnce(idx);
+    } else {
+      setSelectedRow(null);
+      setIsClickedOnce(null);
+    }
+  }, [highlightedWeekStart, weeks]);
+
   const handleRowClick = (index: number, row: WeekRow) => {
     if (isClickedOnce === index) {
-      // second click -> navigate to correct weekly route under /admin
-      router.push(
-        `/admin/weekly?start=${encodeURIComponent(row.start)}&week=${row.week}`
-      );
+      // second click - currently we clear selection (no navigation).
+      // If you want a callback to open daily view, add an `onWeekDoubleClick` prop and call it here.
       setIsClickedOnce(null);
       setSelectedRow(null);
     } else {
