@@ -1,44 +1,26 @@
-import React, { FC, useState } from "react";
+// src/components/hourlysection/index.tsx
+import React, { FC } from "react";
 import ReactPaginate from "react-paginate";
 import { Button } from "../button";
 import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
 import Icon from "@mdi/react";
+import { hourlyData as defaultHourlyData } from "@/src/utils/data";
+import useHourlySection, { HourlyItem } from "@/src/hooks/useHourlySection";
 
 interface Props {
   onTableItemClick: () => void;
+  // optional override of data for testing or future backend integration
+  data?: HourlyItem[];
+  itemsPerPage?: number;
 }
 
-// Sample data for the table (hourly count)
-const data = [
-  { hour: "12:00", count: 200 },
-  { hour: "13:00", count: 150 },
-  { hour: "14:00", count: 250 },
-  { hour: "15:00", count: 180 },
-  { hour: "16:00", count: 220 },
-  { hour: "17:00", count: 170 },
-  { hour: "18:00", count: 300 },
-  { hour: "19:00", count: 130 },
-  { hour: "20:00", count: 240 },
-  { hour: "21:00", count: 280 },
-  { hour: "22:00", count: 210 },
-  { hour: "23:00", count: 160 },
-];
-
-const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
-  const [currentPage, setCurrentPage] = useState(0);
-
-  // Set the number of items per page
-  const itemsPerPage = 9;
-
-  // Calculate the items for the current page
-  const offset = currentPage * itemsPerPage;
-  const currentItems = data.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(data.length / itemsPerPage);
-
-  // Handle page change
-  const handlePageClick = (event: { selected: number }) => {
-    setCurrentPage(event.selected);
-  };
+const HourlySectionOne: FC<Props> = ({
+  onTableItemClick,
+  data = defaultHourlyData,
+  itemsPerPage = 9,
+}) => {
+  const { currentPage, pageCount, currentItems, handlePageClick } =
+    useHourlySection([...data], itemsPerPage);
 
   return (
     <div className="flex lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
@@ -49,30 +31,32 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
             onClick={onTableItemClick}
             size="sm"
             variant="primary"
-            className="text-xs  "
+            className="text-xs"
           >
             Back to daily view
           </Button>
         </div>
       </div>
+
       <hr className="mt-4" />
+
       <div id="table">
         <div
           id="table-header"
           className="flex justify-between gap-3 text-grey-4 my-2 text-xs font-semibold"
         >
-          <p className="font-medium ">Hour</p>
+          <p className="font-medium">Hour</p>
           <p className="font-medium">Count</p>
         </div>
         <hr />
         <div id="table-body">
           {currentItems.map((item, index) => (
             <div key={index} className="flex justify-between text-sm my-4">
-              <p className="">{item.hour}</p>
-              <p className="font-semibold"> {item.count}</p>
+              <p>{item.hour}</p>
+              <p className="font-semibold">{item.count}</p>
             </div>
           ))}
-        </div>{" "}
+        </div>
       </div>
 
       {/* Pagination Component */}
@@ -87,21 +71,21 @@ const HourlySectionOne: FC<Props> = ({ onTableItemClick }) => {
         containerClassName={
           "pagination flex justify-center items-center mt-4 space-x-2"
         }
-        activeClassName={"active text-white rounded-lg"} // Active page styling
-        pageClassName={"page-item"} // Wrapper for page link
+        activeClassName={"active text-white rounded-lg"}
+        pageClassName={"page-item"}
         pageLinkClassName={
           "page-link px-3 py-1 text-black hover:bg-grey-3 hover:text-black rounded-lg"
-        } // Added hover styles
+        }
         previousClassName={
           "prev-item text-grey-1 hover:bg-grey-3 hover:text-black rounded-lg"
-        } // Added hover styles for prev arrow
+        }
         nextClassName={
           "next-item text-grey-1 hover:bg-grey-3 hover:text-black rounded-lg"
-        } // Added hover styles for next arrow
-        disabledClassName={"disabled opacity-50 cursor-not-allowed"} // Disabled styles
+        }
+        disabledClassName={"disabled opacity-50 cursor-not-allowed"}
         activeLinkClassName={
           "bg-primary-blue text-primary px-3 py-1 rounded-lg"
-        } // Active link styling
+        }
       />
     </div>
   );

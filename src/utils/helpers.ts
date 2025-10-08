@@ -23,3 +23,21 @@ export default function getTodayRangeUTC() {
     endIso: `${today}T23:59:59.999Z`,
   };
 }
+
+/**
+ * Returns ordinal suffix for a day number (1st, 2nd, 3rd, 4th, ...).
+ * Handles special case for 11,12,13 which are 'th'.
+ */
+export function formatDateSuffix(day: number): string {
+  if (day > 3 && day < 21) return "th"; // 11th, 12th, 13th
+  switch (day % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}

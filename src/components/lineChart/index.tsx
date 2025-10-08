@@ -1,87 +1,98 @@
-import React, { FC } from "react";
+// src/components/lineChart.tsx
+import React, { FC, useMemo } from "react";
 import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import "@/src/lib/chartjs"; // ensure ChartJS is registered once
+import type { ChartData, ChartOptions } from "chart.js";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+interface Series {
+  label?: string;
+  // accept readonly arrays coming from constants (e.g. `as readonly number[]`)
+  data?: readonly number[];
+  backgroundColor?: string;
+  borderColor?: string;
+}
 
 interface Props {
-  chartTitle?: any;
-  chartData?: any;
-  chartDataTwo?: any;
-  chartLabels?: any;
+  // accept both mutable and readonly string arrays for title
+  chartTitle?: string | readonly string[];
+  chartData?: Series;
+  chartDataTwo?: Series;
+  chartLabels?: readonly string[]; // accept readonly labels
 }
+
+const DEFAULT_SERIES_DATA: readonly number[] = [0, 0, 0, 0, 0, 0, 0];
+
 const LineChart: FC<Props> = ({
   chartTitle,
   chartData,
   chartDataTwo,
   chartLabels,
 }) => {
-  const data = {
-    labels: chartLabels,
-    datasets: [
-      {
-        label: chartData?.label || "",
-        data: chartData?.data || [0, 0, 0, 0, 0, 0, 0], // Default data if not provided
-        fill: false,
-        borderColor: chartData?.borderColor || "#0056B3",
-        tension: 0.4, // This adds smooth curves to the line chart
-        pointBackgroundColor: "#0056B3",
-        backgroundColor: chartData?.backgroundColor || "#0056B3",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-      },
-      {
-        label: chartDataTwo?.label || "",
-        data: chartDataTwo?.data || [0, 0, 0, 0, 0, 0, 0], // Default data if not provided
-        fill: false,
-        borderColor: chartDataTwo?.borderColor || "#0056B3",
-        backgroundColor: chartDataTwo?.backgroundColor || "#0056B3",
-        tension: 0.4,
-        pointBackgroundColor: "rgba(255, 99, 132, 1)",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-      },
-    ],
-  };
+  // Normalize chart title (array -> joined string)
+  const titleText = useMemo(() => {
+    if (Array.isArray(chartTitle)) {
+      // chartTitle may be readonly; join still works
+      return chartTitle.join(" - ");
+    }
+    return chartTitle ?? "";
+  }, [chartTitle]);
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-      },
-      title: {
-        display: true,
-        text: chartTitle || "", // Default title if not provided
+  // Build chart data as mutable arrays to satisfy ChartData<"line", number[], string>
+  const data: ChartData<"line", number[], string> = useMemo(() => {
+    // convert readonly number[] (or undefined) to mutable number[]
+    const firstData: number[] = [...(chartData?.data ?? DEFAULT_SERIES_DATA)];
+    const secondData: number[] = [
+      ...(chartDataTwo?.data ?? DEFAULT_SERIES_DATA),
+    ];
 
-        font: {
-          size: 10, // You can customize the font size if needed
+    // convert readonly labels to mutable string[]
+    const labelsMutable: string[] = [...(chartLabels ?? [])];
+
+    return {
+      labels: labelsMutable,
+      datasets: [
+        {
+          label: chartData?.label ?? "",
+          data: firstData,
+          fill: false,
+          borderColor: chartData?.borderColor ?? "#0056B3",
+          backgroundColor: chartData?.backgroundColor ?? "#0056B3",
+          tension: 0.4,
+          pointBackgroundColor: chartData?.borderColor ?? "#0056B3",
+          pointBorderColor: "#fff",
+          pointBorderWidth: 2,
         },
+        {
+          label: chartDataTwo?.label ?? "",
+          data: secondData,
+          fill: false,
+          borderColor: chartDataTwo?.borderColor ?? "#FF6384",
+          backgroundColor: chartDataTwo?.backgroundColor ?? "#FF6384",
+          tension: 0.4,
+          pointBackgroundColor: chartDataTwo?.backgroundColor ?? "#FF6384",
+          pointBorderColor: "#fff",
+          pointBorderWidth: 2,
+        },
+      ],
+    };
+  }, [chartData, chartDataTwo, chartLabels]);
+
+  const options: ChartOptions<"line"> = useMemo(
+    () => ({
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        title: {
+          display: Boolean(titleText),
+          text: typeof titleText === "string" ? titleText : titleText.join(" "),
+          font: { size: 10 },
+        },
+        tooltip: { enabled: true },
       },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+      scales: { y: { beginAtZero: true } },
+    }),
+    [titleText]
+  );
 
   return (
     <div>
@@ -90,4 +101,4 @@ const LineChart: FC<Props> = ({
   );
 };
 
-export default LineChart;
+export default React.memo(LineChart);

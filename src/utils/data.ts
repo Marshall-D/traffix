@@ -1,3 +1,5 @@
+// src/utils/data.ts
+
 export const monthySummary = [
   { label: "Total Count for last 4 weeks", value: "25,047" },
   { label: "Average Weekly Count", value: "251" },
@@ -110,3 +112,55 @@ export const monthlySummary = [
   { label: "Highest hourly count", value: "55" },
   { label: "Lowest hourly count", value: "8" },
 ];
+
+/*
+  Chart constants moved here so this single file can act as your local data source
+  until backend integration is complete.
+*/
+export const dailyBarData = {
+  data: [12, 19, 3, 5, 2, 3, 7] as readonly number[],
+};
+
+export const dailyLineChartData = {
+  data: [12, 19, 3, 5, 2, 3, 7, 4, 5, 6] as readonly number[],
+  label: "Today",
+};
+
+export const dailyLineChartDataTwo = {
+  data: [2, 1, 13, 9, 6, 5, 1, 1, 2, 3] as readonly number[],
+  backgroundColor: "#FF5733",
+  borderColor: "#FF5733",
+  label: "Yesterday",
+};
+
+export const dailyLineChartLabels = [
+  "9",
+  "10",
+  "11",
+  "12",
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+] as readonly string[];
+
+export const dailyLineChartTitle = ["Hourly Trend", "9am - 5pm"] as const;
+
+/**
+ * Sample hourly data used by HourlySectionOne while backend integration is pending.
+ */
+export const hourlyData = [
+  { hour: "12:00", count: 200 },
+  { hour: "13:00", count: 150 },
+  { hour: "14:00", count: 250 },
+  { hour: "15:00", count: 180 },
+  { hour: "16:00", count: 220 },
+  { hour: "17:00", count: 170 },
+  { hour: "18:00", count: 300 },
+  { hour: "19:00", count: 130 },
+  { hour: "20:00", count: 240 },
+  { hour: "21:00", count: 280 },
+  { hour: "22:00", count: 210 },
+  { hour: "23:00", count: 160 },
+] as const;

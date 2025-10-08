@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// pages/admin/daily.tsx
+
+import React, { useMemo } from "react";
 import BarChart from "@/src/components/barChart";
 import DailySectionOne from "@/src/components/dailySectionOne";
 import DashboardHeader from "@/src/components/dashboardHeader";
@@ -8,94 +10,73 @@ import LineChart from "@/src/components/lineChart";
 import { formatDate } from "@/src/utils/helpers";
 import TodaysCount from "@/src/components/todaysCount";
 import Summary from "@/src/components/summary";
-import { dailySummary, hourlySummary } from "@/src/utils/data";
+import {
+  dailyLineChartDataTwo,
+  dailySummary,
+  dailyBarData,
+  hourlySummary,
+  dailyLineChartTitle,
+  dailyLineChartLabels,
+  dailyLineChartData,
+} from "@/src/utils/data";
+import useDailyView from "@/src/hooks/useDailyView";
+const Daily: React.FC = () => {
+  const {
+    showHourlySection,
+    selectedDate,
+    handleTableItemClick,
+    handleBackFromHourly,
+  } = useDailyView();
 
-const Daily = () => {
-  const [showHourlySection, setShowHourlySection] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null); // State to store the selected date
-
-  const handleTableItemClick = (date: string) => {
-    setSelectedDate(date); // Update selected date
-    setShowHourlySection(!showHourlySection); // Toggle view
-  };
-
-  const dailyData = {
-    data: [12, 19, 3, 5, 2, 3, 7],
-  };
-
-  const dailyLineChartData = {
-    data: [12, 19, 3, 5, 2, 3, 7, 4, 5, 6],
-    label: "Today",
-  };
-
-  const dailyLineChartDataTwo = {
-    data: [2, 1, 13, 9, 6, 5, 1, 1, 2, 3],
-    backgroundColor: "#FF5733",
-    borderColor: "#FF5733",
-    label: "Yesterday",
-  };
-
-  const dailyLineChartLabels = [
-    "9",
-    "10",
-    "11",
-    "12",
-    "01",
-    "02",
-    "03",
-    "04",
-    "05",
-  ];
-  const dailyLineChartTitle = ["Hourly Trend", "9am - 5pm"];
+  const headerTitle = useMemo(() => {
+    if (showHourlySection && selectedDate) {
+      return formatDate(selectedDate);
+    }
+    return "Daily Count Overview";
+  }, [showHourlySection, selectedDate]);
 
   return (
     <div className="lg:pl-72 flex">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col">
+        {/* Mobile / tablet header */}
         <div className="mb-36 lg:mb-0 block lg:hidden">
-          {/* For mobile and tablet screens (default) */}
           <DashboardHeader daily={true} title={"Daily Count"} />
         </div>
 
-        {/* For desktop screens */}
+        {/* Desktop header */}
         <div className="mb-36 lg:mb-0 hidden lg:block">
-          <DashboardHeader
-            daily={true}
-            title={
-              showHourlySection && selectedDate
-                ? formatDate(selectedDate)
-                : "Daily Count Overview"
-            }
-          />
+          <DashboardHeader daily={true} title={headerTitle} />
         </div>
 
-        <div className=" flex flex-col lg:flex-row gap-4 justify-center mt-5 mx-4 mb-4">
+        <div className="flex flex-col lg:flex-row gap-4 justify-center mt-5 mx-4 mb-4">
           <div className="w-full">
+            {/* Mobile single-line date when viewing hourly */}
             <p className="lg:hidden text-lg font-medium ">
               {showHourlySection && selectedDate && formatDate(selectedDate)}
             </p>
 
             <div className="lg:hidden my-4">
-              <TodaysCount count={128} />{" "}
+              <TodaysCount count={128} />
             </div>
+
             {!showHourlySection ? (
               <DailySectionOne onTableItemClick={handleTableItemClick} />
             ) : (
-              <HourlySectionOne
-                onTableItemClick={() => setShowHourlySection(false)} // Handle back navigation
-              />
+              <HourlySectionOne onTableItemClick={handleBackFromHourly} />
             )}
           </div>
+
           <div className="flex flex-col gap-4 w-full">
             <div id="summary-side" className="flex flex-col gap-4 w-full">
-              <div className="flex flex-col  gap-6">
+              <div className="flex flex-col gap-6">
                 <Summary
                   details={showHourlySection ? hourlySummary : dailySummary}
                   subtitle="last 7 days"
-                ></Summary>
+                />
 
-                <div className="w-full rounded-2xl p-12 border-2 border-grey  shadow-lg hover:bg-grey">
-                  {showHourlySection === true ? (
+                <div className="w-full rounded-2xl p-12 border-2 border-grey shadow-lg hover:bg-grey">
+                  {showHourlySection ? (
                     <LineChart
                       chartDataTwo={dailyLineChartDataTwo}
                       chartData={dailyLineChartData}
@@ -103,7 +84,10 @@ const Daily = () => {
                       chartLabels={dailyLineChartLabels}
                     />
                   ) : (
-                    <BarChart chartData={dailyData} chartTitle="Daily trend" />
+                    <BarChart
+                      chartData={dailyBarData}
+                      chartTitle="Daily trend"
+                    />
                   )}
                 </div>
               </div>
