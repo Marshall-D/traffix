@@ -164,3 +164,34 @@ export const hourlyData = [
   { hour: "22:00", count: 210 },
   { hour: "23:00", count: 160 },
 ] as const;
+
+export const dashboardBarData = {
+  data: [12, 19, 3, 5, 2, 3, 7] as const,
+};
+
+export const dashboardLineChartData = {
+  data: [12, 19, 3, 5, 2, 3, 7] as const,
+  label: "Last 7 days",
+};
+
+export const dashboardLineChartDataTwo = {
+  data: [2, 1, 13, 9, 6, 5, 1] as const,
+  backgroundColor: "#FF5733",
+  borderColor: "#FF5733",
+  label: "Previous 7 days",
+};
+
+export const dashboardLineChartTitle = [
+  "Congestion Trends",
+  "From May 1 - 14 May, 2024",
+] as const;
+
+export const dashboardLineChartLabels = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;

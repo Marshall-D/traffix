@@ -1,107 +1,49 @@
+// src/pages/admin/dashboard.tsx
+import React from "react";
 import BarChart from "@/src/components/barChart";
 import CountStatsCard from "@/src/components/countStatsCard";
 import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import LineChart from "@/src/components/lineChart";
-import { supabase } from "@/src/utils/supabaseClient";
-import { useEffect, useState } from "react";
+import useAdminDashboard from "@/src/hooks/useAdminDashboard";
 
-const AdminDashboard = () => {
-  const [admin, setAdmin] = useState<string | null>(null);
+const AdminDashboard: React.FC = () => {
+  const {
+    admin,
+    dashboardBarData,
+    dashboardLineChartData,
+    dashboardLineChartDataTwo,
+    dashboardLineChartTitle,
+    dashboardLineChartLabels,
+  } = useAdminDashboard();
 
-  // useEffect(() => {
-  //   const fetchClients = async () => {
-  //     // Get the logged-in user
-  //     const {
-  //       data: { user },
-  //       error: userError,
-  //     } = await supabase.auth.getUser();
-
-  //     if (userError || !user) {
-  //       console.error("Error fetching user: ", userError?.message);
-  //       return;
-  //     }
-
-  //     setAdmin(user.id);
-  //   };
-
-  //   fetchClients();
-  // }, [admin]);
-
-  const dashboardBarChartData = {
-    // label: "Sales",
-    data: [12, 19, 3, 5, 2, 3, 7], // Example dynamic data
-    // backgroundColor: "#FF5733",
-    // borderColor: "#FF5733",
-  };
-  const dashboardLineChartData = {
-    // label: "Sales",
-    data: [12, 19, 3, 5, 2, 3, 7], // Example dynamic data
-    // backgroundColor: "#FF5733",
-    // borderColor: "#FF5733",
-    label: "Last 7 days",
-  };
-  const dashboardLineChartDataTwo = {
-    // label: "Sales",
-    data: [2, 1, 13, 9, 6, 5, 1], // Example dynamic data
-    backgroundColor: "#FF5733",
-    borderColor: "#FF5733",
-    label: "Previous 7 days",
-  };
-
-  const dashboardLineChartTitle = [
-    "Congestion Trends",
-    "From May 1 - 14 May, 2024",
-  ];
-
-  const dashboardLineChartLabels = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
   return (
-    <div className="  lg:pl-72 ">
-      <DashboardSidebar admin={admin}></DashboardSidebar>
+    <div className="lg:pl-72">
+      <DashboardSidebar admin={admin} />
       <div className="mb-36 lg:mb-0">
-        <DashboardHeader title="Dashboard" admin={admin}></DashboardHeader>
+        <DashboardHeader title="Dashboard" admin={admin} />
       </div>
+
       <div className="m-3">
-        <div className="flex flex-col  md:flex-row gap-4 w-full">
-          <CountStatsCard
-            title="Average count by hour"
-            value="73"
-          ></CountStatsCard>
-          <CountStatsCard
-            title="Average count by day"
-            value="288"
-          ></CountStatsCard>
-          <CountStatsCard
-            title="Average count by week"
-            value="1,503"
-          ></CountStatsCard>
-          <CountStatsCard
-            title="Average count by month"
-            value="4,179"
-          ></CountStatsCard>
+        <div className="flex flex-col md:flex-row gap-4 w-full">
+          <CountStatsCard title="Average count by hour" value="73" />
+          <CountStatsCard title="Average count by day" value="288" />
+          <CountStatsCard title="Average count by week" value="1,503" />
+          <CountStatsCard title="Average count by month" value="4,179" />
         </div>
+
         <div className="flex mt-5 gap-5 flex-col w-full md:flex-row">
-          <div className=" w-full justify-center   rounded-2xl p-9  border-2 border-grey gap-4 shadow-lg hover:bg-grey">
-            <BarChart
-              chartData={dashboardBarChartData}
-              chartTitle="Busiest days"
-            ></BarChart>
+          <div className="w-full justify-center rounded-2xl p-9 border-2 border-grey gap-4 shadow-lg hover:bg-grey">
+            <BarChart chartData={dashboardBarData} chartTitle="Busiest days" />
           </div>
-          <div className=" w-full  justify-center   rounded-2xl p-9  border-2 border-grey gap-4 shadow-lg hover:bg-grey">
+
+          <div className="w-full justify-center rounded-2xl p-9 border-2 border-grey gap-4 shadow-lg hover:bg-grey">
             <LineChart
               chartDataTwo={dashboardLineChartDataTwo}
               chartData={dashboardLineChartData}
               chartTitle={dashboardLineChartTitle}
               chartLabels={dashboardLineChartLabels}
-            ></LineChart>{" "}
+            />
           </div>
         </div>
       </div>
