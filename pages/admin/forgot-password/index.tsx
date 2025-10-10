@@ -1,47 +1,19 @@
-import React, { useState } from "react";
+// pages/admin/forgot-password/index.tsx
+import React from "react";
 import logo from "../../../src/assets/logo-new.png";
 import logoSmall from "../../../src/assets/logo-small.png";
 import { mdiEmailOutline } from "@mdi/js";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import { Input } from "@/src/components/input";
 import { Button } from "@/src/components/button";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ROUTES from "@/src/utils/routes";
-import { supabase } from "@/src/utils/supabaseClient";
 import "react-tooltip/dist/react-tooltip.css";
-
-// Validation schema
-const schema = Yup.object().shape({
-  email: Yup.string()
-    .email("Enter a valid email")
-    .required("Please enter your email"),
-});
+import useForgotPassword from "@/src/hooks/useForgotPassword";
 
 const ForgotPassword: React.FC = () => {
-  const [isSelected, setIsSelected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      email: "",
-    },
-    validationSchema: schema,
-    onSubmit: async (values, { resetForm }) => {
-      setError(null);
-      // Code to handle password reset goes here
-    },
-  });
-
-  const handleClick = () => {
-    setIsSelected(true);
-    setTimeout(() => {
-      setIsSelected(false);
-    }, 200);
-  };
+  const { formik, isSelected, error, handleClick } = useForgotPassword();
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
