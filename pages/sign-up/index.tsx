@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-import logo from "../../src/assets/logo-new.png";
-import logoSmall from "../../src/assets/logo-small.png";
-import { mdiEmailOutline, mdiKeyOutline } from "@mdi/js";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { Input } from "@/src/components/input";
-import { Button } from "@/src/components/button";
+// pages/sign-up/index.tsx
+import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ROUTES from "@/src/utils/routes";
-import { supabase } from "@/src/utils/supabaseClient";
-import "react-tooltip/dist/react-tooltip.css";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
-// Validation schema
+import logo from "@/src/assets/logo-new.png";
+import logoSmall from "@/src/assets/logo-small.png";
+import { mdiEmailOutline, mdiKeyOutline } from "@mdi/js";
+import { Input } from "@/src/components/input";
+import { Button } from "@/src/components/button";
+import ROUTES from "@/src/utils/routes";
+import useSignUp, { SignUpValues } from "@/src/hooks/useSignUp";
+
+/** Validation schema */
 const schema = Yup.object().shape({
   email: Yup.string()
     .email("Enter a valid email")
@@ -22,99 +23,156 @@ const schema = Yup.object().shape({
     .required("Please enter your password"),
 });
 
+/** Presentational component */
+function SignUpView({
+  formik,
+  loading,
+  serverError,
+}: {
+  formik: ReturnType<typeof useFormik<SignUpValues>>;
+  loading: boolean;
+  serverError: string | null;
+}) {
+  return (
+    <div className="md:grid md:grid-cols-2 md:h-screen">
+      <div className="hidden md:block bg-primary-light" />
+
+      <main id="right-side" className="bg-white flex flex-col items-center">
+        <div className="hidden md:block my-24 w-[131px] h-[51px] relative">
+          <Image
+            alt="logo"
+            src={logo}
+            fill
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </div>
+
+        <div className="my-24 md:hidden w-[77px] h-[30px] relative">
+          <Image
+            alt="logo-small"
+            src={logoSmall}
+            fill
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </div>
+
+        <h1 className="mb-8 font-medium text-2xl md:text-4xl">
+          Sign up for Traffix
+        </h1>
+
+        <form
+          onSubmit={formik.handleSubmit}
+          aria-labelledby="signup-form"
+          className="flex flex-col items-center w-full max-w-[330px] space-y-4"
+        >
+          <div className="w-full">
+            <Input
+              id="email"
+              name="email"
+              label="Email"
+              placeholder="Email"
+              preppendIcon={mdiEmailOutline}
+              iconSize={0.8}
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              aria-invalid={!!(formik.touched.email && formik.errors.email)}
+              aria-describedby="email-error"
+            />
+            {formik.touched.email && formik.errors.email && (
+              <p id="email-error" className="text-red-500 text-sm mt-1">
+                {formik.errors.email}
+              </p>
+            )}
+          </div>
+
+          <div className="w-full">
+            <Input
+              id="password"
+              name="password"
+              label="Password"
+              type="password"
+              placeholder="Password"
+              preppendIcon={mdiKeyOutline}
+              iconSize={0.8}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              aria-invalid={
+                !!(formik.touched.password && formik.errors.password)
+              }
+              aria-describedby="password-error"
+            />
+            {formik.touched.password && formik.errors.password && (
+              <p id="password-error" className="text-red-500 text-sm mt-1">
+                {formik.errors.password}
+              </p>
+            )}
+          </div>
+
+          {serverError && (
+            <div role="alert" className="text-red-500 mt-2 w-full text-center">
+              {serverError}
+            </div>
+          )}
+
+          <div className="w-full pt-8">
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary-light"
+              disabled={loading}
+              aria-disabled={loading}
+              aria-busy={loading}
+            >
+              {loading ? "Creating account…" : "Sign up"}
+            </Button>
+          </div>
+
+          <div className="w-full text-center">
+            <button
+              type="button"
+              className="underline text-sm hover:text-primary"
+              onClick={() => (window.location.href = ROUTES.LOGIN_PAGE)}
+            >
+              Already have an account? Sign in
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+  );
+}
+
+/** Page container */
 const SignUpPage: React.FC = () => {
-  const [isSelected, setIsSelected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { loading, error: hookError, signUp } = useSignUp();
 
-  // Formik setup
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      email: "",
-      password: "",
-    },
+  const formik = useFormik<SignUpValues>({
+    initialValues: { email: "", password: "" },
     validationSchema: schema,
-    onSubmit: async (values, { resetForm }) => {
-      setError(null);
-
-      //   Attempt to sign up with Supabase
-      const { error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (error) {
-        setError("Sign-up failed: " + error.message);
-      } else {
-        //   Redirect to login page after successful sign-up
-        router.push(ROUTES.LOGIN_PAGE);
+    onSubmit: async (values, { setSubmitting }) => {
+      setSubmitting(true);
+      try {
+        const ok = await signUp(values);
+        if (ok) {
+          // after sign-up usually email confirmation is required — redirect to login
+          router.push(ROUTES.LOGIN_PAGE);
+        }
+      } finally {
+        setSubmitting(false);
       }
     },
   });
 
-  const handleClick = () => {
-    setIsSelected(true);
-    setTimeout(() => {
-      setIsSelected(false);
-    }, 200);
-  };
-
   return (
-    <>
-      <div className="md:grid md:grid-cols-2  md:h-screen">
-        <div className="hidden md:block bg-primary-light"></div>
-        <div id="right-side" className="bg-white flex flex-col items-center">
-          <div className="hidden md:block my-24 w-[131px] h-[51px] relative">
-            <Image alt="logo" layout="fill" src={logo} />
-          </div>
-          <div className="my-24 md:hidden  w-[77px]  h-[30px] relative">
-            <Image alt="logo" layout="fill" src={logoSmall} />
-          </div>
-          <div className="mb-24 font-medium text-2xl md:text-4xl">
-            <p>Sign up for Traffix</p>
-          </div>
-          <form onSubmit={formik.handleSubmit}>
-            <div className="mb-2 w-[300px] md:w-[330px]">
-              <Input
-                preppendIcon={mdiEmailOutline}
-                iconSize={0.8}
-                label="Email"
-                placeholder="Email"
-                {...formik.getFieldProps("email")}
-                {...formik.getFieldMeta("email")}
-              />
-            </div>
-            <div className="w-[300px] md:w-[330px]">
-              <Input
-                preppendIcon={mdiKeyOutline}
-                iconSize={0.8}
-                label="Password"
-                type="password"
-                placeholder="Password"
-                {...formik.getFieldProps("password")}
-                {...formik.getFieldMeta("password")}
-              />
-            </div>
-            {error && <p className="text-red-500 mt-4">{error}</p>}
-            <div className="my-24 w-[300px] md:w-[330px] text-grey">
-              <Button
-                className={`w-full ${
-                  isSelected ? "bg-error" : "bg-primary hover:bg-primary-light"
-                }`}
-                type="submit"
-                onClick={() => {
-                  handleClick();
-                }}
-                variant="error"
-              >
-                Sign up
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </>
+    <SignUpView
+      formik={formik}
+      loading={loading || formik.isSubmitting}
+      serverError={hookError}
+    />
   );
 };
 
