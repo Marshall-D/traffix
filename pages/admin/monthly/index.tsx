@@ -1,51 +1,35 @@
 // src/pages/admin/monthly.tsx
-import React, { useState } from "react";
+import React from "react";
 import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
-import MonthlySectionOne from "@/src/components/monthly/MonthlySectionOne";
+// lazy-load components that use browser APIs / non-SSR-friendly libs
+const MonthlySectionOne = dynamic(
+  () => import("@/src/components/monthly/MonthlySectionOne"),
+  { ssr: false }
+);
+
+const MonthlyTrendChart = dynamic(
+  () => import("@/src/components/monthly/MonthlyTrendChart"),
+  { ssr: false }
+);
 import Summary from "@/src/components/summary";
-import { formatDate } from "@/src/utils/helpers";
 import TodaysCount from "@/src/components/todaysCount";
 import { monthlyData, monthlySummary } from "@/src/utils/data";
-import MonthlyTrendChart from "@/src/components/monthly/MonthlyTrendChart";
 import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
+import useMonthlyView from "@/src/hooks/useMonthlyView";
+import dynamic from "next/dynamic";
 
 const MonthlyPage: React.FC = () => {
-  const [selectedMonthStart, setSelectedMonthStart] = useState<string | null>(
-    null
-  );
-  const [showWeekView, setShowWeekView] = useState(false);
-  const [selectedMonthNumber, setSelectedMonthNumber] = useState<number | null>(
-    null
-  );
-
-  // NEW: the specific week start date within the month to highlight
-  const [selectedWeekStart, setSelectedWeekStart] = useState<string | null>(
-    null
-  );
-
-  const title = selectedMonthStart
-    ? `${formatDate(selectedMonthStart)}`
-    : "Monthly Count Overview";
-
-  // Now accepts optional third param: highlightedWeekStart
-  const handleTableClick = (
-    startOfMonthDate: string,
-    monthNumber: number,
-    highlightedWeekStart?: string | null
-  ) => {
-    setSelectedMonthStart(startOfMonthDate);
-    setSelectedMonthNumber(monthNumber);
-    setSelectedWeekStart(highlightedWeekStart ?? null);
-    setShowWeekView(true);
-  };
-
-  const handleBackToMonths = () => {
-    setShowWeekView(false);
-    setSelectedMonthNumber(null);
-    setSelectedMonthStart(null);
-    setSelectedWeekStart(null);
-  };
+  const {
+    selectedMonthStart,
+    selectedMonthNumber,
+    selectedWeekStart,
+    showWeekView,
+    title,
+    totalCount,
+    handleTableClick,
+    handleBackToMonths,
+  } = useMonthlyView();
 
   return (
     <div className="lg:pl-72 flex">
@@ -62,27 +46,24 @@ const MonthlyPage: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4 mb-8">
           <div className="w-full">
             <p className="lg:hidden text-lg font-medium ">
-              {selectedMonthStart ? formatDate(selectedMonthStart) : "Monthly"}
+              {selectedMonthStart ? title : "Monthly"}
             </p>
 
             <div className="lg:hidden my-4">
-              <TodaysCount
-                count={monthlyData.reduce((s, m) => s + m.count, 0)}
-              />
+              <TodaysCount count={totalCount} />
             </div>
 
-            {/* Show months list OR weeks view (same pattern as your Weekly page) */}
+            {/* Show months list OR weeks view */}
             {!showWeekView ? (
               <MonthlySectionOne onTableItemClick={handleTableClick} />
-            ) : (
-              // show weeks for the selected month
+            ) : selectedMonthStart && selectedMonthNumber != null ? (
               <MonthlyWeeksCard
-                monthStart={selectedMonthStart!}
-                monthNumber={selectedMonthNumber!}
+                monthStart={selectedMonthStart}
+                monthNumber={selectedMonthNumber}
                 onBack={handleBackToMonths}
                 highlightedWeekStart={selectedWeekStart}
               />
-            )}
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-4 w-full">
