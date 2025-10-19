@@ -87,7 +87,7 @@ export function useClientForm() {
       );
 
       if (error) {
-        console.error("Error adding client: ", error?.message ?? error);
+        console.error("Error adding client: ", error);
       } else if (data) {
         setClients((prev) => [...prev, data]);
         resetForm();
@@ -100,7 +100,7 @@ export function useClientForm() {
     if (!error) {
       router.push("/login");
     } else {
-      console.error("Error signing out:", error?.message ?? error);
+      console.error("Error signing out:", error);
     }
   }, [router]);
 
