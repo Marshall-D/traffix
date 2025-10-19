@@ -16,3 +16,13 @@ export interface WeeklyCountCardProps {
   onTableItemClick: (date: string | null, week: number | null) => void;
   weeklyData: WeeklyData[];
 }
+
+export type Client = {
+  id: string;
+  clientid?: string | null;
+  email: string;
+  firstname: string;
+  lastname: string;
+  password?: string | null;
+  created_at?: string | null;
+};
