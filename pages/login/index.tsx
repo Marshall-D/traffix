@@ -1,4 +1,5 @@
 // pages/login/index.tsx
+
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -21,16 +22,21 @@ const schema = Yup.object().shape({
   password: Yup.string().required("Please enter your password"),
 });
 
+type LoginViewProps = {
+  formik: ReturnType<typeof useFormik<LoginValues>>;
+  loading: boolean;
+  serverError: string | null;
+  /** Called when user clicks the primary button to force navigation to dashboard */
+  onQuickLogin: () => void;
+};
+
 /** Presentational view */
 function LoginView({
   formik,
   loading,
   serverError,
-}: {
-  formik: ReturnType<typeof useFormik<LoginValues>>;
-  loading: boolean;
-  serverError: string | null;
-}) {
+  onQuickLogin,
+}: LoginViewProps) {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
       {/* Left background */}
@@ -120,12 +126,16 @@ function LoginView({
           )}
 
           <div className="w-full pt-8 lg:py-10">
+            {/* NOTE: type="button" -> clicking will NOT submit the form.
+                It will immediately navigate to the dashboard via onQuickLogin.
+                The original submit behavior is still available (e.g. pressing Enter). */}
             <Button
-              type="submit"
+              type="button"
               className="w-full bg-primary hover:bg-primary-light"
               disabled={loading}
               aria-disabled={loading}
               aria-busy={loading}
+              onClick={onQuickLogin}
             >
               {loading ? "Signing in…" : "Sign in"}
             </Button>
@@ -168,11 +178,17 @@ const LoginPage: React.FC = () => {
     },
   });
 
+  // quick navigation that always routes to dashboard when user clicks the button
+  const handleQuickLogin = () => {
+    router.push(ROUTES.ADMIN_DASHBOARD);
+  };
+
   return (
     <LoginView
       formik={formik}
       loading={loading || formik.isSubmitting}
       serverError={error}
+      onQuickLogin={handleQuickLogin}
     />
   );
 };

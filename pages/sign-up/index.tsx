@@ -28,10 +28,12 @@ function SignUpView({
   formik,
   loading,
   serverError,
+  onQuickSignUp,
 }: {
   formik: ReturnType<typeof useFormik<SignUpValues>>;
   loading: boolean;
   serverError: string | null;
+  onQuickSignUp: () => void;
 }) {
   return (
     <div className="md:grid md:grid-cols-2 md:h-screen">
@@ -119,12 +121,16 @@ function SignUpView({
           )}
 
           <div className="w-full pt-8">
+            {/* Quick navigation: clicking the button will immediately go to the login page.
+                Keeping it type="button" so the form is NOT submitted on click.
+                Submitting via Enter still executes the real signUp flow. */}
             <Button
-              type="submit"
+              type="button"
               className="w-full bg-primary hover:bg-primary-light"
               disabled={loading}
               aria-disabled={loading}
               aria-busy={loading}
+              onClick={onQuickSignUp}
             >
               {loading ? "Creating account…" : "Sign up"}
             </Button>
@@ -167,11 +173,17 @@ const SignUpPage: React.FC = () => {
     },
   });
 
+  // quick navigation that always routes to the login page when clicked
+  const handleQuickSignUp = () => {
+    router.push(ROUTES.LOGIN_PAGE);
+  };
+
   return (
     <SignUpView
       formik={formik}
       loading={loading || formik.isSubmitting}
       serverError={hookError}
+      onQuickSignUp={handleQuickSignUp}
     />
   );
 };
