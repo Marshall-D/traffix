@@ -1,4 +1,5 @@
-import React, { FC, useState } from "react";
+// src/components/weeklyCountCard/index.tsx
+import React, { FC } from "react";
 import { IconButton } from "../iconButton";
 import { mdiCalendarMonth } from "@mdi/js";
 import DatePicker from "react-datepicker";
@@ -9,113 +10,37 @@ import ReactPaginate from "react-paginate";
 import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
 import Icon from "@mdi/react";
 
-interface WeeklyData {
-  date: string; // Start date of the week
-  count: number; // Total count for the week
-  week: number; // Week number
-}
+import useWeeklyCountCard from "../../hooks/useWeeklyCountCard";
+import { WeeklyCountCardProps } from "@/src/types";
 
-interface Props {
-  onTableItemClick: (date: string | null, week: number | null) => void;
-  // Accept both date and week as parameters, or `null` for "no data" case
-  weeklyData: WeeklyData[]; // Array of weekly data
-}
+const WeeklyCountCard: FC<WeeklyCountCardProps> = ({
+  onTableItemClick,
+  weeklyData,
+}) => {
+  // NOTE: not providing fetchWeeklyData here — pass it into the hook when integrating with backend
+  const {
+    showModal,
+    openModal,
+    closeModal,
+    selectedDate,
+    handleDateChange,
+    currentItems,
+    pageCount,
+    handlePageClick,
+    handleRowClick,
+    handleViewDateClick,
+    selectedRow,
+  } = useWeeklyCountCard({
+    weeklyData,
+    onTableItemClick,
+    // itemsPerPage: 7, // default
+  });
 
-const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
-  const [currentPage, setCurrentPage] = useState(0);
-
-  const [showModal, setShowModal] = useState(false); // State to control the modal
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Selected date
-
-  const [selectedRow, setSelectedRow] = useState(0); // State to track selected row
-  const [isClickedOnce, setIsClickedOnce] = useState<number | null>(null); // Track if row has been clicked once
-
-  // Function to handle calendar icon click and show modal
-  const handleCalendarClick = () => {
-    setShowModal(true);
-  };
-
-  // Function to handle the date selection
-  const handleDateChange = (date: Date | null) => {
-    setSelectedDate(date);
-  };
-
-  // Function to handle "View Date" button click
-
-  // };
-  const handleViewDateClick = () => {
-    if (selectedDate) {
-      // Format the selected date to match the weeklyData's date format
-      const formattedStringDate = new Intl.DateTimeFormat("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(selectedDate);
-
-      // Check if the date falls in the range of any week
-      const matchedWeekData = weeklyData.find((item) => {
-        // Get the start and end dates of the week based on item's date
-        const weekStartDate = new Date(item.date); // Starting date of the week
-        const weekEndDate = new Date(weekStartDate);
-        weekEndDate.setDate(weekEndDate.getDate() + 6); // Adding 6 days to get the week range
-
-        const selectedDateObj = new Date(formattedStringDate);
-
-        // Check if the selected date falls within the range
-        return (
-          selectedDateObj >= weekStartDate && selectedDateObj <= weekEndDate
-        );
-      });
-
-      if (matchedWeekData) {
-        // If the date falls in the range of any week, pass it to the parent
-        onTableItemClick(formattedStringDate, matchedWeekData.week);
-        setShowModal(false); // Close the modal
-      } else {
-        // If no week matches the selected date
-        alert("No data available for this date.");
-      }
-    } else {
-      // Handle case when no date is selected
-      alert("Please select a date.");
-    }
-  };
-
-  // Function to handle row click
-  const handleRowClick = (index: number, date: string) => {
-    const matchedWeekData = weeklyData.find((item) => item.date === date);
-
-    if (isClickedOnce === index) {
-      if (matchedWeekData) {
-        // If the row is clicked for the second time, pass both date and week to the parent
-        onTableItemClick(date, matchedWeekData.week);
-      } else {
-        // Handle case where no data matches (shouldn't happen for rows in the table)
-        onTableItemClick(null, null);
-      }
-      setIsClickedOnce(null); // Reset the "clicked once" state
-    } else {
-      // If it's the first click, just select the row
-      setSelectedRow(index);
-      setIsClickedOnce(index);
-    }
-  };
-
-  // Set the number of items per page
-  const itemsPerPage = 7;
-  // Calculate the items for the current page
-  const offset = currentPage * itemsPerPage;
-  const currentItems = weeklyData.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(weeklyData.length / itemsPerPage);
-  // Handle page change
-  const handlePageClick = (event: { selected: number }) => {
-    setCurrentPage(event.selected);
-  };
   return (
     <div className="flex lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
       <div id="header" className="flex justify-between gap-3 text-grey-2">
         <p className="text-black text-xl font-semibold">Weekly Count</p>
-        <div className="flex" onClick={handleCalendarClick}>
+        <div className="flex" onClick={openModal}>
           <p className="font-semibold text-xs text-grey-4 cursor-pointer mt-0.5">
             Select Week
           </p>
@@ -137,7 +62,6 @@ const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
           className="flex justify-between gap-3 text-grey-4 my-2 text-xs font-semibold"
         >
           <p>Week</p>
-
           <p>Date</p>
           <p>Count</p>
         </div>
@@ -166,15 +90,12 @@ const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
         isOpen={showModal}
         bgColor="red"
         maxWidth="max-w-3xl"
-        handleClose={() => {
-          setShowModal(false);
-        }}
+        handleClose={closeModal}
       >
         <div className="flex flex-col gap-2 p-12">
           <h2 className="text-xl font-medium mb-4 flex justify-center">
             Select a Date
           </h2>
-          {/* DatePicker with Tailwind styling */}
           <div className="shadow-[0.5px_0.5px_10px_0.5px_rgba(0,0,0,0.3)] rounded-lg">
             <DatePicker
               selected={selectedDate}
@@ -191,6 +112,7 @@ const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
           </div>
         </div>
       </Modal>
+
       {/* Pagination Component */}
       <ReactPaginate
         previousLabel={<Icon path={mdiChevronLeft} size={0.7} />}
@@ -203,19 +125,19 @@ const WeeklyCountCard: FC<Props> = ({ onTableItemClick, weeklyData }) => {
         containerClassName={
           "pagination flex justify-center items-center mt-4 space-x-2"
         }
-        activeClassName={"active text-white rounded-lg"} // Active page styling
-        pageClassName={"page-item"} // Wrapper for page link
+        activeClassName={"active text-white rounded-lg"}
+        pageClassName={"page-item"}
         pageLinkClassName={
           "page-link px-3 py-1 text-black hover:bg-grey-3 hover:text-black rounded-lg"
-        } // Added hover styles
+        }
         previousClassName={
           "prev-item text-grey-1 hover:bg-grey-3 hover:text-black rounded-lg"
-        } // Added hover styles for prev arrow
+        }
         nextClassName={
           "next-item text-grey-1 hover:bg-grey-3 hover:text-black rounded-lg"
-        } // Added hover styles for next arrow
-        disabledClassName={"disabled opacity-50 cursor-not-allowed"} // Disabled styles
-        activeLinkClassName={"bg-primary text-white px-3 py-1 rounded-lg"} // Active link styling
+        }
+        disabledClassName={"disabled opacity-50 cursor-not-allowed"}
+        activeLinkClassName={"bg-primary text-white px-3 py-1 rounded-lg"}
       />
     </div>
   );
