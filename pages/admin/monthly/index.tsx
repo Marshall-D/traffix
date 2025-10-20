@@ -18,6 +18,7 @@ import { monthlyData, monthlySummary } from "@/src/utils/data";
 import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
 import useMonthlyView from "@/src/hooks/useMonthlyView";
 import dynamic from "next/dynamic";
+import CountStatsCard from "@/src/components/countStatsCard";
 
 const MonthlyPage: React.FC = () => {
   const {
@@ -41,6 +42,21 @@ const MonthlyPage: React.FC = () => {
 
         <div className="mb-36 lg:mb-0 hidden lg:block">
           <DashboardHeader title={title} />
+        </div>
+
+        <div className="m-3">
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            <CountStatsCard title="Current Month Count" value="73" />
+            <CountStatsCard title="Previous Month Count" value="288" />
+            <CountStatsCard
+              title="Month-over-Month Change (%)"
+              value={1503} // pass a numeric value (1503 → will render "1,503%")
+              isPercentage={true}
+              // optional explicit override: "up" | "down" | "neutral"
+              // trend="up"
+            />{" "}
+            <CountStatsCard title="Average Monthly Count (YTD)" value="4,179" />
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4 mb-8">
