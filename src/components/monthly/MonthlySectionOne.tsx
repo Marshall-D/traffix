@@ -21,6 +21,30 @@ interface Props {
   ) => void;
 }
 
+const UpArrow = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    aria-hidden
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path fill="currentColor" d="M12 5l7 7h-4v7h-6v-7H5l7-7z" />
+  </svg>
+);
+
+const DownArrow = (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    aria-hidden
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path fill="currentColor" d="M12 19l-7-7h4V5h6v7h4l-7 7z" />
+  </svg>
+);
+
 const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   const {
     months,
@@ -96,20 +120,60 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
 
       <hr className="mt-4" />
 
-      {/* Table header */}
+      {/* New table header with 4 columns */}
       <div
         id="table-header"
         className="flex justify-between gap-3 text-grey-4 my-2 text-xs font-semibold"
       >
-        <p className="font-medium">Month</p>
-        <p className="font-medium">Start Date</p>
-        <p className="font-medium">Count</p>
+        <p className="w-1/4">Month</p>
+        <p className="w-1/4 text-right">Total Count</p>
+        <p className="w-1/4 text-right">% Change</p>
+        <p className="w-1/6 text-center">Trend</p>
       </div>
       <hr />
 
       <div id="table-body" className="mt-4">
         {months.map((row, i) => {
           const isSelected = selectedRow === i;
+          const pct = row.percentChange;
+          const trend = row.trend;
+          const pctDisplay =
+            pct === null || pct === undefined
+              ? "—"
+              : `${Math.abs(Number(pct.toFixed(2))).toLocaleString()}%`;
+          const pctColorClass =
+            trend === "up"
+              ? "text-green-500"
+              : trend === "down"
+              ? "text-red-500"
+              : "text-black";
+          const arrowNode =
+            trend === "up" ? (
+              <span className="inline-flex items-center text-green-500">
+                {UpArrow}
+              </span>
+            ) : trend === "down" ? (
+              <span className="inline-flex items-center text-red-500">
+                {DownArrow}
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center text-grey-400"
+                aria-hidden
+              >
+                {/* neutral placeholder for alignment */}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="12" cy="12" r="2" fill="currentColor" />
+                </svg>
+              </span>
+            );
+
           return (
             <div
               key={row.month}
@@ -123,8 +187,24 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
                 hover:bg-grey-3`}
             >
               <p className="w-1/4">{row.month}</p>
-              <p className="w-1/3">{formatDate(row.start)}</p>
-              <p className="w-1/4 font-semibold text-right">{row.count}</p>
+
+              <p className="w-1/4 text-right font-semibold">
+                {row.count.toLocaleString()}
+              </p>
+
+              <p
+                className={`w-1/4 text-right ${
+                  pct === null ? "text-grey-400" : pctColorClass
+                }`}
+              >
+                {/* show sign for negative */}
+                {pct === null ? "—" : pct > 0 ? "+" : pct < 0 ? "-" : ""}
+                {pct === null ? "" : pctDisplay}
+              </p>
+
+              <div className="w-1/6 flex justify-center items-center">
+                {arrowNode}
+              </div>
             </div>
           );
         })}

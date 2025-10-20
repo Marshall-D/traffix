@@ -6,6 +6,9 @@ export type MonthItem = {
   month: number;
   start: string;
   count: number;
+  // new fields:
+  percentChange: number | null; // percentage (e.g. 12.34 for +12.34%)
+  trend: "up" | "down" | "neutral";
 };
 
 type UseMonthlySectionReturn = {
@@ -19,12 +22,6 @@ type UseMonthlySectionReturn = {
   selectedDate: Date | null;
   setSelectedDate: (d: Date | null) => void;
   error: string | null;
-  /**
-   * Attempts to resolve the currently selectedDate into a month/week and calls
-   * the provided `onFound` callback with (monthStart, monthNumber, highlightedWeekStart|null).
-   *
-   * Returns `true` if a month was found and `onFound` was called, `false` otherwise.
-   */
   handleViewDateClick: (
     onFound: (
       startOfMonthDate: string,
@@ -35,13 +32,41 @@ type UseMonthlySectionReturn = {
 };
 
 export default function useMonthlySection(): UseMonthlySectionReturn {
-  const months = useMemo(() => {
-    // Use the monthlyData provided by the utils file as the canonical list
-    return monthlyData.map((m) => ({
+  const months = useMemo<MonthItem[]>(() => {
+    // Build canonical list and compute percentChange + trend based on previous month
+    // Ensure we use the order of monthlyData as provided (assumed chronological).
+    const items = monthlyData.map((m) => ({
       month: Number(m.month),
       start: String(m.start),
       count: Number(m.count ?? 0),
+      percentChange: null as number | null,
+      trend: "neutral" as "up" | "down" | "neutral",
     }));
+
+    for (let i = 0; i < items.length; i++) {
+      const current = items[i];
+      const prev = items[i - 1];
+
+      if (!prev || prev.count === 0) {
+        // No valid previous to compare to (avoid divide by zero)
+        current.percentChange = null;
+        current.trend = "neutral";
+      } else {
+        const change = ((current.count - prev.count) / prev.count) * 100;
+        current.percentChange = Number.isFinite(change) ? change : null;
+        if (current.percentChange === null) {
+          current.trend = "neutral";
+        } else if (current.percentChange > 0) {
+          current.trend = "up";
+        } else if (current.percentChange < 0) {
+          current.trend = "down";
+        } else {
+          current.trend = "neutral";
+        }
+      }
+    }
+
+    return items;
   }, []);
 
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
@@ -79,7 +104,7 @@ export default function useMonthlySection(): UseMonthlySectionReturn {
         return false;
       }
 
-      // Normalize selected date to midnight (local) - keep behavior consistent with existing code.
+      // Normalize selected date to midnight (local)
       const selectedDateObj = new Date(selectedDate);
       selectedDateObj.setHours(0, 0, 0, 0);
 
@@ -110,10 +135,8 @@ export default function useMonthlySection(): UseMonthlySectionReturn {
 
       const highlightedWeekStart = matchedWeek ? matchedWeek.date : null;
 
-      // call out to parent
       onFound(found.start, found.month, highlightedWeekStart);
 
-      // close modal on success (parent may navigate)
       setShowModal(false);
       return true;
     },
