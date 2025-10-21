@@ -7,11 +7,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Modal } from "../modal";
 import { Button } from "../button";
 import { formatDate } from "@/src/utils/helpers";
-import useMonthlySection from "@/src/hooks/useMonthlySection";
+import useMonthlySection, { MonthItem } from "@/src/hooks/useMonthlySection";
 
 /**
  * Props:
  * - onTableItemClick(startOfMonthDate: string, monthNumber: number, highlightedWeekStart?: string|null)
+ * - monthsData?: optional array of months to render (year-specific)
  */
 interface Props {
   onTableItemClick: (
@@ -19,6 +20,7 @@ interface Props {
     monthNumber: number,
     highlightedWeekStart?: string | null
   ) => void;
+  monthsData?: { month: number; start: string; count: number }[]; // optional override
 }
 
 const UpArrow = (
@@ -45,7 +47,8 @@ const DownArrow = (
   </svg>
 );
 
-const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
+const MonthlySectionOne: FC<Props> = ({ onTableItemClick, monthsData }) => {
+  // pass the monthsData into the hook (if provided)
   const {
     months,
     selectedRow,
@@ -57,7 +60,7 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
     setSelectedDate,
     error,
     handleViewDateClick,
-  } = useMonthlySection();
+  } = useMonthlySection(monthsData);
 
   const handleHeaderClick = useCallback(() => {
     openModal();
@@ -66,10 +69,8 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
   const handleRowClick = useCallback(
     (index: number) => {
       const wasSelected = selectedRow === index;
-      // toggle selection
       toggleRow(index);
 
-      // if it was already selected, perform the action (same behavior as original)
       if (wasSelected) {
         const item = months[index];
         onTableItemClick(item.start, item.month, null);
@@ -133,7 +134,7 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
       <hr />
 
       <div id="table-body" className="mt-4">
-        {months.map((row, i) => {
+        {months.map((row: MonthItem, i) => {
           const isSelected = selectedRow === i;
           const pct = row.percentChange;
           const trend = row.trend;
@@ -161,7 +162,6 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
                 className="inline-flex items-center text-grey-400"
                 aria-hidden
               >
-                {/* neutral placeholder for alignment */}
                 <svg
                   width="16"
                   height="16"
@@ -197,7 +197,6 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick }) => {
                   pct === null ? "text-grey-400" : pctColorClass
                 }`}
               >
-                {/* show sign for negative */}
                 {pct === null ? "—" : pct > 0 ? "+" : pct < 0 ? "-" : ""}
                 {pct === null ? "" : pctDisplay}
               </p>

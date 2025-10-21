@@ -195,3 +195,88 @@ export const dashboardLineChartLabels = [
   "Saturday",
   "Sunday",
 ] as const;
+
+/* ---------------------------
+   Additional monthly data by year (2020-2025 excluding 2024)
+   - These are synthetic / example numbers so the UI can be tested.
+   - You can replace them with backend-driven data later.
+   --------------------------- */
+
+type MonthRow = { month: number; start: string; count: number };
+
+export const monthlyDataByYear: Record<number, MonthRow[]> = {
+  2020: [
+    { month: 1, start: "2020-01-01", count: 120 },
+    { month: 2, start: "2020-02-01", count: 130 },
+    { month: 3, start: "2020-03-01", count: 110 },
+    { month: 4, start: "2020-04-01", count: 90 },
+    { month: 5, start: "2020-05-01", count: 140 },
+    { month: 6, start: "2020-06-01", count: 150 },
+    { month: 7, start: "2020-07-01", count: 160 },
+    { month: 8, start: "2020-08-01", count: 170 },
+    { month: 9, start: "2020-09-01", count: 165 },
+    { month: 10, start: "2020-10-01", count: 155 },
+    { month: 11, start: "2020-11-01", count: 145 },
+    { month: 12, start: "2020-12-01", count: 180 },
+  ],
+  2021: [
+    { month: 1, start: "2021-01-01", count: 200 },
+    { month: 2, start: "2021-02-01", count: 210 },
+    { month: 3, start: "2021-03-01", count: 190 },
+    { month: 4, start: "2021-04-01", count: 180 },
+    { month: 5, start: "2021-05-01", count: 220 },
+    { month: 6, start: "2021-06-01", count: 230 },
+    { month: 7, start: "2021-07-01", count: 240 },
+    { month: 8, start: "2021-08-01", count: 250 },
+    { month: 9, start: "2021-09-01", count: 245 },
+    { month: 10, start: "2021-10-01", count: 235 },
+    { month: 11, start: "2021-11-01", count: 225 },
+    { month: 12, start: "2021-12-01", count: 260 },
+  ],
+  2022: [
+    { month: 1, start: "2022-01-01", count: 180 },
+    { month: 2, start: "2022-02-01", count: 170 },
+    { month: 3, start: "2022-03-01", count: 160 },
+    { month: 4, start: "2022-04-01", count: 150 },
+    { month: 5, start: "2022-05-01", count: 210 },
+    { month: 6, start: "2022-06-01", count: 205 },
+    { month: 7, start: "2022-07-01", count: 215 },
+    { month: 8, start: "2022-08-01", count: 225 },
+    { month: 9, start: "2022-09-01", count: 220 },
+    { month: 10, start: "2022-10-01", count: 210 },
+    { month: 11, start: "2022-11-01", count: 205 },
+    { month: 12, start: "2022-12-01", count: 230 },
+  ],
+  2023: [
+    { month: 1, start: "2023-01-01", count: 240 },
+    { month: 2, start: "2023-02-01", count: 230 },
+    { month: 3, start: "2023-03-01", count: 220 },
+    { month: 4, start: "2023-04-01", count: 210 },
+    { month: 5, start: "2023-05-01", count: 260 },
+    { month: 6, start: "2023-06-01", count: 270 },
+    { month: 7, start: "2023-07-01", count: 280 },
+    { month: 8, start: "2023-08-01", count: 290 },
+    { month: 9, start: "2023-09-01", count: 285 },
+    { month: 10, start: "2023-10-01", count: 275 },
+    { month: 11, start: "2023-11-01", count: 265 },
+    { month: 12, start: "2023-12-01", count: 300 },
+  ],
+  // skip 2024 (we already have monthlyData defined above)
+  2025: [
+    { month: 1, start: "2025-01-01", count: 300 },
+    { month: 2, start: "2025-02-01", count: 310 },
+    { month: 3, start: "2025-03-01", count: 305 },
+    { month: 4, start: "2025-04-01", count: 295 },
+    { month: 5, start: "2025-05-01", count: 320 },
+    { month: 6, start: "2025-06-01", count: 330 },
+    { month: 7, start: "2025-07-01", count: 340 },
+    { month: 8, start: "2025-08-01", count: 350 },
+    { month: 9, start: "2025-09-01", count: 345 },
+    { month: 10, start: "2025-10-01", count: 335 },
+    { month: 11, start: "2025-11-01", count: 325 },
+    { month: 12, start: "2025-12-01", count: 360 },
+  ],
+};
+
+/* list of years for the dropdown (keeps chronological order) */
+export const AVAILABLE_YEARS = [2020, 2021, 2022, 2023, 2024, 2025];

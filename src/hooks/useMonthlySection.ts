@@ -6,8 +6,7 @@ export type MonthItem = {
   month: number;
   start: string;
   count: number;
-  // new fields:
-  percentChange: number | null; // percentage (e.g. 12.34 for +12.34%)
+  percentChange: number | null;
   trend: "up" | "down" | "neutral";
 };
 
@@ -31,16 +30,24 @@ type UseMonthlySectionReturn = {
   ) => boolean;
 };
 
-export default function useMonthlySection(): UseMonthlySectionReturn {
+/**
+ * Optional parameter `initialMonths` allows callers (parent components)
+ * to supply a year-specific months array. If omitted, fallback to the default
+ * `monthlyData` export (which is your 2024 data).
+ */
+export default function useMonthlySection(
+  initialMonths?: { month: number; start: string; count: number }[]
+): UseMonthlySectionReturn {
   const months = useMemo<MonthItem[]>(() => {
-    // Build canonical list and compute percentChange + trend based on previous month
-    // Ensure we use the order of monthlyData as provided (assumed chronological).
-    const items = monthlyData.map((m) => ({
+    const base =
+      (initialMonths && initialMonths.length ? initialMonths : monthlyData) ||
+      [];
+    const items: MonthItem[] = base.map((m) => ({
       month: Number(m.month),
       start: String(m.start),
       count: Number(m.count ?? 0),
-      percentChange: null as number | null,
-      trend: "neutral" as "up" | "down" | "neutral",
+      percentChange: null,
+      trend: "neutral",
     }));
 
     for (let i = 0; i < items.length; i++) {
@@ -48,7 +55,6 @@ export default function useMonthlySection(): UseMonthlySectionReturn {
       const prev = items[i - 1];
 
       if (!prev || prev.count === 0) {
-        // No valid previous to compare to (avoid divide by zero)
         current.percentChange = null;
         current.trend = "neutral";
       } else {
@@ -67,7 +73,7 @@ export default function useMonthlySection(): UseMonthlySectionReturn {
     }
 
     return items;
-  }, []);
+  }, [initialMonths]);
 
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -108,7 +114,7 @@ export default function useMonthlySection(): UseMonthlySectionReturn {
       const selectedDateObj = new Date(selectedDate);
       selectedDateObj.setHours(0, 0, 0, 0);
 
-      // Find monthlyData item whose range contains the selected date
+      // Find monthly item whose range contains the selected date
       const found = months.find((m) => {
         const start = new Date(m.start + "T00:00:00");
         start.setHours(0, 0, 0, 0);
@@ -123,17 +129,57 @@ export default function useMonthlySection(): UseMonthlySectionReturn {
         return false;
       }
 
-      // compute which week (if any) contains the selected date
+      // --- find a matching weekly row in AllWeeklyData but only for the same YEAR ---
+      const targetYear = selectedDateObj.getFullYear();
+
       const matchedWeek = AllWeeklyData.find((w) => {
         const weekStart = new Date(w.date + "T00:00:00");
         weekStart.setHours(0, 0, 0, 0);
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
         weekEnd.setHours(23, 59, 59, 999);
+
+        // require same year as the selected date to avoid cross-year matches
+        if (weekStart.getFullYear() !== targetYear) return false;
+
         return selectedDateObj >= weekStart && selectedDateObj <= weekEnd;
       });
 
-      const highlightedWeekStart = matchedWeek ? matchedWeek.date : null;
+      let highlightedWeekStart: string | null = null;
+
+      if (matchedWeek) {
+        highlightedWeekStart = matchedWeek.date;
+      } else {
+        // If no weekly row exists for that year/month, synthesize a week-start
+        // from the found month's start and the selected date so the UI can highlight
+        // the correct week within the chosen year.
+        try {
+          const monthStart = new Date(found.start + "T00:00:00");
+          monthStart.setHours(0, 0, 0, 0);
+
+          // If selectedDate is not within the found month-range for safety, do not set highlight
+          const nextMonth = new Date(monthStart);
+          nextMonth.setMonth(nextMonth.getMonth() + 1);
+          nextMonth.setHours(0, 0, 0, 0);
+          if (selectedDateObj < monthStart || selectedDateObj >= nextMonth) {
+            highlightedWeekStart = null;
+          } else {
+            const diffDays = Math.floor(
+              (selectedDateObj.getTime() - monthStart.getTime()) /
+                (24 * 60 * 60 * 1000)
+            );
+            const weekIndex = Math.floor(diffDays / 7); // 0-based
+            const weekStartDate = new Date(monthStart);
+            weekStartDate.setDate(monthStart.getDate() + weekIndex * 7);
+            highlightedWeekStart = weekStartDate.toISOString().slice(0, 10);
+          }
+        } catch (ex) {
+          // on any error, fall back to null (no highlight)
+          // eslint-disable-next-line no-console
+          console.warn("Failed to synthesize highlighted week start", ex);
+          highlightedWeekStart = null;
+        }
+      }
 
       onFound(found.start, found.month, highlightedWeekStart);
 

@@ -1,7 +1,6 @@
 // src/pages/admin/monthly.tsx
-import React from "react";
-import DashboardHeader from "@/src/components/dashboardHeader";
-import { DashboardSidebar } from "@/src/components/dashboardSidebar";
+import React, { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 // lazy-load components that use browser APIs / non-SSR-friendly libs
 const MonthlySectionOne = dynamic(
   () => import("@/src/components/monthly/MonthlySectionOne"),
@@ -12,15 +11,30 @@ const MonthlyTrendChart = dynamic(
   () => import("@/src/components/monthly/MonthlyTrendChart"),
   { ssr: false }
 );
+
+import MonthlyPageView from "@/src/components/monthly/MonthlyPageView";
+import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
 import Summary from "@/src/components/summary";
 import TodaysCount from "@/src/components/todaysCount";
-import { monthlyData, monthlySummary } from "@/src/utils/data";
-import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
+import {
+  monthlyData,
+  monthlySummary,
+  monthlyDataByYear,
+  AVAILABLE_YEARS,
+} from "@/src/utils/data";
 import useMonthlyView from "@/src/hooks/useMonthlyView";
-import dynamic from "next/dynamic";
-import CountStatsCard from "@/src/components/countStatsCard";
 
 const MonthlyPage: React.FC = () => {
+  // NOTE: we'll pass the year-specific dataset to the hook so title/totalCount are correct
+  const [selectedYear, setSelectedYear] = useState<number>(2024);
+
+  // determine the months dataset for the selected year
+  const selectedYearMonthlyData = useMemo(() => {
+    if (selectedYear === 2024) return monthlyData;
+    return monthlyDataByYear[selectedYear] ?? [];
+  }, [selectedYear]);
+
+  // wire useMonthlyView with the selected year's data so title/totalCount are based on the year
   const {
     selectedMonthStart,
     selectedMonthNumber,
@@ -30,72 +44,112 @@ const MonthlyPage: React.FC = () => {
     totalCount,
     handleTableClick,
     handleBackToMonths,
-  } = useMonthlyView();
+  } = useMonthlyView(selectedYearMonthlyData, selectedYear);
+
+  // build a summary for the year from the selected data (fallbacks preserved)
+  const computedMonthlySummary = useMemo(() => {
+    const items = selectedYearMonthlyData || [];
+    if (!items.length) {
+      return monthlySummary;
+    }
+
+    const total = items.reduce((s, it) => s + Number(it.count || 0), 0);
+    const avg = Math.round(total / items.length);
+    const counts = items.map((m) => Number(m.count || 0));
+    const highest = Math.max(...counts);
+    const lowest = Math.min(...counts);
+
+    return [
+      { label: `Total count (${selectedYear})`, value: total.toLocaleString() },
+      { label: "Average monthly count", value: avg.toLocaleString() },
+      { label: "Highest monthly count", value: highest.toLocaleString() },
+      { label: "Lowest monthly count", value: lowest.toLocaleString() },
+      { label: "Highest hourly count", value: "55" },
+      { label: "Lowest hourly count", value: "8" },
+    ];
+  }, [selectedYearMonthlyData, selectedYear]);
+
+  // --- compute the four top stats based on the selected year's data ---
+  const {
+    currentMonthCount,
+    previousMonthCount,
+    momPercent, // number or null
+    averageMonthlyCount,
+  } = useMemo(() => {
+    const items = selectedYearMonthlyData || [];
+    if (!items.length) {
+      return {
+        currentMonthCount: null as number | null,
+        previousMonthCount: null as number | null,
+        momPercent: null as number | null,
+        averageMonthlyCount: null as number | null,
+      };
+    }
+
+    // Use the last available month in the dataset as "current"
+    const lastIndex = items.length - 1;
+    const current = Number(items[lastIndex]?.count ?? 0);
+    const previous =
+      lastIndex > 0 ? Number(items[lastIndex - 1]?.count ?? 0) : null;
+
+    const mom =
+      previous && previous !== 0
+        ? ((current - previous) / previous) * 100
+        : null;
+
+    const total = items.reduce((s, it) => s + Number(it.count ?? 0), 0);
+    const avg = Math.round(total / items.length);
+
+    return {
+      currentMonthCount: current,
+      previousMonthCount: previous,
+      momPercent: mom !== null && Number.isFinite(mom) ? Number(mom) : null,
+      averageMonthlyCount: avg,
+    };
+  }, [selectedYearMonthlyData]);
+
+  // prepare the child components to pass into the presentational view
+  const section = (
+    <MonthlySectionOne
+      onTableItemClick={handleTableClick}
+      monthsData={selectedYearMonthlyData}
+    />
+  );
+
+  const weeks =
+    selectedMonthStart && selectedMonthNumber != null ? (
+      <MonthlyWeeksCard
+        monthStart={selectedMonthStart}
+        monthNumber={selectedMonthNumber}
+        onBack={handleBackToMonths}
+        highlightedWeekStart={selectedWeekStart}
+      />
+    ) : null;
+
+  const chart = <MonthlyTrendChart data={selectedYearMonthlyData} />;
 
   return (
-    <div className="lg:pl-72 flex">
-      <DashboardSidebar />
-      <div className="flex-1 flex flex-col">
-        <div className="mb-36 lg:mb-0 block lg:hidden">
-          <DashboardHeader daily={false} title={"Monthly Count"} />
-        </div>
-
-        <div className="mb-36 lg:mb-0 hidden lg:block">
-          <DashboardHeader title={title} />
-        </div>
-
-        <div className="m-3">
-          <div className="flex flex-col md:flex-row gap-4 w-full">
-            <CountStatsCard title="Current Month Count" value="73" />
-            <CountStatsCard title="Previous Month Count" value="288" />
-            <CountStatsCard
-              title="Month-over-Month Change (%)"
-              value={1503} // pass a numeric value (1503 → will render "1,503%")
-              isPercentage={true}
-              // optional explicit override: "up" | "down" | "neutral"
-              // trend="up"
-            />{" "}
-            <CountStatsCard title="Average Monthly Count (YTD)" value="4,179" />
-          </div>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4 mb-8">
-          <div className="w-full">
-            <p className="lg:hidden text-lg font-medium ">
-              {selectedMonthStart ? title : "Monthly"}
-            </p>
-
-            <div className="lg:hidden my-4">
-              <TodaysCount count={totalCount} />
-            </div>
-
-            {/* Show months list OR weeks view */}
-            {!showWeekView ? (
-              <MonthlySectionOne onTableItemClick={handleTableClick} />
-            ) : selectedMonthStart && selectedMonthNumber != null ? (
-              <MonthlyWeeksCard
-                monthStart={selectedMonthStart}
-                monthNumber={selectedMonthNumber}
-                onBack={handleBackToMonths}
-                highlightedWeekStart={selectedWeekStart}
-              />
-            ) : null}
-          </div>
-
-          <div className="flex flex-col gap-4 w-full">
-            <div id="summary-side" className="flex flex-col gap-4 w-full">
-              <div className="flex flex-col gap-6">
-                <Summary details={monthlySummary} subtitle="last 12 months" />
-
-                <div className="w-full rounded-2xl p-12 border-2 border-grey shadow-lg hover:bg-grey">
-                  <MonthlyTrendChart data={monthlyData} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <MonthlyPageView
+      title={title}
+      selectedYear={selectedYear}
+      setSelectedYear={setSelectedYear}
+      availableYears={AVAILABLE_YEARS}
+      selectedMonthStart={selectedMonthStart}
+      selectedMonthNumber={selectedMonthNumber}
+      selectedWeekStart={selectedWeekStart}
+      showWeekView={showWeekView}
+      totalCount={totalCount}
+      handleTableClick={handleTableClick}
+      handleBackToMonths={handleBackToMonths}
+      currentMonthCount={currentMonthCount}
+      previousMonthCount={previousMonthCount}
+      momPercent={momPercent}
+      averageMonthlyCount={averageMonthlyCount}
+      computedMonthlySummary={computedMonthlySummary}
+      section={section}
+      weeks={weeks}
+      chart={chart}
+    />
   );
 };
 

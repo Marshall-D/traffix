@@ -1,6 +1,10 @@
 // src/hooks/useMonthlyWeeks.ts
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { WeeklyData as AllWeeklyData, monthlyData } from "@/src/utils/data";
+import {
+  WeeklyData as AllWeeklyData,
+  monthlyData,
+  monthlyDataByYear,
+} from "@/src/utils/data";
 
 export interface WeekRow {
   week: number;
@@ -20,11 +24,23 @@ export default function useMonthlyWeeks({
   monthNumber,
   highlightedWeekStart = null,
 }: UseMonthlyWeeksArgs) {
-  // derive weeks for the requested month from the weekly dataset
+  // derive target year from monthStart (ensure we respect the selected year's month)
+  const targetYear = useMemo(() => {
+    if (!monthStart) return null;
+    // monthStart expected like "2021-03-01" — parse the year portion safely
+    const parsed = new Date(monthStart + "T00:00:00");
+    if (Number.isNaN(parsed.getTime())) return null;
+    return parsed.getFullYear();
+  }, [monthStart]);
+
+  // derive weeks for the requested month & year from the weekly dataset
   const weeks = useMemo<WeekRow[]>(() => {
+    if (!targetYear) return [];
+
+    // 1) Try to find matching weekly records that match both month and year.
     const matched = AllWeeklyData.filter((w) => {
-      const d = new Date(w.date);
-      return d.getMonth() + 1 === monthNumber;
+      const d = new Date(w.date + "T00:00:00");
+      return d.getFullYear() === targetYear && d.getMonth() + 1 === monthNumber;
     }).map((w) => ({
       week: w.week,
       start: w.date,
@@ -33,23 +49,36 @@ export default function useMonthlyWeeks({
 
     if (matched.length > 0) return matched;
 
-    // fallback: synthesize 4 weeks using the monthly total (if available)
-    const monthEntry = monthlyData.find(
-      (m) => Number(m.month) === Number(monthNumber)
-    );
-    const totalForMonth = monthEntry ? Number(monthEntry.count ?? 0) : 0;
-    const perWeek = Math.round((totalForMonth || 0) / 4);
+    // 2) No weekly records for that month/year — synthesize using month's total.
+    // Prefer per-year monthly data (monthlyDataByYear), fallback to legacy monthlyData (2024)
+    const yearData = monthlyDataByYear[targetYear];
+    const monthEntry =
+      (yearData &&
+        yearData.find((m) => Number(m.month) === Number(monthNumber))) ??
+      monthlyData.find((m) => Number(m.month) === Number(monthNumber));
 
+    const totalForMonth = monthEntry ? Number(monthEntry.count ?? 0) : 0;
+    const perWeek = Math.round(totalForMonth / 4) || 0;
+
+    // Build 4 placeholder weeks using the provided monthStart (preserves year/month)
     const monthStartDate = new Date(monthStart + "T00:00:00");
+    // If monthStart was invalid, fallback to first day of target year/month
+    if (Number.isNaN(monthStartDate.getTime())) {
+      const fallback = new Date(targetYear, monthNumber - 1, 1);
+      // eslint-disable-next-line no-param-reassign
+      monthStart = fallback.toISOString().slice(0, 10);
+    }
+
     const placeholders: WeekRow[] = [];
     for (let i = 0; i < 4; i++) {
-      const s = new Date(monthStartDate);
-      s.setDate(monthStartDate.getDate() + i * 7);
+      const s = new Date(monthStart + "T00:00:00");
+      s.setDate(s.getDate() + i * 7);
+      // Ensure we keep the local date (ISO yyyy-mm-dd)
       const iso = s.toISOString().slice(0, 10);
       placeholders.push({ week: i + 1, start: iso, count: perWeek });
     }
     return placeholders;
-  }, [monthNumber, monthStart]);
+  }, [monthNumber, monthStart, targetYear]);
 
   // index of selected row (in the `weeks` array), or null if none
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
