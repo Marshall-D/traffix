@@ -2,7 +2,7 @@
 import React, { FC, useCallback } from "react";
 import { Button } from "../button";
 import { formatDate } from "@/src/utils/helpers";
-import useMonthlyWeeks from "@/src/hooks/useMonthlyWeeks";
+import useMonthlyWeeks, { WeekRow } from "@/src/hooks/useMonthlyWeeks";
 
 interface Props {
   monthStart: string; // "YYYY-MM-DD"
@@ -62,15 +62,32 @@ const MonthlyWeeksCard: FC<Props> = ({
           id="table-header"
           className="flex justify-between gap-3 text-grey-4 my-2 text-xs font-semibold"
         >
-          <p>Week</p>
-          <p>Start Date</p>
-          <p>Count</p>
+          {/* widths chosen to match row layout below */}
+          <p className="w-1/6">Week</p>
+          <p className="w-1/3">Start Date</p>
+          <p className="w-1/4 text-right">Count</p>
+          <p className="w-1/6 text-right">% Change</p>
         </div>
         <hr />
 
         <div id="table-body" className="mt-4">
-          {weeks.map((row, index) => {
+          {weeks.map((row: WeekRow, index) => {
             const isSelected = selectedRow === index;
+            const pct = row.percentChange;
+            const pctDisplay =
+              pct === null || pct === undefined
+                ? "—"
+                : `${Math.abs(Number(pct.toFixed(2))).toLocaleString()}%`;
+
+            const pctColorClass =
+              pct === null
+                ? "text-grey-400"
+                : pct > 0
+                ? "text-green-500"
+                : pct < 0
+                ? "text-red-500"
+                : "text-black";
+
             return (
               <div
                 key={`${row.start}-${index}`}
@@ -80,13 +97,27 @@ const MonthlyWeeksCard: FC<Props> = ({
                 aria-selected={isSelected}
                 onKeyDown={(e) => onRowKeyDown(e, index)}
                 onClick={() => toggleRow(index)}
-                className={`flex justify-between text-black-2 text-sm my-6 cursor-pointer py-3 px-4 rounded-md
+                className={`flex justify-between items-center text-black-2 text-sm my-6 cursor-pointer py-3 px-4 rounded-md
                   ${isSelected ? "bg-primary text-white" : ""}
                   hover:bg-grey-3`}
               >
-                <p className="">{row.week}</p>
-                <p className="">{formatDate(row.start)}</p>
-                <p className="font-semibold">{row.count}</p>
+                {/* Use the same widths as headers so everything lines up vertically */}
+                <p className="w-1/6">{row.week}</p>
+
+                <p className="w-1/3">{formatDate(row.start)}</p>
+
+                <p className="w-1/4 text-right font-semibold">
+                  {row.count.toLocaleString()}
+                </p>
+
+                <p
+                  className={`w-1/6 text-right ${
+                    pct === null ? "text-grey-400" : pctColorClass
+                  }`}
+                >
+                  {pct === null ? "—" : pct > 0 ? "+" : pct < 0 ? "-" : ""}
+                  {pct === null ? "" : pctDisplay}
+                </p>
               </div>
             );
           })}

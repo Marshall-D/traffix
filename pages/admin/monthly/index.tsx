@@ -14,8 +14,6 @@ const MonthlyTrendChart = dynamic(
 
 import MonthlyPageView from "@/src/components/monthly/MonthlyPageView";
 import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
-import Summary from "@/src/components/summary";
-import TodaysCount from "@/src/components/todaysCount";
 import {
   monthlyData,
   monthlySummary,
