@@ -8,6 +8,7 @@ import DailySectionWeeklyCountCard from "@/src/components/dailySectionWeeklyCoun
 import SummaryWeekly from "@/src/components/summary";
 import BusiestDay from "@/src/components/busiestDay";
 import useWeeklyView from "@/src/hooks/useWeeklyView";
+import CountStatsCard from "@/src/components/countStatsCard";
 
 // dynamic import of chart to avoid Chart.js SSR/hydration issues
 const WeeklyTrendChart = dynamic(() => import("@/src/components/chart"), {
@@ -26,6 +27,11 @@ const Weekly: React.FC = () => {
     summaryForSidebar,
     weeklyData,
     dailyData,
+    // new computed stats from the hook
+    currentWeekCount,
+    previousWeekCount,
+    wowPercent,
+    averageWeeklyCount,
   } = useWeeklyView();
 
   return (
@@ -48,6 +54,29 @@ const Weekly: React.FC = () => {
             showDailySection={showDailySection}
             busiestDay={busiestDay}
           />
+        </div>
+
+        {/* TOP STATS: same layout as monthly page (4 CountStatsCard) */}
+        <div className="m-3">
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            <CountStatsCard
+              title="Current Week Count"
+              value={currentWeekCount ?? "—"}
+            />
+            <CountStatsCard
+              title="Previous Week Count"
+              value={previousWeekCount ?? "—"}
+            />
+            <CountStatsCard
+              title="Week-over-Week Change (%)"
+              value={wowPercent ?? "—"}
+              isPercentage={true}
+            />
+            <CountStatsCard
+              title="Average Weekly Count (YTD)"
+              value={averageWeeklyCount ?? "—"}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 mt-5 mx-4">

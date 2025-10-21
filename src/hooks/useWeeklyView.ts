@@ -62,7 +62,55 @@ export default function useWeeklyView() {
     [showDailySection]
   );
 
-  // provide raw data to child components
+  /**
+   * Top stats for the weekly view
+   * - currentWeekCount: last available week's count (based on date)
+   * - previousWeekCount: previous week's count (if any)
+   * - wowPercent: week-over-week percentage (null if no previous or previous === 0)
+   * - averageWeeklyCount: rounded average of available weeks
+   */
+  const {
+    currentWeekCount,
+    previousWeekCount,
+    wowPercent,
+    averageWeeklyCount,
+  } = useMemo(() => {
+    const arr = Array.isArray(WeeklyData) ? [...WeeklyData] : [];
+    if (arr.length === 0) {
+      return {
+        currentWeekCount: null as number | null,
+        previousWeekCount: null as number | null,
+        wowPercent: null as number | null,
+        averageWeeklyCount: null as number | null,
+      };
+    }
+
+    // sort by date ascending to find last two weeks reliably
+    arr.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    const lastIndex = arr.length - 1;
+    const current = Number(arr[lastIndex]?.count ?? 0);
+    const previous =
+      lastIndex > 0 ? Number(arr[lastIndex - 1]?.count ?? 0) : null;
+
+    const percent =
+      previous && previous !== 0
+        ? ((current - previous) / previous) * 100
+        : null;
+
+    const total = arr.reduce((s, it) => s + Number(it.count ?? 0), 0);
+    const avg = Math.round(total / arr.length);
+
+    return {
+      currentWeekCount: current,
+      previousWeekCount: previous,
+      wowPercent:
+        percent !== null && Number.isFinite(percent) ? Number(percent) : null,
+      averageWeeklyCount: avg,
+    };
+  }, []);
+
+  // provide raw data to child components + computed stats
   return {
     showDailySection,
     selectedWeek,
@@ -74,5 +122,11 @@ export default function useWeeklyView() {
     summaryForSidebar,
     weeklyData: WeeklyData,
     dailyData,
+
+    // newly exported stats:
+    currentWeekCount,
+    previousWeekCount,
+    wowPercent,
+    averageWeeklyCount,
   } as const;
 }
