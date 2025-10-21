@@ -10,7 +10,9 @@ import ReactPaginate from "react-paginate";
 import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
 import Icon from "@mdi/react";
 
-import useWeeklyCountCard from "../../hooks/useWeeklyCountCard";
+import useWeeklyCountCard, {
+  WeeklyDataWithPct,
+} from "../../hooks/useWeeklyCountCard";
 import { WeeklyCountCardProps } from "@/src/types";
 
 const WeeklyCountCard: FC<WeeklyCountCardProps> = ({
@@ -61,27 +63,54 @@ const WeeklyCountCard: FC<WeeklyCountCardProps> = ({
           id="table-header"
           className="flex justify-between gap-3 text-grey-4 my-2 text-xs font-semibold"
         >
-          <p>Week</p>
-          <p>Date</p>
-          <p>Count</p>
+          <p className="w-1/6">Week</p>
+          <p className="w-1/3">Date</p>
+          <p className="w-1/4 text-right">Count</p>
+          <p className="w-1/6 text-right">% Change</p>
         </div>
         <hr />
 
         <div id="table-body">
-          {currentItems.map((row, index) => (
-            <div
-              key={index}
-              className={`flex justify-between text-black-2 text-sm my-8 cursor-pointer py-2 px-4 rounded-md
-    ${selectedRow === index ? "bg-primary" : ""} 
+          {(currentItems as WeeklyDataWithPct[]).map((row, index) => {
+            const isSelected = selectedRow === index;
+            const pct = (row as WeeklyDataWithPct).percentChange;
+            const pctDisplay =
+              pct === null || pct === undefined
+                ? "—"
+                : `${Math.abs(Number(pct.toFixed(2))).toLocaleString()}%`;
+
+            const pctColorClass =
+              pct === null
+                ? "text-grey-400"
+                : pct > 0
+                ? "text-green-500"
+                : pct < 0
+                ? "text-red-500"
+                : "text-black";
+
+            return (
+              <div
+                key={index}
+                className={`flex justify-between items-center text-black-2 text-sm my-4 cursor-pointer py-2 px-4 rounded-md
+    ${selectedRow === index ? "bg-primary text-white" : ""} 
     ${selectedRow === index && "hover:text-primary text-white"}
     hover:${selectedRow === index ? "bg-grey" : "text-primary"}`}
-              onClick={() => handleRowClick(index, row.date)}
-            >
-              <p className="">{row.week}</p>
-              <p className="">{row.date}</p>
-              <p className="font-semibold">{row.count}</p>
-            </div>
-          ))}
+                onClick={() => handleRowClick(index, row.date)}
+              >
+                <p className="w-1/6">{row.week}</p>
+                <p className="w-1/3">{row.date}</p>
+                <p className="w-1/4 text-right font-semibold">{row.count}</p>
+                <p
+                  className={`w-1/6 text-right ${
+                    pct === null ? "text-grey-400" : pctColorClass
+                  }`}
+                >
+                  {pct === null ? "—" : pct > 0 ? "+" : pct < 0 ? "-" : ""}
+                  {pct === null ? "" : pctDisplay}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 // src/hooks/useWeeklyCountCard.ts
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { WeeklyData } from "../types";
 
 export type FetchWeeklyDataFn = () => Promise<WeeklyData[]>;
@@ -14,6 +14,13 @@ interface UseWeeklyCountCardArgs {
    */
   fetchWeeklyData?: FetchWeeklyDataFn;
 }
+
+/**
+ * Extended item returned in derived lists: same as WeeklyData plus percentChange.
+ */
+export type WeeklyDataWithPct = WeeklyData & {
+  percentChange: number | null;
+};
 
 export function useWeeklyCountCard({
   weeklyData = [],
@@ -45,7 +52,7 @@ export function useWeeklyCountCard({
           if (mounted && Array.isArray(res)) setData(res);
         })
         .catch(() => {
-          /* keep behavior minimal: swallow errors here; integration code can handle properly */
+          /* swallow; integration can handle errors */
         });
     }
     return () => {
@@ -54,10 +61,40 @@ export function useWeeklyCountCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchWeeklyData]);
 
-  // Pagination calculations
-  const pageCount = Math.max(1, Math.ceil(data.length / itemsPerPage));
+  /**
+   * Derived data: sort by date (ascending) and compute percentChange
+   * percentChange = ((current - previous) / previous) * 100
+   * If no previous or previous.count === 0 -> percentChange = null
+   */
+  const derivedData = useMemo<WeeklyDataWithPct[]>(() => {
+    const arr = Array.isArray(data) ? [...data] : [];
+    // sort by date ascending (safe parse using Date)
+    arr.sort((a, b) => {
+      const ta = new Date(a.date).getTime();
+      const tb = new Date(b.date).getTime();
+      return ta - tb;
+    });
+
+    return arr.map((item, idx) => {
+      const prev = arr[idx - 1];
+      let percentChange: number | null = null;
+      if (prev && typeof prev.count === "number" && prev.count !== 0) {
+        const change = ((item.count - prev.count) / prev.count) * 100;
+        percentChange = Number.isFinite(change) ? change : null;
+      } else {
+        percentChange = null;
+      }
+      return {
+        ...item,
+        percentChange,
+      };
+    });
+  }, [data]);
+
+  // Pagination calculations use derivedData
+  const pageCount = Math.max(1, Math.ceil(derivedData.length / itemsPerPage));
   const offset = currentPage * itemsPerPage;
-  const currentItems = data.slice(offset, offset + itemsPerPage);
+  const currentItems = derivedData.slice(offset, offset + itemsPerPage);
 
   // handlers
   const openModal = useCallback(() => setShowModal(true), []);
@@ -82,7 +119,7 @@ export function useWeeklyCountCard({
 
     const selectedDateObj = new Date(formattedStringDate);
 
-    const matchedWeekData = data.find((item) => {
+    const matchedWeekData = derivedData.find((item) => {
       const weekStartDate = new Date(item.date);
       const weekEndDate = new Date(weekStartDate);
       weekEndDate.setDate(weekEndDate.getDate() + 6);
@@ -95,11 +132,11 @@ export function useWeeklyCountCard({
     } else {
       alert("No data available for this date.");
     }
-  }, [data, selectedDate, onTableItemClick]);
+  }, [derivedData, selectedDate, onTableItemClick]);
 
   const handleRowClick = useCallback(
     (indexOnPage: number, date: string) => {
-      const matchedWeekData = data.find((item) => item.date === date);
+      const matchedWeekData = derivedData.find((item) => item.date === date);
 
       if (isClickedOnce === indexOnPage) {
         // second click -> send selected week
@@ -115,12 +152,12 @@ export function useWeeklyCountCard({
         setIsClickedOnce(indexOnPage);
       }
     },
-    [data, isClickedOnce, onTableItemClick]
+    [derivedData, isClickedOnce, onTableItemClick]
   );
 
   const handlePageClick = useCallback((event: { selected: number }) => {
     setCurrentPage(event.selected);
-    // Optionally reset row selection when page changes, to keep UX consistent:
+    // reset selection when page changes
     setSelectedRow(null);
     setIsClickedOnce(null);
   }, []);
@@ -141,6 +178,7 @@ export function useWeeklyCountCard({
     isClickedOnce,
 
     // data & pagination
+    // keep original `data` for integration uses; but currentItems contains percentChange
     data,
     currentItems,
     pageCount,
