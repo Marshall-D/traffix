@@ -10,6 +10,8 @@ const ROUTES = {
   ADMIN_DAILY_PAGE: "/admin/daily",
   ADMIN_USER_MANAGEMENT: "/admin/user-management",
   FORGOT_PASSWORD: "/admin/forgot-password",
+  FORGOT_PASSWORD_VERIFY: "/admin/forgot-password/verify",
+  FORGOT_PASSWORD_RESET: "/admin/forgot-password/reset",
 };
 
 export default ROUTES;
