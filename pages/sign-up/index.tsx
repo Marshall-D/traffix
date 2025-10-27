@@ -165,7 +165,7 @@ const SignUpPage: React.FC = () => {
         const ok = await signUp(values);
         if (ok) {
           // after sign-up usually email confirmation is required — redirect to login
-          router.push(ROUTES.LOGIN_PAGE);
+          router.push(ROUTES.ADMIN_SIGNUP_VERIFY_PAGE);
         }
       } finally {
         setSubmitting(false);
@@ -175,7 +175,7 @@ const SignUpPage: React.FC = () => {
 
   // quick navigation that always routes to the login page when clicked
   const handleQuickSignUp = () => {
-    router.push(ROUTES.LOGIN_PAGE);
+    router.push(ROUTES.ADMIN_SIGNUP_VERIFY_PAGE);
   };
 
   return (
