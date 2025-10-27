@@ -41,3 +41,17 @@ export function formatDateSuffix(day: number): string {
       return "th";
   }
 }
+
+// passwordValidators
+export const validateMinLength = (pw: string, min = 8) => pw.length >= min;
+export const validateHasLetter = (pw: string) => /[A-Za-z]/.test(pw);
+export const validateHasNumber = (pw: string) => /[0-9]/.test(pw);
+
+/**
+ * Optionally export a single function that returns the criteria map
+ */
+export const passwordCriteria = (pw: string) => ({
+  hasMinLength: validateMinLength(pw),
+  hasLetter: validateHasLetter(pw),
+  hasNumber: validateHasNumber(pw),
+});
