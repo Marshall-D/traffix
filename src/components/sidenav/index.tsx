@@ -1,3 +1,4 @@
+// src/components/sideNav/index.tsx
 import { IconButton } from "@/src/components/iconButton";
 import {
   mdiViewDashboardOutline,
@@ -14,6 +15,7 @@ import classNames from "classnames";
 
 import React, { useState } from "react";
 import ROUTES from "@/src/utils/routes";
+import useClientForm from "@/src/hooks/useClientForm";
 
 interface Props {
   admin?: any;
@@ -23,6 +25,7 @@ interface Props {
 const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const { handleSignOut } = useClientForm();
 
   const toggleMenu = () => {
     const newState = !isOpen;
@@ -124,6 +127,20 @@ const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
                   </p>
                 </li>
               ))}
+            </div>
+
+            {/* Sign Out button (mobile) - red styling like your User Management screen */}
+            <div className="mt-4">
+              <li className="py-2">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className=" bg-red-500 hover:bg-red-700 text-white rounded-md px-3 py-2 text-left"
+                  aria-label="Sign out"
+                >
+                  Sign Out
+                </button>
+              </li>
             </div>
           </ul>
         </nav>

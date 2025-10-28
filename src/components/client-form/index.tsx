@@ -12,7 +12,6 @@ const AdminDashboard: React.FC = () => {
     clients,
     adminLoginUrl,
     formik,
-    handleSignOut,
     deleteClient,
     initiateEdit,
     cancelEdit,
@@ -152,16 +151,6 @@ const AdminDashboard: React.FC = () => {
           </p>
         </div>
       )}
-
-      {/* Sign Out Button */}
-      <div className="mt-12">
-        <Button
-          className="bg-red-500 hover:bg-red-700 text-white"
-          onClick={handleSignOut}
-        >
-          Sign Out
-        </Button>
-      </div>
     </div>
   );
 };

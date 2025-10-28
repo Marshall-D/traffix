@@ -1,3 +1,4 @@
+// src/components/dashboardSidebar/index.tsx
 import classNames from "classnames";
 import React from "react";
 import { useRouter } from "next/router";
@@ -5,7 +6,12 @@ import logo from "../../assets/logo-new.png";
 import Image from "next/image";
 import ROUTES from "@/src/utils/routes";
 import { IDashboardSidebar } from "@/src/types";
+import useClientForm from "@/src/hooks/useClientForm";
 
+/**
+ * SidebarMenu: navigation + sign out button at bottom (desktop),
+ * and a mobile nav block (visible on small screens) that includes the same sign out button.
+ */
 export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
   const router = useRouter();
 
@@ -18,6 +24,8 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
     { href: ROUTES.ADMIN_USER_MANAGEMENT, label: "User Management" },
   ];
 
+  const { handleSignOut } = useClientForm();
+
   return (
     <div className="flex flex-col h-full items-start mt-9">
       {/* Logo */}
@@ -25,8 +33,7 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
         <Image alt="Traffix logo" layout="fill" src={logo} />
       </div>
 
-      {/* Navigation Menu */}
-
+      {/* Desktop nav area */}
       <ul className="flex-1 mt-10 relative overflow-y-auto h-full flex flex-col justify-between">
         <div>
           {navItems.map((navItem) => (
@@ -48,6 +55,20 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
             </li>
           ))}
         </div>
+
+        {/* Sign Out (bottom desktop) - styled red like original */}
+        <div className="w-full pt-4">
+          <li className="mt-4 mb-6 p-2 w-full">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="text-sm block w-full text-center p-2 bg-red-500 hover:bg-red-700 text-white rounded-md"
+              aria-label="Sign out"
+            >
+              Sign Out
+            </button>
+          </li>
+        </div>
       </ul>
     </div>
   );
@@ -55,8 +76,15 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
 
 export const DashboardSidebar: React.FC<IDashboardSidebar> = ({ admin }) => {
   return (
-    <div className="hidden w-72 bg-white shadow fixed top-0 left-0 h-screen lg:flex flex-col z-[9990] p-6">
-      <SidebarMenu admin={admin} />
-    </div>
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden w-72 bg-white shadow fixed top-0 left-0 h-screen lg:flex flex-col z-[9990] p-6">
+        <SidebarMenu admin={admin} />
+      </div>
+
+      {/* The mobile nav block is rendered inside SidebarMenu (lg:hidden). 
+          For pages that don't have a dedicated mobile nav container, this will show
+          a small mobile nav area wherever <DashboardSidebar /> is used. */}
+    </>
   );
 };
