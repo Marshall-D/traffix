@@ -7,6 +7,7 @@ import Image from "next/image";
 import ROUTES from "@/src/utils/routes";
 import { IDashboardSidebar } from "@/src/types";
 import useClientForm from "@/src/hooks/useClientForm";
+import useLogout from "@/src/hooks/useLogout";
 
 /**
  * SidebarMenu: navigation + sign out button at bottom (desktop),
@@ -14,7 +15,12 @@ import useClientForm from "@/src/hooks/useClientForm";
  */
 export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
   const router = useRouter();
+  const { logout, loading } = useLogout();
 
+  const handleSignOut = async () => {
+    await logout();
+    // signOut already redirects to /login inside AuthProvider.signOut
+  };
   const navItems = [
     { href: ROUTES.ADMIN_DASHBOARD, label: "Dashboard" },
     { href: `${ROUTES.ADMIN_COUNT_PAGE}/${admin}`, label: "Count Page" },
@@ -23,8 +29,6 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
     { href: ROUTES.ADMIN_DAILY_PAGE, label: "Daily" },
     { href: ROUTES.ADMIN_USER_MANAGEMENT, label: "User Management" },
   ];
-
-  const { handleSignOut } = useClientForm();
 
   return (
     <div className="flex flex-col h-full items-start mt-9">
@@ -62,10 +66,11 @@ export const SidebarMenu: React.FC<IDashboardSidebar> = ({ admin }) => {
             <button
               type="button"
               onClick={handleSignOut}
+              disabled={loading}
               className="text-sm block w-full text-center p-2 bg-red-500 hover:bg-red-700 text-white rounded-md"
               aria-label="Sign out"
             >
-              Sign Out
+              {loading ? "Signing out…" : "Sign out"}
             </button>
           </li>
         </div>

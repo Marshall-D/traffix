@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // redirect to login page as a convenience
     if (typeof window !== "undefined") {
-      router.push(ROUTES.ADMIN_DASHBOARD);
+      router.push(ROUTES.LOGIN_PAGE);
     }
   };
 

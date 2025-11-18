@@ -16,6 +16,7 @@ import classNames from "classnames";
 import React, { useState } from "react";
 import ROUTES from "@/src/utils/routes";
 import useClientForm from "@/src/hooks/useClientForm";
+import useLogout from "@/src/hooks/useLogout";
 
 interface Props {
   admin?: any;
@@ -25,7 +26,6 @@ interface Props {
 const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const { handleSignOut } = useClientForm();
 
   const toggleMenu = () => {
     const newState = !isOpen;
@@ -33,6 +33,13 @@ const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
     if (onToggleMenu) {
       onToggleMenu(newState); // Call the parent function to toggle title visibility
     }
+  };
+
+  const { logout, loading } = useLogout();
+
+  const handleSignOut = async () => {
+    await logout();
+    // signOut already redirects to /login inside AuthProvider.signOut
   };
 
   const navItems = [
@@ -135,10 +142,11 @@ const SideNav: React.FC<Props> = ({ admin, onToggleMenu }) => {
                 <button
                   type="button"
                   onClick={handleSignOut}
+                  disabled={loading}
                   className=" bg-red-500 hover:bg-red-700 text-white rounded-md px-3 py-2 text-left"
                   aria-label="Sign out"
                 >
-                  Sign Out
+                  {loading ? "Signing out…" : "Sign out"}
                 </button>
               </li>
             </div>
