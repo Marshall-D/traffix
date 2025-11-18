@@ -11,7 +11,7 @@ import { mdiEmailOutline, mdiKeyOutline } from "@mdi/js";
 import { Input } from "@/src/components/input";
 import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
-import useLogin from "@/src/hooks/useLogin";
+import { useAuth } from "@/src/context/AuthContext";
 import type { LoginValues } from "@/src/types/auth";
 
 /** Validation schema */
@@ -29,7 +29,6 @@ type LoginViewProps = {
   onQuickLogin: () => void;
 };
 
-/** Presentational view */
 function LoginView({
   formik,
   loading,
@@ -38,10 +37,8 @@ function LoginView({
 }: LoginViewProps) {
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
-      {/* Left background uses theme token */}
       <div className="hidden md:block bg-primary-light w-1/2" />
 
-      {/* Right: login form uses theme white2 */}
       <main className="bg-white2 w-full md:w-1/2 flex flex-col items-center justify-center px-4 py-8">
         <div className="mb-20 md:my-5">
           <div className="hidden md:block w-[131px] h-[51px] relative">
@@ -135,7 +132,6 @@ function LoginView({
           </div>
 
           <div className="w-full pt-8 lg:py-10">
-            {/* Primary action: submit the form */}
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary-light"
@@ -165,7 +161,7 @@ function LoginView({
 /** Page container */
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { loading, error, login } = useLogin();
+  const { signIn, loading: authLoading, user } = useAuth();
 
   const formik = useFormik<LoginValues>({
     initialValues: { email: "", password: "" },
@@ -173,14 +169,14 @@ const LoginPage: React.FC = () => {
     onSubmit: async (values, { setSubmitting, setFieldError }) => {
       setSubmitting(true);
       try {
-        const { ok, message } = await login(values);
+        const { ok, message } = await signIn(values);
         if (ok) {
+          // successful login: profile is already stored in context by signIn
           router.push(ROUTES.ADMIN_DASHBOARD);
           return;
         }
 
-        // not ok -> map common server messages to fields if appropriate
-        // example: "Invalid credentials" -> set password error (less info leak)
+        // map server message to field errors where appropriate
         if (message) {
           const lower = message.toLowerCase();
           if (
@@ -188,11 +184,12 @@ const LoginPage: React.FC = () => {
             lower.includes("credentials") ||
             lower.includes("password")
           ) {
+            setFieldError("password", message);
           } else if (lower.includes("email")) {
             setFieldError("email", message);
           } else {
-            // fallback: handled by serverError displayed in the form via error prop
-            // (the hook already set error state which the page displays)
+            // fallback: global error area will show message via context (if you hook it up),
+            // but signIn already provides the message to caller for display.
           }
         }
       } finally {
@@ -201,17 +198,12 @@ const LoginPage: React.FC = () => {
     },
   });
 
-  // quick navigation that always routes to dashboard
-  const handleQuickLogin = () => {
-    router.push(ROUTES.ADMIN_DASHBOARD);
-  };
-
   return (
     <LoginView
       formik={formik}
-      loading={loading || formik.isSubmitting}
-      serverError={error}
-      onQuickLogin={handleQuickLogin}
+      loading={authLoading || formik.isSubmitting}
+      serverError={null}
+      onQuickLogin={() => router.push(ROUTES.ADMIN_DASHBOARD)}
     />
   );
 };

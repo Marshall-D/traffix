@@ -1,5 +1,5 @@
 // src/services/authService.ts
-import { LoginValues, SignUpValues } from "@/src/types/auth";
+import { LoginValues, SignUpValues, User } from "@/src/types/auth";
 import apiClient, { setAuthToken } from "./apiClient";
 
 /**
@@ -33,6 +33,9 @@ export async function signUp(values: SignUpValues) {
   }
 }
 
+/**
+ * login wrapper: returns { ok, token?, message?, user? }
+ */
 export async function login(values: LoginValues) {
   try {
     const resp = await apiClient.post("/api/v1/auth/login", {
@@ -44,6 +47,7 @@ export async function login(values: LoginValues) {
       success?: boolean;
       token?: string;
       message?: string;
+      user?: User;
     };
 
     if (data.token) setAuthToken(data.token);
@@ -52,10 +56,16 @@ export async function login(values: LoginValues) {
       ok: data.success ?? true,
       token: data.token ?? null,
       message: data.message ?? null,
+      user: data.user ?? null,
+    } as {
+      ok: boolean;
+      token: string | null;
+      message: string | null;
+      user: User | null;
     };
   } catch (err: unknown) {
     if (err instanceof Error)
-      return { ok: false, token: null, message: err.message };
-    return { ok: false, token: null, message: "Login failed" };
+      return { ok: false, token: null, message: err.message, user: null };
+    return { ok: false, token: null, message: "Login failed", user: null };
   }
 }
