@@ -1,3 +1,5 @@
+// pages/index.tsx
+
 import "react-tooltip/dist/react-tooltip.css";
 import LoginPage from "./login";
 

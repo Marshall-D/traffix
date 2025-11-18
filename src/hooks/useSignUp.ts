@@ -1,42 +1,33 @@
 // src/hooks/useSignUp.ts
 import { useCallback, useState } from "react";
-import { supabase } from "@/src/utils/supabaseClient";
-
-export type SignUpValues = {
-  email: string;
-  password: string;
-};
+import * as authService from "@/services/authService";
+import type { SignUpValues } from "@/src/types/auth";
 
 export default function useSignUp() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Attempts to sign up a user with Supabase Auth.
-   * Returns true on success, false on failure.
+   * signUp (hook) — uses authService.signUp (service)
+   * Both have the same name ("signUp") but we avoid identifier collision
+   * by calling the service through the `authService` namespace.
    */
   const signUp = useCallback(async (values: SignUpValues): Promise<boolean> => {
     setError(null);
     setLoading(true);
 
     try {
-      // Prefer using Supabase Auth which will handle email confirmation / password hashing
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (signUpError) {
-        setError(signUpError.message || "Sign-up failed");
+      const result = await authService.signUp(values);
+      if (!result.ok) {
+        setError(result.message ?? "Sign-up failed");
         return false;
       }
 
-      // optionally inspect `data` for next steps (e.g. email confirmation required)
       return true;
-    } catch (ex) {
-      // eslint-disable-next-line no-console
-      console.error("Unexpected signUp error", ex);
-      setError("An unexpected error occurred. Please try again.");
+    } catch (err: unknown) {
+      // axios throws Error with message already processed by interceptor
+      const message = err instanceof Error ? err.message : "Sign-up failed";
+      setError(message);
       return false;
     } finally {
       setLoading(false);

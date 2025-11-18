@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-import * as clientsService from "@/src/services/clientsService"; // still attempted first
+import * as clientsService from "@/services/clientsService"; // still attempted first
 import { Client } from "../types";
 import ROUTES from "../utils/routes";
 

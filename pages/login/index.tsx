@@ -125,6 +125,15 @@ function LoginView({
             </div>
           )}
 
+          <div className="w-full text-center">
+            <button
+              type="button"
+              className="underline cursor-pointer hover:text-primary text-sm"
+              onClick={() => (window.location.href = ROUTES.FORGOT_PASSWORD)}
+            >
+              Forgot password?
+            </button>
+          </div>
           <div className="w-full pt-8 lg:py-10">
             {/* NOTE: type="button" -> clicking will NOT submit the form.
                 It will immediately navigate to the dashboard via onQuickLogin.
@@ -145,9 +154,9 @@ function LoginView({
             <button
               type="button"
               className="underline cursor-pointer hover:text-primary text-sm"
-              onClick={() => (window.location.href = ROUTES.FORGOT_PASSWORD)}
+              onClick={() => (window.location.href = ROUTES.ADMIN_SIGNUP_PAGE)}
             >
-              Forgot password?
+              Dont have an account? sign up{" "}
             </button>
           </div>
         </form>

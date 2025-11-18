@@ -3,7 +3,6 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 
 import logo from "@/src/assets/logo-new.png";
 import logoSmall from "@/src/assets/logo-small.png";
@@ -12,37 +11,8 @@ import { Input } from "@/src/components/input";
 import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
 import useSignUp from "@/src/hooks/useSignUp";
-
-/**
- * Local type for the sign up form values.
- * Kept local so you can drop this file in without immediately changing other files.
- */
-type SignUpValues = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-};
-
-/** Validation schema */
-const schema = Yup.object().shape({
-  firstName: Yup.string()
-    .trim()
-    .min(1, "Enter your first name")
-    .max(30, "First name is too long")
-    .required("Please enter your first name"),
-  lastName: Yup.string()
-    .trim()
-    .min(1, "Enter your last name")
-    .max(30, "Last name is too long")
-    .required("Please enter your last name"),
-  email: Yup.string()
-    .email("Enter a valid email")
-    .required("Please enter your email"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters long")
-    .required("Please enter your password"),
-});
+import type { SignUpValues } from "@/src/types/auth";
+import { signUpSchema } from "@/src/types/validation";
 
 /** Presentational component */
 function SignUpView({
@@ -92,8 +62,8 @@ function SignUpView({
           aria-labelledby="signup-form"
           className="flex flex-col items-center w-full max-w-[330px] space-y-4 px-4"
         >
-          {/* First + Last name - stacked on mobile, side-by-side on md+ */}
-          <div className="w-full">
+          {/* First + Last name */}
+          <div className="w-full ">
             <Input
               id="firstName"
               name="firstName"
@@ -114,7 +84,7 @@ function SignUpView({
             )}
           </div>
 
-          <div className="w-full">
+          <div className="w-full ">
             <Input
               id="lastName"
               name="lastName"
@@ -190,16 +160,12 @@ function SignUpView({
           )}
 
           <div className="w-full pt-8">
-            {/* Quick navigation: clicking the button will immediately go to the login page.
-                Keeping it type="button" so the form is NOT submitted on click.
-                Submitting via Enter still executes the real signUp flow. */}
             <Button
-              type="button"
+              type="submit"
               className="w-full bg-primary hover:bg-primary-light"
               disabled={loading}
               aria-disabled={loading}
               aria-busy={loading}
-              onClick={onQuickSignUp}
             >
               {loading ? "Creating account…" : "Sign up"}
             </Button>
@@ -227,7 +193,7 @@ const SignUpPage: React.FC = () => {
 
   const formik = useFormik<SignUpValues>({
     initialValues: { firstName: "", lastName: "", email: "", password: "" },
-    validationSchema: schema,
+    validationSchema: signUpSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
@@ -242,17 +208,14 @@ const SignUpPage: React.FC = () => {
     },
   });
 
-  // quick navigation that always routes to the verify page when clicked
-  const handleQuickSignUp = () => {
-    router.push(ROUTES.ADMIN_SIGNUP_VERIFY_PAGE);
-  };
-
   return (
     <SignUpView
       formik={formik}
       loading={loading || formik.isSubmitting}
       serverError={hookError}
-      onQuickSignUp={handleQuickSignUp}
+      onQuickSignUp={() => {
+        /* not needed now; used submit button */
+      }}
     />
   );
 };

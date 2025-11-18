@@ -1,6 +1,6 @@
 // src/services/clientsService.ts
 import { supabase } from "@/src/utils/supabaseClient";
-import { Client } from "../types";
+import { Client } from "../src/types";
 
 /**
  * Returns { user, error } using supabase.auth.getUser()
