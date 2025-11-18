@@ -11,10 +11,31 @@ import { mdiEmailOutline, mdiKeyOutline } from "@mdi/js";
 import { Input } from "@/src/components/input";
 import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
-import useSignUp, { SignUpValues } from "@/src/hooks/useSignUp";
+import useSignUp from "@/src/hooks/useSignUp";
+
+/**
+ * Local type for the sign up form values.
+ * Kept local so you can drop this file in without immediately changing other files.
+ */
+type SignUpValues = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
 
 /** Validation schema */
 const schema = Yup.object().shape({
+  firstName: Yup.string()
+    .trim()
+    .min(1, "Enter your first name")
+    .max(30, "First name is too long")
+    .required("Please enter your first name"),
+  lastName: Yup.string()
+    .trim()
+    .min(1, "Enter your last name")
+    .max(30, "Last name is too long")
+    .required("Please enter your last name"),
   email: Yup.string()
     .email("Enter a valid email")
     .required("Please enter your email"),
@@ -37,9 +58,11 @@ function SignUpView({
 }) {
   return (
     <div className="md:grid md:grid-cols-2 md:h-screen">
+      {/* left panel uses theme color primary.light from tailwind.config */}
       <div className="hidden md:block bg-primary-light" />
 
-      <main id="right-side" className="bg-white flex flex-col items-center">
+      {/* right panel uses theme white2 (configured in tailwind.config) */}
+      <main id="right-side" className="bg-white2 flex flex-col items-center">
         <div className="hidden md:block my-24 w-[131px] h-[51px] relative">
           <Image
             alt="logo"
@@ -67,8 +90,51 @@ function SignUpView({
         <form
           onSubmit={formik.handleSubmit}
           aria-labelledby="signup-form"
-          className="flex flex-col items-center w-full max-w-[330px] space-y-4"
+          className="flex flex-col items-center w-full max-w-[330px] space-y-4 px-4"
         >
+          {/* First + Last name - stacked on mobile, side-by-side on md+ */}
+          <div className="w-full">
+            <Input
+              id="firstName"
+              name="firstName"
+              label="First name"
+              placeholder="First name"
+              value={formik.values.firstName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              aria-invalid={
+                !!(formik.touched.firstName && formik.errors.firstName)
+              }
+              aria-describedby="firstName-error"
+            />
+            {formik.touched.firstName && formik.errors.firstName && (
+              <p id="firstName-error" className="text-error text-sm mt-1">
+                {formik.errors.firstName}
+              </p>
+            )}
+          </div>
+
+          <div className="w-full">
+            <Input
+              id="lastName"
+              name="lastName"
+              label="Last name"
+              placeholder="Last name"
+              value={formik.values.lastName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              aria-invalid={
+                !!(formik.touched.lastName && formik.errors.lastName)
+              }
+              aria-describedby="lastName-error"
+            />
+            {formik.touched.lastName && formik.errors.lastName && (
+              <p id="lastName-error" className="text-error text-sm mt-1">
+                {formik.errors.lastName}
+              </p>
+            )}
+          </div>
+
           <div className="w-full">
             <Input
               id="email"
@@ -84,7 +150,7 @@ function SignUpView({
               aria-describedby="email-error"
             />
             {formik.touched.email && formik.errors.email && (
-              <p id="email-error" className="text-red-500 text-sm mt-1">
+              <p id="email-error" className="text-error text-sm mt-1">
                 {formik.errors.email}
               </p>
             )}
@@ -108,14 +174,17 @@ function SignUpView({
               aria-describedby="password-error"
             />
             {formik.touched.password && formik.errors.password && (
-              <p id="password-error" className="text-red-500 text-sm mt-1">
+              <p id="password-error" className="text-error text-sm mt-1">
                 {formik.errors.password}
               </p>
             )}
           </div>
 
           {serverError && (
-            <div role="alert" className="text-red-500 mt-2 w-full text-center">
+            <div
+              role="alert"
+              className="text-error mt-2 w-full text-center text-sm"
+            >
               {serverError}
             </div>
           )}
@@ -157,14 +226,14 @@ const SignUpPage: React.FC = () => {
   const { loading, error: hookError, signUp } = useSignUp();
 
   const formik = useFormik<SignUpValues>({
-    initialValues: { email: "", password: "" },
+    initialValues: { firstName: "", lastName: "", email: "", password: "" },
     validationSchema: schema,
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
         const ok = await signUp(values);
         if (ok) {
-          // after sign-up usually email confirmation is required — redirect to login
+          // after sign-up usually email confirmation is required — redirect to verify
           router.push(ROUTES.ADMIN_SIGNUP_VERIFY_PAGE);
         }
       } finally {
@@ -173,7 +242,7 @@ const SignUpPage: React.FC = () => {
     },
   });
 
-  // quick navigation that always routes to the login page when clicked
+  // quick navigation that always routes to the verify page when clicked
   const handleQuickSignUp = () => {
     router.push(ROUTES.ADMIN_SIGNUP_VERIFY_PAGE);
   };
