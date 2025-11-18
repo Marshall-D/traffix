@@ -1,52 +1,46 @@
 // src/hooks/useLogin.ts
 import { useCallback, useState } from "react";
-import { supabase } from "@/src/utils/supabaseClient";
-
-export type LoginValues = {
-  email: string;
-  password: string;
-};
+import * as authService from "@/services/authService";
+import type { LoginValues } from "@/src/types/auth";
 
 export default function useLogin() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const signIn = useCallback(async (values: LoginValues): Promise<boolean> => {
-    setError(null);
-    setLoading(true);
+  /**
+   * Returns { ok, message } so the UI can choose to set field-level errors.
+   */
+  const login = useCallback(
+    async (
+      values: LoginValues
+    ): Promise<{ ok: boolean; message?: string | null }> => {
+      setError(null);
+      setLoading(true);
 
-    try {
-      const { error: signInError, data } =
-        await supabase.auth.signInWithPassword({
-          email: values.email,
-          password: values.password,
-        });
+      try {
+        const result = await authService.login(values);
+        if (!result.ok) {
+          // service returns message for UI
+          setError(result.message ?? "Login failed");
+          return { ok: false, message: result.message ?? "Login failed" };
+        }
 
-      if (signInError) {
-        // normalize message for UI
-        setError(signInError.message ?? "Login failed");
-        return false;
+        return { ok: true, message: result.message ?? null };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Login failed";
+        setError(message);
+        return { ok: false, message };
+      } finally {
+        setLoading(false);
       }
-
-      // Optionally persist session or user metadata here (be mindful of sensitive data)
-      // Example: localStorage.setItem("supabaseSession", JSON.stringify(data.session));
-
-      return true;
-    } catch (ex) {
-      // unexpected
-      // eslint-disable-next-line no-console
-      console.error("Unexpected signIn error", ex);
-      setError("An unexpected error occurred. Please try again.");
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   return {
     loading,
     error,
-    signIn,
-    setError, // exported for tests and special cases
+    login,
+    setError,
   } as const;
 }

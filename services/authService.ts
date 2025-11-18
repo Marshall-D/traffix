@@ -1,6 +1,6 @@
 // src/services/authService.ts
-import { SignUpValues } from "@/src/types/auth";
-import apiClient from "./apiClient";
+import { LoginValues, SignUpValues } from "@/src/types/auth";
+import apiClient, { setAuthToken } from "./apiClient";
 
 /**
  * Register endpoint wrapper.
@@ -30,5 +30,32 @@ export async function signUp(values: SignUpValues) {
   } catch (err: unknown) {
     // Let caller handle the error message; keep service thin.
     throw err;
+  }
+}
+
+export async function login(values: LoginValues) {
+  try {
+    const resp = await apiClient.post("/api/v1/auth/login", {
+      email: values.email,
+      password: values.password,
+    });
+
+    const data = resp.data as {
+      success?: boolean;
+      token?: string;
+      message?: string;
+    };
+
+    if (data.token) setAuthToken(data.token);
+
+    return {
+      ok: data.success ?? true,
+      token: data.token ?? null,
+      message: data.message ?? null,
+    };
+  } catch (err: unknown) {
+    if (err instanceof Error)
+      return { ok: false, token: null, message: err.message };
+    return { ok: false, token: null, message: "Login failed" };
   }
 }
