@@ -1,13 +1,12 @@
 // src/services/authService.ts
 import { SignUpValues } from "@/src/types/auth";
-import apiClient, { setAuthToken } from "./apiClient";
+import apiClient from "./apiClient";
 
 /**
  * Register endpoint wrapper.
- * Returns: { success: boolean, token?: string, message?: string }
+ * Returns: { ok: boolean, token?: string | null, message?: string | null }
  */
 export async function signUp(values: SignUpValues) {
-  // backend expects firstName, lastName, email, password
   try {
     const resp = await apiClient.post("/api/v1/auth/register", {
       firstName: values.firstName,
@@ -23,18 +22,13 @@ export async function signUp(values: SignUpValues) {
       message?: string;
     };
 
-    if (data.token) {
-      // persist token for future requests
-      setAuthToken(data.token);
-    }
-
     return {
       ok: data.success ?? true,
       token: data.token ?? null,
       message: data.message ?? null,
     };
   } catch (err: unknown) {
-    // caller will handle error message
+    // Let caller handle the error message; keep service thin.
     throw err;
   }
 }

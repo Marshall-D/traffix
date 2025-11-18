@@ -9,30 +9,36 @@ export default function useSignUp() {
 
   /**
    * signUp (hook) — uses authService.signUp (service)
-   * Both have the same name ("signUp") but we avoid identifier collision
-   * by calling the service through the `authService` namespace.
+   * Returns an object with ok + optional message so the caller can decide next steps.
    */
-  const signUp = useCallback(async (values: SignUpValues): Promise<boolean> => {
-    setError(null);
-    setLoading(true);
+  const signUp = useCallback(
+    async (
+      values: SignUpValues
+    ): Promise<{ ok: boolean; message?: string | null }> => {
+      setError(null);
+      setLoading(true);
 
-    try {
-      const result = await authService.signUp(values);
-      if (!result.ok) {
-        setError(result.message ?? "Sign-up failed");
-        return false;
+      try {
+        const result = await authService.signUp(values);
+
+        if (!result.ok) {
+          const msg = result.message ?? "Sign-up failed";
+          setError(msg);
+          return { ok: false, message: msg };
+        }
+
+        // success — do not auto-persist token here (caller decides).
+        return { ok: true, message: result.message ?? "Account created." };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Sign-up failed";
+        setError(message);
+        return { ok: false, message };
+      } finally {
+        setLoading(false);
       }
-
-      return true;
-    } catch (err: unknown) {
-      // axios throws Error with message already processed by interceptor
-      const message = err instanceof Error ? err.message : "Sign-up failed";
-      setError(message);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   return { loading, error, signUp, setError } as const;
 }

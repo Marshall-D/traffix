@@ -9,7 +9,6 @@ import ROUTES from "@/src/utils/routes";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-// const API_BASE = "https://traffix-backend-0wh6.onrender.com";
 /**
  * Axios instance for all API calls
  */
@@ -24,18 +23,13 @@ const apiClient: AxiosInstance = axios.create({
 
 /**
  * Request interceptor:
- * - typed as InternalAxiosRequestConfig to satisfy axios types
- * - ensure headers exist before writing Authorization
  */
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
       if (token) {
-        // ensure headers exists and is an object
-        // InternalAxiosRequestConfig.headers is non-nullable, but runtime could be undefined
         config.headers = config.headers ?? {};
-        // config.headers has complex types in Axios; cast to Record<string, string> to set our header
         (config.headers as Record<string, string>)[
           "Authorization"
         ] = `Bearer ${token}`;
@@ -48,12 +42,14 @@ apiClient.interceptors.request.use(
 
 /**
  * Response interceptor:
- * - centralizes handling of network errors and 401
- * - returns a rejected Error with friendly message
+ * - Build a friendly message from common shapes returned by servers:
+ *   { message }, { error }, { msg }, { errors: [...] }, { detail }, or plain string body.
+ * - For 401 we clear token and redirect.
  */
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
+    // Network error
     if (!error.response) {
       return Promise.reject(new Error("Network error. Please try again."));
     }
@@ -61,7 +57,6 @@ apiClient.interceptors.response.use(
     const status = error.response.status;
 
     if (status === 401) {
-      // Clear token and redirect to login on client
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
         window.location.href = ROUTES.LOGIN_PAGE;
@@ -69,19 +64,42 @@ apiClient.interceptors.response.use(
       return Promise.reject(new Error("Unauthorized. Please login again."));
     }
 
-    // Prefer server message if present
-    const serverMessage =
-      (error.response.data &&
-        (error.response.data.message || error.response.data.error)) ||
-      error.response.statusText ||
-      "An error occurred";
+    // Extract server message from multiple possible shapes
+    const data = error.response.data as any;
 
-    return Promise.reject(new Error(serverMessage));
+    let serverMessage: string | null = null;
+
+    if (!data) {
+      serverMessage = error.response.statusText || "An error occurred";
+    } else if (typeof data === "string") {
+      // server returned plain string
+      serverMessage = data;
+    } else if (typeof data === "object") {
+      // common fields
+      serverMessage =
+        data.msg ||
+        data.message ||
+        data.error ||
+        (Array.isArray(data.errors) &&
+          data.errors.length > 0 &&
+          (data.errors[0].message || data.errors[0])) ||
+        data.detail ||
+        null;
+    }
+
+    // fallback to statusText or generic
+    serverMessage =
+      serverMessage || error.response.statusText || "An error occurred";
+
+    // optional: log for debugging
+    // console.error("[apiClient] HTTP error", { status, body: data, message: serverMessage });
+
+    return Promise.reject(new Error(String(serverMessage)));
   }
 );
 
 /**
- * Helper to set token programmatically (e.g. after login/signup)
+ * Helper to set token programmatically
  */
 export function setAuthToken(token: string | null) {
   if (typeof window === "undefined") return;

@@ -19,19 +19,17 @@ function SignUpView({
   formik,
   loading,
   serverError,
-  onQuickSignUp,
+  onNavigateToLogin,
 }: {
   formik: ReturnType<typeof useFormik<SignUpValues>>;
   loading: boolean;
   serverError: string | null;
-  onQuickSignUp: () => void;
+  onNavigateToLogin: () => void;
 }) {
   return (
     <div className="md:grid md:grid-cols-2 md:h-screen">
-      {/* left panel uses theme color primary.light from tailwind.config */}
       <div className="hidden md:block bg-primary-light" />
 
-      {/* right panel uses theme white2 (configured in tailwind.config) */}
       <main id="right-side" className="bg-white2 flex flex-col items-center">
         <div className="hidden md:block my-24 w-[131px] h-[51px] relative">
           <Image
@@ -175,7 +173,7 @@ function SignUpView({
             <button
               type="button"
               className="underline text-sm hover:text-primary"
-              onClick={() => (window.location.href = ROUTES.LOGIN_PAGE)}
+              onClick={onNavigateToLogin}
             >
               Already have an account? Sign in
             </button>
@@ -197,11 +195,18 @@ const SignUpPage: React.FC = () => {
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
-        const ok = await signUp(values);
-        if (ok) {
-          // after sign-up usually email confirmation is required — redirect to verify
-          router.push(ROUTES.ADMIN_SIGNUP_VERIFY_PAGE);
+        const result = await signUp(values);
+        if (result.ok) {
+          // show accessible alert/toast — simple approach using native alert here
+          // (replace with your Toast component if available)
+          window.alert(
+            result.message ?? "Account created Succesfully. Please sign in."
+          );
+
+          // navigate to login screen
+          await router.push(ROUTES.LOGIN_PAGE);
         }
+        // if not ok, `useSignUp` already set the hook error which is shown in the UI
       } finally {
         setSubmitting(false);
       }
@@ -213,9 +218,7 @@ const SignUpPage: React.FC = () => {
       formik={formik}
       loading={loading || formik.isSubmitting}
       serverError={hookError}
-      onQuickSignUp={() => {
-        /* not needed now; used submit button */
-      }}
+      onNavigateToLogin={() => router.push(ROUTES.LOGIN_PAGE)}
     />
   );
 };
