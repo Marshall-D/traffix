@@ -1,6 +1,6 @@
-// pages/admin/daily.tsx
-
+// src/pages/admin/daily.tsx
 import React, { useMemo } from "react";
+import withAuth from "@/src/hocs/withAuth";
 import BarChart from "@/src/components/barChart";
 import DailySectionOne from "@/src/components/dailySectionOne";
 import DashboardHeader from "@/src/components/dashboardHeader";
@@ -20,6 +20,7 @@ import {
   dailyLineChartData,
 } from "@/src/utils/data";
 import useDailyView from "@/src/hooks/useDailyView";
+
 const Daily: React.FC = () => {
   const {
     showHourlySection,
@@ -99,4 +100,4 @@ const Daily: React.FC = () => {
   );
 };
 
-export default Daily;
+export default withAuth(Daily);

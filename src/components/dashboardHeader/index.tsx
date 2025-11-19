@@ -1,3 +1,4 @@
+// src/components/dashboardHeader/index.tsx
 import React, { FC, useState } from "react";
 import BusiestDay from "../busiestDay";
 import ProfileCard from "../profileCard";

@@ -1,5 +1,6 @@
 // src/pages/admin/dashboard.tsx
 import React from "react";
+import withAuth from "@/src/hocs/withAuth";
 import BarChart from "@/src/components/barChart";
 import CountStatsCard from "@/src/components/countStatsCard";
 import DashboardHeader from "@/src/components/dashboardHeader";
@@ -51,4 +52,4 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAuth(AdminDashboard);

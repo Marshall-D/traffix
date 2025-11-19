@@ -1,6 +1,7 @@
 // src/pages/admin/weekly.tsx
 import React from "react";
 import dynamic from "next/dynamic";
+import withAuth from "@/src/hocs/withAuth";
 import DashboardHeader from "@/src/components/dashboardHeader";
 import { DashboardSidebar } from "@/src/components/dashboardSidebar";
 import WeeklyCountCard from "@/src/components/weeklyCountCard";
@@ -130,4 +131,4 @@ const Weekly: React.FC = () => {
   );
 };
 
-export default Weekly;
+export default withAuth(Weekly);

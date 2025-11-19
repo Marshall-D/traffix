@@ -1,6 +1,7 @@
 // src/pages/admin/monthly.tsx
 import React, { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import withAuth from "@/src/hocs/withAuth";
 // lazy-load components that use browser APIs / non-SSR-friendly libs
 const MonthlySectionOne = dynamic(
   () => import("@/src/components/monthly/MonthlySectionOne"),
@@ -151,4 +152,5 @@ const MonthlyPage: React.FC = () => {
   );
 };
 
-export default MonthlyPage;
+// protect page client-side
+export default withAuth(MonthlyPage);
