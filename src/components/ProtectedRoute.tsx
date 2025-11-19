@@ -34,11 +34,7 @@ export default function ProtectedRoute({
       if (router.pathname !== redirectTo) {
         router.replace(redirectTo);
       }
-    } else if (
-      requireVerified &&
-      user &&
-      (user.isVerified === false || user.isVerified === "false")
-    ) {
+    } else if (requireVerified && user && user.isVerified === false) {
       // Optional: handle unverified users
       router.replace(redirectTo);
     }
