@@ -1,8 +1,7 @@
 // src/hooks/useAdminCount.ts
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/src/utils/supabaseClient";
-import getTodayRangeUTC from "../utils/helpers";
+import * as countService from "@/services/countService";
 
 export default function useAdminCount(adminId?: string | null) {
   const [count, setCount] = useState<number>(0);
@@ -15,20 +14,12 @@ export default function useAdminCount(adminId?: string | null) {
     setLoading(true);
     setError(null);
 
-    const { startIso, endIso } = getTodayRangeUTC();
-
     try {
-      // select only `id` and use exact count for better perf
-      const { data, error } = await supabase
-        .from("count")
-        .select("id", { count: "exact" })
-        .eq("adminid", adminId)
-        .gte("created_at", startIso)
-        .lte("created_at", endIso);
+      const result = await countService.getTodayCount(adminId);
 
-      if (error) throw error;
+      if (result.error) throw result.error;
 
-      setCount(data?.length ?? 0);
+      setCount(result.count);
     } catch (err) {
       setError(err as Error);
       setCount(0);

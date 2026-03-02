@@ -1,6 +1,6 @@
 // src/hooks/useClientLogin.ts
 import { useCallback, useState } from "react";
-import { supabase } from "@/src/utils/supabaseClient";
+import * as clientsService from "@/services/clientsService";
 
 export type LoginValues = {
   email: string;
@@ -32,35 +32,27 @@ export default function useClientLogin(): UseClientLoginResult {
           return null;
         }
 
-        // NOTE: this assumes passwords are stored in plain text (bad).
-        // Prefer hashing on the backend and using an auth endpoint.
-        const { data, error } = await supabase
-          .from("clients")
-          .select("*")
-          .eq("email", values.email)
-          .eq("password", values.password)
-          .eq("id", adminId)
-          .single();
+        const { data, error: err } = await clientsService.clientLogin(
+          adminId,
+          values.email,
+          values.password
+        );
 
-        if (error || !data) {
+        if (err || !data) {
           setError("Invalid credentials or admin ID.");
           return null;
         }
 
-        // persist client data (only safe if you know what is stored in `data`)
         try {
           if (typeof window !== "undefined") {
             localStorage.setItem("clientData", JSON.stringify(data));
           }
-        } catch (err) {
-          // don't block login if storage fails, but log for debugging
-          // eslint-disable-next-line no-console
-          console.warn("Failed to write clientData to localStorage", err);
+        } catch (e) {
+          console.warn("Failed to write clientData to localStorage", e);
         }
 
         return data;
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error("Unexpected signIn error", err);
         setError("An unexpected error occurred. Please try again.");
         return null;

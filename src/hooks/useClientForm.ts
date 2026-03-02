@@ -137,23 +137,22 @@ export function useClientForm() {
         try {
           // attempt a service update method - name may vary in your service
           // we try updateClientForUser(userId, editingClientId, values)
-          if ((clientsService as any).updateClientForUser) {
-            const { data, error } = await (
-              clientsService as any
-            ).updateClientForUser(userId, editingClientId, values);
-            if (!error && data) {
-              // <-- FIX: build 'next', write to localStorage, and return 'next' from setClients
-              setClients((prev) => {
-                const next = prev.map((c) =>
-                  c.clientid === editingClientId ? data : c
-                );
-                writeLocalClients(userId, next); // pass the array, not a function
-                return next; // return new state array
-              });
-              resetForm();
-              setEditingClientId(null);
-              return;
-            }
+          const { data, error } = await clientsService.updateClientForUser(
+            userId,
+            editingClientId,
+            values
+          );
+          if (!error && data) {
+            setClients((prev) => {
+              const next = prev.map((c) =>
+                c.clientid === editingClientId ? data : c
+              );
+              writeLocalClients(userId, next);
+              return next;
+            });
+            resetForm();
+            setEditingClientId(null);
+            return;
           }
         } catch (err) {
           // service not available — fallback to local update below
@@ -245,21 +244,18 @@ export function useClientForm() {
           : true;
       if (!confirmed) return;
 
-      // try service delete first (name may vary)
       try {
-        if ((clientsService as any).deleteClientForUser) {
-          const { error } = await (clientsService as any).deleteClientForUser(
-            userId,
-            clientId
-          );
-          if (!error) {
-            setClients((prev) => {
-              const next = prev.filter((c) => c.clientid !== clientId);
-              writeLocalClients(userId, next);
-              return next;
-            });
-            return;
-          }
+        const { error } = await clientsService.deleteClientForUser(
+          userId,
+          clientId
+        );
+        if (!error) {
+          setClients((prev) => {
+            const next = prev.filter((c) => c.clientid !== clientId);
+            writeLocalClients(userId, next);
+            return next;
+          });
+          return;
         }
       } catch (err) {
         // ignore and fallback

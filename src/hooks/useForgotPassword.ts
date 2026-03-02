@@ -2,7 +2,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-// import { supabase } from "@/src/utils/supabaseClient"; // keep if you use it
 import {
   validateHasLetter,
   validateHasNumber,
@@ -41,10 +40,7 @@ export default function useForgotPassword(initialEmail = "") {
     ) => {
       setError(null);
       try {
-        // TODO: Call your real API / supabase reset request here.
-        // Example (supabase usage):
-        // const { error: supabaseError } = await supabase.auth.api.resetPasswordForEmail(values.email);
-        // if (supabaseError) throw supabaseError;
+        // TODO: Call your real API when forgot-password endpoint is ready.
 
         // simulate success -> clear form
         helpers.resetForm();

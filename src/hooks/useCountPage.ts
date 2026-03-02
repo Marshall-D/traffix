@@ -1,6 +1,6 @@
 // src/hooks/useCountPage.ts
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabase } from "@/src/utils/supabaseClient";
+import * as countService from "@/services/countService";
 
 export interface ClientData {
   clientid: string;
@@ -72,28 +72,17 @@ export default function useCountPage(
     setError(null);
 
     try {
-      // Request with count metadata. supabase may return count or data length; support both.
-      const {
-        data,
-        error,
-        count: supaCount,
-      } = await supabase
-        .from("count")
-        .select("*", { count: "exact" })
-        .eq("adminid", adminIdStr)
-        .gte("created_at", todayBounds.start)
-        .lte("created_at", todayBounds.end);
+      const result = await countService.getTodayCount(adminIdStr, {
+        startIso: todayBounds.start,
+        endIso: todayBounds.end,
+      });
 
-      if (error) {
-        console.error("Failed fetching count:", error);
+      if (result.error) {
+        console.error("Failed fetching count:", result.error);
         setError("Failed to fetch count");
         setCount(0);
       } else {
-        if (typeof supaCount === "number") {
-          setCount(supaCount);
-        } else {
-          setCount(Array.isArray(data) ? data.length : 0);
-        }
+        setCount(result.count);
       }
     } catch (err) {
       console.error("Exception fetching count:", err);
@@ -138,15 +127,16 @@ export default function useCountPage(
     setError(null);
 
     try {
-      const { data, error } = await supabase
-        .from("count")
-        .insert([{ adminid: adminIdStr, clientid: clientData.clientid }]);
+      const clientId = clientData.clientid ?? (clientData as any).clientId;
+      const { data, error } = await countService.incrementCount(
+        adminIdStr,
+        clientId
+      );
 
       if (error) {
         console.error("Error inserting count entry:", error);
         setError("Failed to create entry");
-      } else {
-        // optimistic increment; re-fetch is still safe but not required
+      } else if (data) {
         setCount((prev) => prev + 1);
       }
     } catch (err) {
@@ -166,15 +156,10 @@ export default function useCountPage(
     setError(null);
 
     try {
-      // get most recent entry for today
-      const { data, error } = await supabase
-        .from("count")
-        .select("countid")
-        .eq("adminid", adminIdStr)
-        .gte("created_at", todayBounds.start)
-        .lte("created_at", todayBounds.end)
-        .order("created_at", { ascending: false })
-        .limit(1);
+      const { data, error } = await countService.getLatestEntryForToday(
+        adminIdStr,
+        { startIso: todayBounds.start, endIso: todayBounds.end }
+      );
 
       if (error) {
         console.error("Error fetching latest entry:", error);
@@ -182,17 +167,15 @@ export default function useCountPage(
         return;
       }
 
-      if (!data || data.length === 0) {
+      if (!data?.countId) {
         setError("No entries found to delete");
         return;
       }
 
-      const countid = (data as any)[0].countid;
-
-      const { error: deleteError } = await supabase
-        .from("count")
-        .delete()
-        .eq("countid", countid);
+      const { error: deleteError } = await countService.deleteCountEntry(
+        adminIdStr,
+        data.countId
+      );
 
       if (deleteError) {
         console.error("Error deleting count entry:", deleteError);
