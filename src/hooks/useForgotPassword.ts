@@ -128,8 +128,6 @@ export default function useForgotPassword(initialEmail = "") {
   //
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
   const hasMinLength = validateMinLength(password, 8);
   const hasLetter = validateHasLetter(password);
@@ -180,10 +178,6 @@ export default function useForgotPassword(initialEmail = "") {
     confirm,
     setPassword,
     setConfirm,
-    showPassword,
-    setShowPassword,
-    showConfirm,
-    setShowConfirm,
     hasMinLength,
     hasLetter,
     hasNumber,

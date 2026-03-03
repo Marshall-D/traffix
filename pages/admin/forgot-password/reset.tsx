@@ -16,10 +16,6 @@ const ResetPassword: React.FC = () => {
     confirm,
     setPassword,
     setConfirm,
-    showPassword,
-    setShowPassword,
-    showConfirm,
-    setShowConfirm,
     hasMinLength,
     hasLetter,
     hasNumber,
@@ -67,7 +63,7 @@ const ResetPassword: React.FC = () => {
 
           <div className="space-y-4">
             <Input
-              type={showPassword ? "text" : "password"}
+              type="password"
               label="Password"
               placeholder="Enter Password"
               value={password}
@@ -76,8 +72,8 @@ const ResetPassword: React.FC = () => {
             />
 
             <Input
-              type={showConfirm ? "text" : "password"}
-              label="Password"
+              type="password"
+              label="Confirm Password"
               placeholder="Confirm Password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}

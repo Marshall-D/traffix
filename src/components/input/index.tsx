@@ -1,10 +1,12 @@
+import { mdiEye, mdiEyeOff } from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 
 import { IInput } from "./input";
 import InputLabel from "../inputLabel";
 
+// When type="password", the right-side icon is always the visibility toggle (takes precedence over appendIcon).
 // eslint-disable-next-line react/display-name
 export const Input = forwardRef<HTMLInputElement, IInput>(
   (
@@ -37,6 +39,14 @@ export const Input = forwardRef<HTMLInputElement, IInput>(
     },
     ref
   ) => {
+    const isPassword = type === "password";
+    const [showPasswordVisible, setShowPasswordVisible] = useState(false);
+    const effectiveType = isPassword
+      ? showPasswordVisible
+        ? "text"
+        : "password"
+      : type;
+    const showAppendIcon = isPassword || appendIcon;
     const valid = !touched || (touched && !error);
 
     const classes = classNames(
@@ -47,12 +57,16 @@ export const Input = forwardRef<HTMLInputElement, IInput>(
       // InputBackgroundVariant[inputBackgroundVariant],
       preppendIcon && "pl-12",
       preppendImg && "pl-12",
-      appendIcon && "pr-10",
+      showAppendIcon && "pr-10",
       valid ? "border-grey" : "border-2 border-error",
       placeholderVariant === "default"
         ? "placeholder:text-[#C2C9D1]"
         : "placeholder:text-black"
     );
+
+    const handleTogglePasswordVisibility = () => {
+      if (isPassword) setShowPasswordVisible((prev) => !prev);
+    };
 
     return (
       <div onBlur={onBlur} className={className}>
@@ -89,10 +103,30 @@ export const Input = forwardRef<HTMLInputElement, IInput>(
             placeholder
           </p> */}
           <div
-            onClick={onAppendClick}
+            onClick={isPassword ? handleTogglePasswordVisibility : onAppendClick}
             className="flex absolute inset-y-0 right-0 items-center pr-3"
+            role={isPassword ? "button" : undefined}
+            aria-label={isPassword ? (showPasswordVisible ? "Hide password" : "Show password") : undefined}
+            tabIndex={isPassword ? 0 : undefined}
+            onKeyDown={
+              isPassword
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setShowPasswordVisible((prev) => !prev);
+                    }
+                  }
+                : undefined
+            }
           >
-            {appendIcon ? (
+            {isPassword ? (
+              <Icon
+                className="text-[#6b7280] cursor-pointer hover:text-gray-900"
+                size={iconSize}
+                path={showPasswordVisible ? mdiEyeOff : mdiEye}
+                aria-hidden
+              />
+            ) : appendIcon ? (
               <Icon
                 className="text-[#E4E7EC] cursor-pointer"
                 size={iconSize}
@@ -108,7 +142,7 @@ export const Input = forwardRef<HTMLInputElement, IInput>(
             onChange={onChange}
             placeholder={placeholder}
             value={value}
-            type={type}
+            type={effectiveType}
             disabled={disabled}
           />
         </div>
