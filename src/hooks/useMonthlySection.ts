@@ -1,5 +1,6 @@
 // src/hooks/useMonthlySection.ts
 import { useCallback, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { monthlyData, WeeklyData as AllWeeklyData } from "@/src/utils/data";
 
 export type MonthItem = {
@@ -126,6 +127,7 @@ export default function useMonthlySection(
 
       if (!found) {
         setError("No data available for this date.");
+        toast.error("No data available for this date.");
         return false;
       }
 

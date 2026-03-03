@@ -13,6 +13,7 @@ import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
 import { useAuth } from "@/src/context/AuthContext";
 import type { LoginValues } from "@/src/types/auth";
+import toast from "react-hot-toast";
 
 /** Validation schema */
 const schema = Yup.object().shape({
@@ -171,12 +172,13 @@ const LoginPage: React.FC = () => {
       try {
         const { ok, message } = await signIn(values);
         if (ok) {
-          // successful login: profile is already stored in context by signIn
+          toast.success("Signed in successfully");
           router.push(ROUTES.ADMIN_DASHBOARD);
           return;
         }
 
-        // map server message to field errors where appropriate
+        const msg = message ?? "Login failed";
+        toast.error(msg);
         if (message) {
           const lower = message.toLowerCase();
           if (
@@ -187,9 +189,6 @@ const LoginPage: React.FC = () => {
             setFieldError("password", message);
           } else if (lower.includes("email")) {
             setFieldError("email", message);
-          } else {
-            // fallback: global error area will show message via context (if you hook it up),
-            // but signIn already provides the message to caller for display.
           }
         }
       } finally {

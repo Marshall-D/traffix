@@ -123,11 +123,6 @@ function CountPageView({
                 </p>
               </div>
 
-              {error && (
-                <div className="text-sm text-red-600 mt-2" role="alert">
-                  {error}
-                </div>
-              )}
             </div>
 
             {/* Plus */}

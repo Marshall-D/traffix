@@ -8,6 +8,7 @@ import { Input } from "@/src/components/input";
 import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
 import useForgotPassword from "@/src/hooks/useForgotPassword";
+import toast from "react-hot-toast";
 
 const ResetPassword: React.FC = () => {
   const router = useRouter();
@@ -34,10 +35,10 @@ const ResetPassword: React.FC = () => {
   const handleProceed = async () => {
     const res = await resetPassword();
     if (res.success) {
+      toast.success("Password updated. You can sign in.");
       router.push(ROUTES.LOGIN_PAGE);
     } else {
-      // TODO: show toast / show inline error. For now we console.warn
-      console.warn("Reset failed:", res.message);
+      toast.error(res.message ?? "Reset failed");
     }
   };
 
@@ -137,9 +138,6 @@ const ResetPassword: React.FC = () => {
               <div className="text-red-500 text-sm mt-2">
                 Passwords do not match
               </div>
-            )}
-            {resetError && (
-              <div className="text-red-500 text-sm mt-2">{resetError}</div>
             )}
           </div>
 

@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import ROUTES from "@/src/utils/routes";
 import "react-tooltip/dist/react-tooltip.css";
 import useForgotPassword from "@/src/hooks/useForgotPassword";
+import toast from "react-hot-toast";
 
 const ForgotPassword: React.FC = () => {
   const router = useRouter();
@@ -68,9 +69,6 @@ const ForgotPassword: React.FC = () => {
               {...formik.getFieldMeta("email")}
             />
           </div>
-
-          {/* Error Message */}
-          {error && <p className="text-red-500 mt-2">{error}</p>}
 
           {/* Send Verification Button */}
           <div className="w-full pt-32 pb-10 lg:py-10">

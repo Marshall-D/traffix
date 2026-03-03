@@ -1,5 +1,6 @@
 // src/hooks/useLogout.ts
 import { useCallback, useState } from "react";
+import toast from "react-hot-toast";
 import { useAuth } from "@/src/context/AuthContext";
 import * as authService from "@/services/authService";
 
@@ -37,6 +38,7 @@ export default function useLogout() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to logout";
       setError(msg);
+      toast.error(msg);
       return false;
     } finally {
       setLoading(false);

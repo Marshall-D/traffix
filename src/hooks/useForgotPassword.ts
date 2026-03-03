@@ -2,6 +2,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
+import toast from "react-hot-toast";
 import {
   validateHasLetter,
   validateHasNumber,
@@ -44,8 +45,11 @@ export default function useForgotPassword(initialEmail = "") {
 
         // simulate success -> clear form
         helpers.resetForm();
+        toast.success("Verification email sent");
       } catch (err: any) {
-        setError(err?.message ?? "An unexpected error occurred");
+        const msg = err?.message ?? "An unexpected error occurred";
+        setError(msg);
+        toast.error(msg);
       }
     },
     []

@@ -231,12 +231,6 @@ const MonthlySectionOne: FC<Props> = ({ onTableItemClick, monthsData }) => {
             />
           </div>
 
-          {error && (
-            <div role="alert" className="text-sm text-red-600 text-center">
-              {error}
-            </div>
-          )}
-
           <div>
             <Button onClick={onViewDate} className="w-full">
               View Date

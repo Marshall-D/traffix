@@ -1,5 +1,6 @@
 // src/hooks/useWeeklyCountCard.ts
 import { useEffect, useState, useCallback, useMemo } from "react";
+import toast from "react-hot-toast";
 import { WeeklyData } from "../types";
 
 export type FetchWeeklyDataFn = () => Promise<WeeklyData[]>;
@@ -106,7 +107,7 @@ export function useWeeklyCountCard({
 
   const handleViewDateClick = useCallback(() => {
     if (!selectedDate) {
-      alert("Please select a date.");
+      toast.error("Please select a date.");
       return;
     }
 
@@ -130,7 +131,7 @@ export function useWeeklyCountCard({
       onTableItemClick(formattedStringDate, matchedWeekData.week);
       setShowModal(false);
     } else {
-      alert("No data available for this date.");
+      toast.error("No data available for this date.");
     }
   }, [derivedData, selectedDate, onTableItemClick]);
 

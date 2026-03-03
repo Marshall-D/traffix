@@ -13,6 +13,7 @@ import ROUTES from "@/src/utils/routes";
 import useSignUp from "@/src/hooks/useSignUp";
 import type { SignUpValues } from "@/src/types/auth";
 import { signUpSchema } from "@/src/types/validation";
+import toast from "react-hot-toast";
 
 /** Presentational component */
 function SignUpView({
@@ -148,15 +149,6 @@ function SignUpView({
             )}
           </div>
 
-          {serverError && (
-            <div
-              role="alert"
-              className="text-error mt-2 w-full text-center text-sm"
-            >
-              {serverError}
-            </div>
-          )}
-
           <div className="w-full pt-8">
             <Button
               type="submit"
@@ -197,16 +189,15 @@ const SignUpPage: React.FC = () => {
       try {
         const result = await signUp(values);
         if (result.ok) {
-          // show accessible alert/toast — simple approach using native alert here
-          // (replace with your Toast component if available)
-          window.alert(
-            result.message ?? "Account created Succesfully. Please sign in."
+          toast.success(
+            result.message ?? "Account created successfully. Please sign in."
           );
-
-          // navigate to login screen
           await router.push(ROUTES.LOGIN_PAGE);
+        } else {
+          toast.error(
+            result.message ?? hookError ?? "Sign-up failed. Please try again."
+          );
         }
-        // if not ok, `useSignUp` already set the hook error which is shown in the UI
       } finally {
         setSubmitting(false);
       }

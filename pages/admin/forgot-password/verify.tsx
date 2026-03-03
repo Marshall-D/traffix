@@ -8,6 +8,7 @@ import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
 import useForgotPassword from "@/src/hooks/useForgotPassword";
 import OtpInput from "@/src/components/otp/OtpInput";
+import toast from "react-hot-toast";
 const VerifyOTP: React.FC = () => {
   const router = useRouter();
   const {
@@ -24,10 +25,10 @@ const VerifyOTP: React.FC = () => {
   const onProceed = async () => {
     const res = await verifyOtp();
     if (res.success) {
+      toast.success("Code verified");
       router.push(ROUTES.FORGOT_PASSWORD_RESET);
     } else {
-      // TODO: surface error to UI - currently console for minimal change
-      console.warn("OTP verify failed:", res.message);
+      toast.error(res.message ?? "Verification failed");
     }
   };
 

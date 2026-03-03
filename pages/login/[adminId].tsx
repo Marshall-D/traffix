@@ -13,6 +13,7 @@ import logo from "@/src/assets/logo-new.png";
 import logoSmall from "@/src/assets/logo-small.png";
 import { mdiEmailOutline, mdiKeyOutline } from "@mdi/js";
 import ROUTES from "@/src/utils/routes";
+import toast from "react-hot-toast";
 
 /**
  * Validation schema
@@ -111,15 +112,6 @@ function LoginView({
             )}
           </div>
 
-          {serverError && (
-            <div
-              role="alert"
-              className="text-red-500 mt-4 w-[300px] md:w-[330px]"
-            >
-              {serverError}
-            </div>
-          )}
-
           <div className="my-12 w-[300px] md:w-[330px]">
             <Button
               type="submit"
@@ -161,8 +153,10 @@ const ClientLoginPage: React.FC = () => {
       try {
         const user = await signIn(values, adminIdStr);
         if (user) {
-          // redirect to count page
+          toast.success("Signed in successfully");
           router.push(`${ROUTES.COUNT_PAGE}/${adminIdStr}`);
+        } else {
+          toast.error(hookError ?? "Invalid credentials or admin ID.");
         }
       } finally {
         setSubmitting(false);

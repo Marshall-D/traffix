@@ -8,6 +8,7 @@ import { Button } from "@/src/components/button";
 import ROUTES from "@/src/utils/routes";
 import useForgotPassword from "@/src/hooks/useForgotPassword";
 import OtpInput from "@/src/components/otp/OtpInput";
+import toast from "react-hot-toast";
 
 const SignUpVerify: React.FC = () => {
   const router = useRouter();
@@ -26,10 +27,10 @@ const SignUpVerify: React.FC = () => {
   const onProceed = async () => {
     const res = await verifyOtp();
     if (res.success) {
+      toast.success("Email verified");
       router.push(ROUTES.LOGIN_PAGE);
     } else {
-      // TODO: surface error to UI; keeping minimal for parity with existing pages
-      console.warn("OTP verify failed:", res.message);
+      toast.error(res.message ?? "Verification failed");
     }
   };
 

@@ -1,5 +1,6 @@
 // src/hooks/useCountPage.ts
 import { useCallback, useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import * as countService from "@/services/countService";
 
 export interface ClientData {
@@ -121,6 +122,7 @@ export default function useCountPage(
   const increment = useCallback(async () => {
     if (!clientData || !adminIdStr) {
       setError("Missing client or admin information.");
+      toast.error("Missing client or admin information.");
       return;
     }
     setLoadingAction(true);
@@ -136,12 +138,15 @@ export default function useCountPage(
       if (error) {
         console.error("Error inserting count entry:", error);
         setError("Failed to create entry");
+        toast.error("Failed to create entry");
       } else if (data) {
         setCount((prev) => prev + 1);
+        toast.success("Entry added");
       }
     } catch (err) {
       console.error("Exception during increment:", err);
       setError("Failed to create entry");
+      toast.error("Failed to create entry");
     } finally {
       setLoadingAction(false);
     }
@@ -150,6 +155,7 @@ export default function useCountPage(
   const confirmDecrement = useCallback(async () => {
     if (!clientData || !adminIdStr) {
       setError("Missing client or admin information.");
+      toast.error("Missing client or admin information.");
       return;
     }
     setLoadingAction(true);
@@ -164,11 +170,13 @@ export default function useCountPage(
       if (error) {
         console.error("Error fetching latest entry:", error);
         setError("Failed to find an entry to delete");
+        toast.error("Failed to find an entry to delete");
         return;
       }
 
       if (!data?.countId) {
         setError("No entries found to delete");
+        toast.error("No entries found to delete");
         return;
       }
 
@@ -180,13 +188,16 @@ export default function useCountPage(
       if (deleteError) {
         console.error("Error deleting count entry:", deleteError);
         setError("Failed to delete entry");
+        toast.error("Failed to delete entry");
       } else {
         setCount((prev) => Math.max(prev - 1, 0));
         setShowModal(false);
+        toast.success("Entry removed");
       }
     } catch (err) {
       console.error("Exception during decrement:", err);
       setError("Failed to delete entry");
+      toast.error("Failed to delete entry");
     } finally {
       setLoadingAction(false);
     }

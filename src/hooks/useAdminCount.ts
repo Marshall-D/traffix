@@ -1,6 +1,7 @@
 // src/hooks/useAdminCount.ts
 
 import { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import * as countService from "@/services/countService";
 
 export default function useAdminCount(adminId?: string | null) {
@@ -23,6 +24,7 @@ export default function useAdminCount(adminId?: string | null) {
     } catch (err) {
       setError(err as Error);
       setCount(0);
+      toast.error("Could not load count");
     } finally {
       setLoading(false);
     }
