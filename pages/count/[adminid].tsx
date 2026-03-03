@@ -1,5 +1,5 @@
 // pages/count/[adminid].tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Tooltip } from "react-tooltip";
 import { mdiAlphaICircleOutline, mdiPlusCircle, mdiMinusCircle } from "@mdi/js";
@@ -11,6 +11,8 @@ import { Button } from "@/src/components/button";
 import { Modal } from "@/src/components/modal";
 
 import useCountPage from "@/src/hooks/useCountPage";
+
+const CLIENT_DATA_KEY = "clientData";
 
 const tooltipStyle: React.CSSProperties = {
   boxShadow: "0.5px 0.5px 10px 0.5px rgba(0, 0, 0, 0.3)",
@@ -206,6 +208,7 @@ function CountPageView({
 const CountPage: React.FC = () => {
   const router = useRouter();
   const { adminid } = router.query;
+  const [checking, setChecking] = useState(true);
 
   const {
     count,
@@ -224,27 +227,31 @@ const CountPage: React.FC = () => {
     refresh,
   } = useCountPage(adminid);
 
-  // Log client data and errors for debugging (guard removed)
-  React.useEffect(() => {
+  // Auth guard: only authenticated clients for this admin can access the count page
+  useEffect(() => {
     if (typeof window === "undefined") return;
-    const raw = localStorage.getItem("clientData");
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        console.log("[Count page] clientData from localStorage:", parsed);
-      } catch (e) {
-        console.error("[Count page] Failed to parse clientData:", e);
-      }
-    } else {
-      console.warn("[Count page] No clientData in localStorage");
-    }
-  }, [clientData]);
+    const adminIdStr =
+      typeof adminid === "string" ? adminid : Array.isArray(adminid) ? adminid[0] : undefined;
+    if (!adminIdStr) return;
 
-  React.useEffect(() => {
-    if (error) {
-      console.error("[Count page] error:", error);
+    try {
+      const raw = localStorage.getItem(CLIENT_DATA_KEY);
+      if (!raw) {
+        router.replace(`/login/${adminIdStr}`);
+        return;
+      }
+      const data = JSON.parse(raw) as { id?: string; admin?: string };
+      const clientAdminId = data?.id ?? data?.admin ?? "";
+      if (clientAdminId !== adminIdStr) {
+        router.replace(`/login/${adminIdStr}`);
+        return;
+      }
+    } catch {
+      router.replace(`/login/${adminIdStr}`);
+      return;
     }
-  }, [error]);
+    setChecking(false);
+  }, [adminid, router]);
 
   // handle sign out and then redirect
   const handleSignOut = React.useCallback(() => {
@@ -253,21 +260,42 @@ const CountPage: React.FC = () => {
     router.push(`/login/${id ?? ""}`);
   }, [adminid, router, signOut]);
 
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white2">
+        <div className="flex flex-col items-center">
+          <svg
+            className="animate-spin h-8 w-8 mb-3"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              className="text-primary"
+              strokeOpacity="0.25"
+            />
+            <path
+              d="M22 12a10 10 0 00-10-10"
+              stroke="currentColor"
+              strokeWidth="4"
+              className="text-primary-light"
+              strokeLinecap="round"
+            />
+          </svg>
+          <div className="text-sm text-gray-500">Checking your session…</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {/* Debug: client data status and errors */}
-      <div className="fixed top-2 left-2 right-2 z-50 flex flex-col gap-1 text-sm bg-gray-100 border border-gray-300 rounded px-3 py-2 max-w-md">
-        <p>
-          <strong>Client data:</strong>{" "}
-          {clientData ? "present" : "missing"}
-          {clientData && ` (${clientData.clientid ?? "no id"})`}
-        </p>
-        {error && (
-          <p className="text-red-600" role="alert">
-            <strong>Error:</strong> {error}
-          </p>
-        )}
-      </div>
       <CountPageView
         count={count}
         loadingCount={loadingCount}
