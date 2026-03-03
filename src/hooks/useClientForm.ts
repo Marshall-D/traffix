@@ -3,8 +3,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import toast from "react-hot-toast";
 
-import * as clientsService from "@/services/clientsService"; // still attempted first
+import * as clientsService from "@/services/clientsService";
 import { Client } from "../types";
 import ROUTES from "../utils/routes";
 
@@ -15,7 +16,9 @@ type FormValues = {
   lastname: string;
 };
 
-const LOCAL_CLIENTS_KEY = (userId: string) => `clients_${userId}`;
+function getErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : "Something went wrong.";
+}
 
 export function useClientForm() {
   const router = useRouter();
@@ -25,83 +28,55 @@ export function useClientForm() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
 
-  // Helper: read clients from localStorage for given user id
-  const readLocalClients = (userId: string) => {
-    try {
-      const raw =
-        typeof window !== "undefined"
-          ? localStorage.getItem(LOCAL_CLIENTS_KEY(userId))
-          : null;
-      return raw ? (JSON.parse(raw) as Client[]) : [];
-    } catch (err) {
-      console.error("Failed to read local clients:", err);
-      return [];
-    }
-  };
-
-  // Helper: write clients to localStorage for given user id
-  const writeLocalClients = (userId: string, list: Client[]) => {
-    try {
-      if (typeof window !== "undefined") {
-        localStorage.setItem(LOCAL_CLIENTS_KEY(userId), JSON.stringify(list));
-      }
-    } catch (err) {
-      console.error("Failed to save local clients:", err);
-    }
-  };
-
-  // Fetch clients and build admin Login URL
+  // Fetch clients when admin is logged in; build admin login URL
   useEffect(() => {
     let mounted = true;
 
     const load = async () => {
-      // Attempt to get current user from service; fall back to local user if not available
       let user: { id: string } | null = null;
       try {
         const { data: userData, error: userErr } =
           await clientsService.getCurrentUser();
         const svcUser = userData?.user ?? null;
-        if (!userErr && svcUser) {
+        if (!userErr && svcUser?.id) {
           user = { id: String(svcUser.id) };
         }
-      } catch (err) {
-        // service not available / error — ignore and fallback
-        console.warn(
-          "clientsService.getCurrentUser not available, using local fallback"
+      } catch {
+        // ignore
+      }
+
+      setCurrentUserId(user?.id ?? null);
+
+      if (typeof window !== "undefined") {
+        setAdminLoginUrl(
+          user
+            ? `${window.location.origin}/login/${user.id}`
+            : `${window.location.origin}${ROUTES.LOGIN_PAGE}`
         );
       }
 
       if (!user) {
-        // local fallback
-        user = { id: "local-admin" }; // deterministic id for localStorage key
+        setClients([]);
+        return;
       }
 
-      // set user id so other operations can reuse it
-      setCurrentUserId(user.id);
-
-      // Set adminLoginUrl using user id
-      if (typeof window !== "undefined") {
-        setAdminLoginUrl(`${window.location.origin}/login/${user.id}`);
-      }
-
-      // Try to fetch from service; otherwise read from localStorage
-      let fetchedClients: Client[] = [];
       try {
         const { data, error } = await clientsService.fetchClientsForUser(
           user.id
         );
-        if (!error && data) {
-          fetchedClients = data;
-        } else {
-          fetchedClients = readLocalClients(user.id);
+        if (mounted) {
+          if (error) {
+            toast.error(getErrorMessage(error));
+            setClients([]);
+          } else {
+            setClients(Array.isArray(data) ? data : []);
+          }
         }
       } catch (err) {
-        // service not available — fall back to localStorage
-        fetchedClients = readLocalClients(user.id);
-      }
-
-      if (mounted) {
-        setClients(fetchedClients ?? []);
+        if (mounted) {
+          toast.error(getErrorMessage(err));
+          setClients([]);
+        }
       }
     };
 
@@ -110,7 +85,6 @@ export function useClientForm() {
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Formik for the Add/Edit Client form
@@ -128,85 +102,56 @@ export function useClientForm() {
       lastname: Yup.string().required("Required"),
     }),
     onSubmit: async (values, { resetForm }) => {
-      // ensure we have a user id (fallback to local-admin)
-      const userId = currentUserId ?? "local-admin";
+      const userId = currentUserId;
+      if (!userId) {
+        toast.error("Please log in as admin to manage clients.");
+        return;
+      }
 
-      // If editing, attempt update flow
       if (editingClientId) {
-        // try service update first
         try {
-          // attempt a service update method - name may vary in your service
-          // we try updateClientForUser(userId, editingClientId, values)
           const { data, error } = await clientsService.updateClientForUser(
             userId,
             editingClientId,
             values
           );
-          if (!error && data) {
-            setClients((prev) => {
-              const next = prev.map((c) =>
-                c.clientid === editingClientId ? data : c
-              );
-              writeLocalClients(userId, next);
-              return next;
-            });
-            resetForm();
-            setEditingClientId(null);
+          if (error) {
+            toast.error(getErrorMessage(error));
             return;
           }
+          if (data) {
+            setClients((prev) =>
+              prev.map((c) =>
+                c.clientid === editingClientId ? data : c
+              )
+            );
+            toast.success("Client updated successfully.");
+            resetForm();
+            setEditingClientId(null);
+          }
         } catch (err) {
-          // service not available — fallback to local update below
+          toast.error(getErrorMessage(err));
         }
-
-        // Local fallback: update local state & localStorage
-        setClients((prev) => {
-          const next = prev.map((c) =>
-            c.clientid === editingClientId ? { ...c, ...values } : c
-          );
-          writeLocalClients(userId, next); // <-- FIX: pass array here
-          return next; // <-- return next array
-        });
-        resetForm();
-        setEditingClientId(null);
         return;
       }
 
-      // Not editing -> create new client
-      // Try to add via service; if not available, add to localStorage
       try {
         const { data, error } = await clientsService.addClientForUser(
           userId,
           values
         );
-        if (!error && data) {
-          setClients((prev) => {
-            const next = [...prev, data];
-            writeLocalClients(userId, next);
-            return next;
-          });
-          resetForm();
+        if (error) {
+          toast.error(getErrorMessage(error));
           return;
         }
+        if (data) {
+          setClients((prev) => [...prev, data]);
+          toast.success("Client added successfully.");
+          resetForm();
+        }
       } catch (err) {
-        // service not available — fallback below
+        toast.error(getErrorMessage(err));
       }
-
-      // Fallback: create a client object locally and persist to localStorage
-      const newClient: Client = {
-        id: `local_${Date.now()}`,
-        clientid: `local_${Date.now()}`,
-        email: values.email,
-        password: values.password,
-        firstname: values.firstname,
-        lastname: values.lastname,
-      };
-
-      setClients((prev) => {
-        const next = [...prev, newClient];
-        writeLocalClients(userId, next);
-        return next;
-      });
-      resetForm();
     },
   });
 
@@ -237,7 +182,11 @@ export function useClientForm() {
   const deleteClient = useCallback(
     async (clientId: string) => {
       if (!clientId) return;
-      const userId = currentUserId ?? "local-admin";
+      const userId = currentUserId;
+      if (!userId) {
+        toast.error("Please log in as admin to manage clients.");
+        return;
+      }
       const confirmed =
         typeof window !== "undefined"
           ? window.confirm("Delete this client?")
@@ -249,49 +198,21 @@ export function useClientForm() {
           userId,
           clientId
         );
-        if (!error) {
-          setClients((prev) => {
-            const next = prev.filter((c) => c.clientid !== clientId);
-            writeLocalClients(userId, next);
-            return next;
-          });
+        if (error) {
+          toast.error(getErrorMessage(error));
           return;
         }
+        setClients((prev) => prev.filter((c) => c.clientid !== clientId));
+        toast.success("Client deleted.");
       } catch (err) {
-        // ignore and fallback
+        toast.error(getErrorMessage(err));
       }
-
-      // fallback: remove from local state & storage
-      setClients((prev) => {
-        const next = prev.filter((c) => c.clientid !== clientId);
-        writeLocalClients(userId, next);
-        return next;
-      });
     },
     [currentUserId]
   );
 
-  const handleSignOut = useCallback(async () => {
-    // try service sign out; otherwise clear local storage for fallback user and redirect
-    try {
-      const { error } = await clientsService.signOut();
-      if (!error) {
-        router.push(ROUTES.LOGIN_PAGE);
-        return;
-      }
-    } catch (err) {
-      // fallback behaviour
-      // clear local fallback and redirect
-      try {
-        if (typeof window !== "undefined") {
-          // remove local-admin clients and any other local keys you used
-          localStorage.removeItem(LOCAL_CLIENTS_KEY("local-admin"));
-        }
-      } catch (e) {
-        // ignore
-      }
-      router.push(ROUTES.LOGIN_PAGE);
-    }
+  const handleSignOut = useCallback(() => {
+    router.push(ROUTES.LOGIN_PAGE);
   }, [router]);
 
   return {

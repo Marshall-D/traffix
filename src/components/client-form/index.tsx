@@ -43,9 +43,11 @@ const AdminDashboard: React.FC = () => {
                     {client?.firstname} {client?.lastname}
                   </p>
                   <p className="text-sm text-gray-600">{client?.email}</p>
-                  <p className="text-sm text-gray-600">
-                    Password: {client?.password}
-                  </p>
+                  {client?.password != null && client.password !== "" && (
+                    <p className="text-sm text-gray-600">
+                      Password: {client.password}
+                    </p>
+                  )}
                 </div>
 
                 {/* Actions: Edit and Delete */}

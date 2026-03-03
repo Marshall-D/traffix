@@ -1,41 +1,29 @@
 /**
- * Clients service (stub implementation using localStorage).
- * Replace with REST API calls when backend endpoints are ready.
+ * Clients service – uses backend REST API.
+ * GET/POST/PATCH /api/v1/clients (admin JWT), POST /api/v1/auth/client-login (no JWT).
  */
 
 import { Client } from "../src/types";
+import apiClient from "./apiClient";
 
-const STORAGE_KEY_PREFIX = "traffix_clients_";
 const AUTH_STORAGE_KEY = "traffix_auth";
 
-function getStorageKey(adminId: string): string {
-  return `${STORAGE_KEY_PREFIX}${adminId}`;
-}
-
-function getClients(adminId: string): Client[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(getStorageKey(adminId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveClients(adminId: string, clients: Client[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(getStorageKey(adminId), JSON.stringify(clients));
-  } catch (e) {
-    console.warn("clientsService: failed to save clients", e);
-  }
+/** Map backend response (firstName, lastName) to frontend Client (firstname, lastname). */
+function toClient(raw: Record<string, unknown>): Client {
+  return {
+    id: String(raw.id ?? raw.admin ?? ""),
+    clientid: raw.clientid != null ? String(raw.clientid) : undefined,
+    email: String(raw.email ?? ""),
+    firstname: String((raw.firstname ?? raw.firstName) ?? ""),
+    lastname: String((raw.lastname ?? raw.lastName) ?? ""),
+    password: raw.password != null ? String(raw.password) : undefined,
+    created_at: raw.created_at != null ? String(raw.created_at) : undefined,
+  };
 }
 
 /**
  * Returns current admin user from auth storage (traffix_auth).
- * Used so user-management can resolve adminId when not using Supabase.
+ * Used so user-management can resolve adminId.
  */
 export async function getCurrentUser(): Promise<{
   data: { user: { id: string } | null };
@@ -47,7 +35,9 @@ export async function getCurrentUser(): Promise<{
     }
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) return { data: { user: null }, error: null };
-    const parsed = JSON.parse(raw) as { user?: { userId?: string; _id?: string; email?: string } };
+    const parsed = JSON.parse(raw) as {
+      user?: { userId?: string; _id?: string; email?: string };
+    };
     const user = parsed?.user;
     if (!user) return { data: { user: null }, error: null };
     const id = user.userId ?? user._id ?? user.email ?? "";
@@ -58,21 +48,8 @@ export async function getCurrentUser(): Promise<{
 }
 
 /**
- * Fetch clients for a given admin user id.
- */
-export async function fetchClientsForUser(
-  adminId: string
-): Promise<{ data: Client[] | null; error: unknown }> {
-  try {
-    const data = getClients(adminId);
-    return { data, error: null };
-  } catch (error) {
-    return { data: null, error };
-  }
-}
-
-/**
- * Client login: validate email + password for the given admin and return client.
+ * Client login: POST /api/v1/auth/client-login
+ * Body: email, password, adminId. No auth header required.
  */
 export async function clientLogin(
   adminId: string,
@@ -80,91 +57,120 @@ export async function clientLogin(
   password: string
 ): Promise<{ data: Client | null; error: unknown }> {
   try {
-    const clients = getClients(adminId);
-    const client = clients.find(
-      (c) => c.email === email && (c.password ?? "") === password
-    ) ?? null;
-    return { data: client, error: null };
-  } catch (error) {
-    return { data: null, error };
+    const res = await apiClient.post("/api/v1/auth/client-login", {
+      email: email.trim(),
+      password,
+      adminId,
+    });
+    console.log("[client-login] backend response:", res.data);
+    const body = res.data as { client?: Record<string, unknown> };
+    const clientRaw = body?.client ?? body;
+    if (!clientRaw || typeof clientRaw !== "object") {
+      return { data: null, error: new Error("Invalid response") };
+    }
+    return {
+      data: toClient(clientRaw as Record<string, unknown>),
+      error: null,
+    };
+  } catch (err: unknown) {
+    return { data: null, error: err };
   }
 }
 
 /**
- * Insert a new client for the given admin id.
+ * List clients: GET /api/v1/clients (admin from JWT).
+ */
+export async function fetchClientsForUser(
+  _adminId: string
+): Promise<{ data: Client[] | null; error: unknown }> {
+  try {
+    const res = await apiClient.get("/api/v1/clients");
+    const body = res.data as { clients?: unknown[] };
+    const arr = Array.isArray(body?.clients) ? body.clients : [];
+    const data = arr.map((c) => toClient((c ?? {}) as Record<string, unknown>));
+    return { data, error: null };
+  } catch (err: unknown) {
+    return { data: null, error: err };
+  }
+}
+
+/**
+ * Create client: POST /api/v1/clients
+ * Body: email, firstName, lastName, password. Admin from JWT.
  */
 export async function addClientForUser(
-  adminId: string,
+  _adminId: string,
   payload: Omit<Client, "id" | "clientid" | "created_at">
 ): Promise<{ data: Client | null; error: unknown }> {
   try {
-    const clients = getClients(adminId);
-    const clientId = `cli_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    const created_at = new Date().toISOString();
-    const client: Client = {
-      id: adminId,
-      clientid: clientId,
-      email: payload.email,
-      firstname: payload.firstname,
-      lastname: payload.lastname,
-      password: payload.password ?? null,
-      created_at,
-    };
-    clients.push(client);
-    saveClients(adminId, clients);
-    return { data: client, error: null };
-  } catch (error) {
-    return { data: null, error };
+    const res = await apiClient.post("/api/v1/clients", {
+      email: payload.email.trim(),
+      firstName: payload.firstname,
+      lastName: payload.lastname,
+      password: payload.password ?? undefined,
+    });
+    const body = res.data as { client?: Record<string, unknown> };
+    const raw = body?.client ?? body;
+    const data = toClient((raw ?? {}) as Record<string, unknown>);
+    return { data, error: null };
+  } catch (err: unknown) {
+    return { data: null, error: err };
   }
 }
 
 /**
- * Update an existing client by clientid.
+ * Update client: PATCH /api/v1/clients/:clientId
+ * Body: optional email, firstName, lastName, password.
  */
 export async function updateClientForUser(
-  adminId: string,
+  _adminId: string,
   clientId: string,
   payload: Partial<Pick<Client, "email" | "firstname" | "lastname" | "password">>
 ): Promise<{ data: Client | null; error: unknown }> {
   try {
-    const clients = getClients(adminId);
-    const index = clients.findIndex(
-      (c) => (c.clientid ?? c.email) === clientId
+    const body: Record<string, unknown> = {};
+    if (payload.email !== undefined) body.email = payload.email.trim();
+    if (payload.firstname !== undefined) body.firstName = payload.firstname;
+    if (payload.lastname !== undefined) body.lastName = payload.lastname;
+    if (
+      payload.password !== undefined &&
+      payload.password !== null &&
+      String(payload.password).length > 0
+    ) {
+      body.password = payload.password;
+    }
+
+    const res = await apiClient.patch(
+      `/api/v1/clients/${encodeURIComponent(clientId)}`,
+      body
     );
-    if (index === -1) return { data: null, error: new Error("Client not found") };
-    const updated: Client = {
-      ...clients[index],
-      ...payload,
-    };
-    clients[index] = updated;
-    saveClients(adminId, clients);
-    return { data: updated, error: null };
-  } catch (error) {
-    return { data: null, error };
+    const resBody = res.data as { client?: Record<string, unknown> };
+    const raw = resBody?.client ?? resBody;
+    const data = toClient((raw ?? {}) as Record<string, unknown>);
+    return { data, error: null };
+  } catch (err: unknown) {
+    return { data: null, error: err };
   }
 }
 
 /**
- * Delete a client by clientid.
+ * Delete client: DELETE /api/v1/clients/:clientId
+ * Backend may not implement this yet; caller will see error if 404.
  */
 export async function deleteClientForUser(
-  adminId: string,
+  _adminId: string,
   clientId: string
 ): Promise<{ error: unknown }> {
   try {
-    const clients = getClients(adminId).filter(
-      (c) => (c.clientid ?? c.email) !== clientId
+    await apiClient.delete(
+      `/api/v1/clients/${encodeURIComponent(clientId)}`
     );
-    saveClients(adminId, clients);
     return { error: null };
-  } catch (error) {
-    return { error };
+  } catch (err: unknown) {
+    return { error: err };
   }
 }
 
-/**
- * Sign out (no-op for stub; kept for API compatibility).
- */
 export async function signOut(): Promise<{ error: unknown }> {
   return { error: null };
 }

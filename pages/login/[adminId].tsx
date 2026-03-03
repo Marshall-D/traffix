@@ -32,13 +32,11 @@ function LoginView({
   loading,
   serverError,
   adminIdStr,
-  onQuickLogin,
 }: {
   formik: ReturnType<typeof useFormik<LoginValues>>;
   loading: boolean;
   serverError: string | null;
   adminIdStr: string | null;
-  onQuickLogin: () => void;
 }) {
   return (
     <div className="md:grid md:grid-cols-2 md:h-screen">
@@ -123,15 +121,12 @@ function LoginView({
           )}
 
           <div className="my-12 w-[300px] md:w-[330px]">
-            {/* Quick navigation button: type="button" so clicking it does NOT submit the form.
-                It will immediately navigate via onQuickLogin. Pressing Enter still submits the form. */}
             <Button
-              type="button"
+              type="submit"
               className="w-full bg-primary hover:bg-primary-light"
               disabled={loading}
               aria-disabled={loading}
               aria-busy={loading}
-              onClick={onQuickLogin}
             >
               {loading ? "Signing in…" : "Sign in"}
             </Button>
@@ -167,7 +162,7 @@ const ClientLoginPage: React.FC = () => {
         const user = await signIn(values, adminIdStr);
         if (user) {
           // redirect to count page
-          router.push(`/${ROUTES.COUNT_PAGE}/${adminIdStr}`);
+          router.push(`${ROUTES.COUNT_PAGE}/${adminIdStr}`);
         }
       } finally {
         setSubmitting(false);
@@ -175,23 +170,12 @@ const ClientLoginPage: React.FC = () => {
     },
   });
 
-  // quick navigation that always routes to the count page for the admin when clicked
-  const handleQuickLogin = () => {
-    if (adminIdStr) {
-      router.push(`/${ROUTES.COUNT_PAGE}/${adminIdStr}`);
-    } else {
-      // fallback when adminId wasn't present in the URL
-      router.push(`/${ROUTES.COUNT_PAGE}`);
-    }
-  };
-
   return (
     <LoginView
       formik={formik}
       loading={loading || formik.isSubmitting}
       serverError={hookError}
       adminIdStr={adminIdStr}
-      onQuickLogin={handleQuickLogin}
     />
   );
 };

@@ -224,15 +224,27 @@ const CountPage: React.FC = () => {
     refresh,
   } = useCountPage(adminid);
 
-  // redirect to login if no client data found (hook reads storage but redirect here)
+  // Log client data and errors for debugging (guard removed)
   React.useEffect(() => {
     if (typeof window === "undefined") return;
     const raw = localStorage.getItem("clientData");
-    if (!raw) {
-      const id = Array.isArray(adminid) ? adminid[0] : adminid;
-      router.push(`/login/${id ?? ""}`);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        console.log("[Count page] clientData from localStorage:", parsed);
+      } catch (e) {
+        console.error("[Count page] Failed to parse clientData:", e);
+      }
+    } else {
+      console.warn("[Count page] No clientData in localStorage");
     }
-  }, [adminid, router]);
+  }, [clientData]);
+
+  React.useEffect(() => {
+    if (error) {
+      console.error("[Count page] error:", error);
+    }
+  }, [error]);
 
   // handle sign out and then redirect
   const handleSignOut = React.useCallback(() => {
@@ -242,20 +254,35 @@ const CountPage: React.FC = () => {
   }, [adminid, router, signOut]);
 
   return (
-    <CountPageView
-      count={count}
-      loadingCount={loadingCount}
-      loadingAction={loadingAction}
-      showModal={showModal}
-      infoMode={infoMode}
-      error={error}
-      onOpenInfo={openInfoModal}
-      onOpenConfirm={openConfirmModal}
-      onCloseModal={closeModal}
-      onIncrement={() => increment().then(() => refresh())}
-      onConfirmDecrement={() => confirmDecrement().then(() => refresh())}
-      onSignOut={handleSignOut}
-    />
+    <>
+      {/* Debug: client data status and errors */}
+      <div className="fixed top-2 left-2 right-2 z-50 flex flex-col gap-1 text-sm bg-gray-100 border border-gray-300 rounded px-3 py-2 max-w-md">
+        <p>
+          <strong>Client data:</strong>{" "}
+          {clientData ? "present" : "missing"}
+          {clientData && ` (${clientData.clientid ?? "no id"})`}
+        </p>
+        {error && (
+          <p className="text-red-600" role="alert">
+            <strong>Error:</strong> {error}
+          </p>
+        )}
+      </div>
+      <CountPageView
+        count={count}
+        loadingCount={loadingCount}
+        loadingAction={loadingAction}
+        showModal={showModal}
+        infoMode={infoMode}
+        error={error}
+        onOpenInfo={openInfoModal}
+        onOpenConfirm={openConfirmModal}
+        onCloseModal={closeModal}
+        onIncrement={() => increment().then(() => refresh())}
+        onConfirmDecrement={() => confirmDecrement().then(() => refresh())}
+        onSignOut={handleSignOut}
+      />
+    </>
   );
 };
 

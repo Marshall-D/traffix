@@ -39,7 +39,9 @@ export default function useClientLogin(): UseClientLoginResult {
         );
 
         if (err || !data) {
-          setError("Invalid credentials or admin ID.");
+          const message =
+            err instanceof Error ? err.message : "Invalid credentials or admin ID.";
+          setError(message);
           return null;
         }
 
@@ -54,7 +56,9 @@ export default function useClientLogin(): UseClientLoginResult {
         return data;
       } catch (err) {
         console.error("Unexpected signIn error", err);
-        setError("An unexpected error occurred. Please try again.");
+        const message =
+          err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+        setError(message);
         return null;
       } finally {
         setLoading(false);
