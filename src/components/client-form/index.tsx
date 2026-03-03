@@ -63,13 +63,11 @@ const AdminDashboard: React.FC = () => {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      deleteClient(client.clientid ?? client.email)
-                    }
+                    onClick={() => deleteClient(client)}
                     className="px-3 py-1 border rounded-md text-sm text-red-600 hover:bg-red-50"
                     aria-label={`Delete ${client.firstname} ${client.lastname}`}
                   >
-                    ✕
+                    Delete
                   </button>
                 </div>
               </li>

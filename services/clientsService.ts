@@ -1,8 +1,9 @@
 /**
  * Clients service – uses backend REST API.
- * GET/POST/PATCH /api/v1/clients (admin JWT), POST /api/v1/auth/client-login (no JWT).
+ * GET/POST/PATCH/DELETE /api/v1/clients (admin JWT), POST /api/v1/auth/client-login (no JWT).
  */
 
+import axios from "axios";
 import { Role } from "@/src/constants/roles";
 import { Client } from "../src/types";
 import apiClient from "./apiClient";
@@ -163,7 +164,10 @@ export async function updateClientForUser(
 
 /**
  * Delete client: DELETE /api/v1/clients/:clientId
- * Backend may not implement this yet; caller will see error if 404.
+ * Auth: Admin JWT (Authorization: Bearer <token>), sent by apiClient.
+ * Success: 200, { success: true, message: "Client deleted" }.
+ * 404: Client not found for this admin.
+ * 401: Unauthorized (e.g. session expired).
  */
 export async function deleteClientForUser(
   _adminId: string,
@@ -175,6 +179,20 @@ export async function deleteClientForUser(
     );
     return { error: null };
   } catch (err: unknown) {
+    if (axios.isAxiosError(err) && err.response) {
+      const status = err.response.status;
+      const data = err.response.data as { message?: string } | undefined;
+      const msg = data?.message ?? err.response.statusText;
+      if (status === 404) {
+        return { error: new Error(msg || "Client not found for this admin.") };
+      }
+      if (status === 401) {
+        return {
+          error: new Error("Session expired. Please sign in again."),
+        };
+      }
+      return { error: new Error(msg || "Could not delete client.") };
+    }
     return { error: err };
   }
 }

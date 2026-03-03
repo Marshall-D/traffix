@@ -178,18 +178,28 @@ export function useClientForm() {
     setEditingClientId(null);
   }, [formik]);
 
-  // Delete client
+  // Delete client: calls DELETE /api/v1/clients/:clientId (admin JWT sent by apiClient)
   const deleteClient = useCallback(
-    async (clientId: string) => {
-      if (!clientId) return;
+    async (client: Client) => {
+      const clientId = client.clientid ?? client.id;
+      if (!clientId) {
+        toast.error("Client has no id.");
+        return;
+      }
       const userId = currentUserId;
       if (!userId) {
         toast.error("Please log in as admin to manage clients.");
         return;
       }
+      const name =
+        [client.firstname, client.lastname].filter(Boolean).join(" ") ||
+        client.email ||
+        "this client";
       const confirmed =
         typeof window !== "undefined"
-          ? window.confirm("Delete this client?")
+          ? window.confirm(
+              `Delete ${name}? This cannot be undone.`
+            )
           : true;
       if (!confirmed) return;
 
@@ -202,7 +212,7 @@ export function useClientForm() {
           toast.error(getErrorMessage(error));
           return;
         }
-        setClients((prev) => prev.filter((c) => c.clientid !== clientId));
+        setClients((prev) => prev.filter((c) => (c.clientid ?? c.id) !== clientId));
         toast.success("Client deleted.");
       } catch (err) {
         toast.error(getErrorMessage(err));
