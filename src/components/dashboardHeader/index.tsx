@@ -65,7 +65,7 @@ const DashboardHeader: FC<Props> = ({
           </div>
         </div>
         <div onClick={handleRedirect}>
-          <ProfileCard></ProfileCard>
+          <ProfileCard />
         </div>
       </div>
     </>

@@ -17,6 +17,8 @@ export interface WeeklyCountCardProps {
   weeklyData: WeeklyData[];
 }
 
+import type { Role } from "@/src/constants/roles";
+
 export type Client = {
   id: string;
   clientid?: string | null;
@@ -24,5 +26,6 @@ export type Client = {
   firstname: string;
   lastname: string;
   password?: string | null;
+  role?: Role;
   created_at?: string | null;
 };

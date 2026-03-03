@@ -1,7 +1,7 @@
-import classNames from "classnames";
 import Image from "next/image";
 import React, { FC } from "react";
 import ProfileCard from "../profileCard";
+import { useClientSession } from "@/src/hooks/useClientSession";
 import logo from "../../assets/logo-new.png";
 import CountPageHero from "../countPageHero";
 import ROUTES from "@/src/utils/routes";
@@ -11,6 +11,8 @@ interface Props {
 }
 
 const CountPageHeader: FC<Props> = ({ isAdmin = false }) => {
+  const clientSession = useClientSession();
+
   return (
     <div className="flex  mt-16 mb-8  pb-4 px-4 justify-between border-b-2 border-b-grey lg:border-b-0">
       <div className="">
@@ -32,7 +34,10 @@ const CountPageHeader: FC<Props> = ({ isAdmin = false }) => {
         <CountPageHero></CountPageHero>
       </div>
 
-      <ProfileCard></ProfileCard>
+      <ProfileCard
+        displayName={clientSession?.displayName}
+        roleLabel={clientSession?.roleLabel}
+      />
     </div>
   );
 };

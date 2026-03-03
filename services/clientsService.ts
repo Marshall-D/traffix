@@ -3,6 +3,7 @@
  * GET/POST/PATCH /api/v1/clients (admin JWT), POST /api/v1/auth/client-login (no JWT).
  */
 
+import { Role } from "@/src/constants/roles";
 import { Client } from "../src/types";
 import apiClient from "./apiClient";
 
@@ -10,6 +11,11 @@ const AUTH_STORAGE_KEY = "traffix_auth";
 
 /** Map backend response (firstName, lastName) to frontend Client (firstname, lastname). */
 function toClient(raw: Record<string, unknown>): Client {
+  const roleVal = raw.role;
+  const role =
+    roleVal === Role.Admin || roleVal === Role.Client
+      ? roleVal
+      : undefined;
   return {
     id: String(raw.id ?? raw.admin ?? ""),
     clientid: raw.clientid != null ? String(raw.clientid) : undefined,
@@ -17,6 +23,7 @@ function toClient(raw: Record<string, unknown>): Client {
     firstname: String((raw.firstname ?? raw.firstName) ?? ""),
     lastname: String((raw.lastname ?? raw.lastName) ?? ""),
     password: raw.password != null ? String(raw.password) : undefined,
+    role: role ?? Role.Client,
     created_at: raw.created_at != null ? String(raw.created_at) : undefined,
   };
 }
@@ -108,6 +115,7 @@ export async function addClientForUser(
       firstName: payload.firstname,
       lastName: payload.lastname,
       password: payload.password ?? undefined,
+      role: Role.Client,
     });
     const body = res.data as { client?: Record<string, unknown> };
     const raw = body?.client ?? body;

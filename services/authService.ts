@@ -1,9 +1,11 @@
 // src/services/authService.ts
+import { Role } from "@/src/constants/roles";
 import { LoginValues, SignUpValues, User } from "@/src/types/auth";
 import apiClient, { setAuthToken } from "./apiClient";
 
 /**
  * Register endpoint wrapper.
+ * Role is required and set to Admin for sign-up through the login/sign-up page.
  * Returns: { ok: boolean, token?: string | null, message?: string | null }
  */
 export async function signUp(values: SignUpValues) {
@@ -13,6 +15,7 @@ export async function signUp(values: SignUpValues) {
       lastName: values.lastName,
       email: values.email,
       password: values.password,
+      role: Role.Admin,
     });
 
     // backend controller returns { success, message, user, token, devOtp? }

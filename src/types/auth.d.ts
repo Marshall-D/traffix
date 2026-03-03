@@ -1,4 +1,5 @@
 // src/types/auth.ts
+import type { Role } from "@/src/constants/roles";
 
 export type SignUpValues = {
   firstName: string;
@@ -18,6 +19,7 @@ export type User = {
   firstName: string;
   lastName: string;
   email: string;
+  role?: Role;
   // additional optional fields that may be returned by the backend
   isVerified?: boolean;
   lastLogin?: string | null;
