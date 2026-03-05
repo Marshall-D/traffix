@@ -1,5 +1,6 @@
-// src/hooks/useAdminDashboard.ts (small change)
-import { useMemo, useState } from "react";
+// src/hooks/useAdminDashboard.ts
+import { useMemo } from "react";
+import { useAuth } from "@/src/context/AuthContext";
 import {
   dashboardBarData,
   dashboardLineChartData,
@@ -8,10 +9,13 @@ import {
   dashboardLineChartLabels,
 } from "@/src/utils/data";
 
-export default function useAdminDashboard(initialAdmin: string | null = null) {
-  const [admin, setAdmin] = useState<string | null>(initialAdmin);
+export default function useAdminDashboard() {
+  const { user } = useAuth();
+  const admin =
+    user == null
+      ? null
+      : (user.userId ?? user._id ?? user.email ?? null);
 
-  // just pass through — memoize if you want but these are already constants
   const bar = useMemo(() => dashboardBarData, []);
   const lineA = useMemo(() => dashboardLineChartData, []);
   const lineB = useMemo(() => dashboardLineChartDataTwo, []);
@@ -20,7 +24,6 @@ export default function useAdminDashboard(initialAdmin: string | null = null) {
 
   return {
     admin,
-    setAdmin,
     dashboardBarData: bar,
     dashboardLineChartData: lineA,
     dashboardLineChartDataTwo: lineB,

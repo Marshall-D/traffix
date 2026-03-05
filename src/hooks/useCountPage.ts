@@ -40,17 +40,13 @@ export default function useCountPage(
 
   const adminIdStr = Array.isArray(adminid) ? adminid[0] : adminid;
 
-  // helpers for today's ISO bounds (UTC-safe)
-  const todayBounds = useMemo(() => {
+  // YYYY-MM-DD for today (local); backend uses UTC for the day
+  const todayDateStr = useMemo(() => {
     const now = new Date();
-    // build YYYY-MM-DD using local date to preserve "resets at midnight" semantics
     const yyyy = now.getFullYear();
     const mm = String(now.getMonth() + 1).padStart(2, "0");
     const dd = String(now.getDate()).padStart(2, "0");
-    const date = `${yyyy}-${mm}-${dd}`;
-    const start = `${date}T00:00:00.000Z`;
-    const end = `${date}T23:59:59.999Z`;
-    return { start, end };
+    return `${yyyy}-${mm}-${dd}`;
   }, []);
 
   const loadClientDataFromStorage = useCallback(() => {
@@ -74,8 +70,7 @@ export default function useCountPage(
 
     try {
       const result = await countService.getTodayCount(adminIdStr, {
-        startIso: todayBounds.start,
-        endIso: todayBounds.end,
+        date: todayDateStr,
       });
 
       if (result.error) {
@@ -91,7 +86,7 @@ export default function useCountPage(
     } finally {
       setLoadingCount(false);
     }
-  }, [adminIdStr, todayBounds]);
+  }, [adminIdStr, todayDateStr]);
 
   // initialize clientData & fetch count
   useEffect(() => {
@@ -161,47 +156,37 @@ export default function useCountPage(
     setLoadingAction(true);
     setError(null);
 
+    const clientId = clientData.clientid ?? (clientData as any).clientId;
+    if (!clientId) {
+      toast.error("Missing client id.");
+      setLoadingAction(false);
+      return;
+    }
+
     try {
-      const { data, error } = await countService.getLatestEntryForToday(
+      const { error: decError } = await countService.decrementCount(
         adminIdStr,
-        { startIso: todayBounds.start, endIso: todayBounds.end }
+        clientId,
+        todayDateStr
       );
 
-      if (error) {
-        console.error("Error fetching latest entry:", error);
-        setError("Failed to find an entry to delete");
-        toast.error("Failed to find an entry to delete");
-        return;
-      }
-
-      if (!data?.countId) {
-        setError("No entries found to delete");
-        toast.error("No entries found to delete");
-        return;
-      }
-
-      const { error: deleteError } = await countService.deleteCountEntry(
-        adminIdStr,
-        data.countId
-      );
-
-      if (deleteError) {
-        console.error("Error deleting count entry:", deleteError);
-        setError("Failed to delete entry");
-        toast.error("Failed to delete entry");
+      if (decError) {
+        const msg = decError.message || "Failed to delete entry";
+        setError(msg);
+        toast.error(msg);
       } else {
         setCount((prev) => Math.max(prev - 1, 0));
         setShowModal(false);
         toast.success("Entry removed");
       }
     } catch (err) {
-      console.error("Exception during decrement:", err);
-      setError("Failed to delete entry");
-      toast.error("Failed to delete entry");
+      const msg = err instanceof Error ? err.message : "Failed to delete entry";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoadingAction(false);
     }
-  }, [adminIdStr, clientData, todayBounds]);
+  }, [adminIdStr, clientData, todayDateStr]);
 
   const signOut = useCallback(() => {
     try {

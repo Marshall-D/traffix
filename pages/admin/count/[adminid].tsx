@@ -1,5 +1,5 @@
 //pages/admin/count/[adminid].tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import CountPageHeader from "@/src/components/countPageHeader";
 import CountPageHero from "@/src/components/countPageHero";
@@ -8,15 +8,46 @@ import { IconButton } from "@/src/components/iconButton";
 import { mdiAlphaICircleOutline } from "@mdi/js";
 import { Modal } from "@/src/components/modal";
 import { Tooltip } from "react-tooltip";
+import { useAuth } from "@/src/context/AuthContext";
 import useAdminCount from "@/src/hooks/useAdminCount";
+import ROUTES from "@/src/utils/routes";
+
+function isInvalidAdminId(value: string | string[] | undefined): boolean {
+  if (value == null) return true;
+  const s = Array.isArray(value) ? value[0] : value;
+  return !s || s === "null" || s === "undefined";
+}
 
 const AdminCountPage: React.FC = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { adminid } = router.query;
-  const adminId = Array.isArray(adminid) ? adminid[0] : adminid ?? null;
+  const rawId = Array.isArray(adminid) ? adminid[0] : adminid ?? null;
+  const authAdminId =
+    user == null ? null : (user.userId ?? user._id ?? user.email ?? null);
 
-  const { count, loading, error } = useAdminCount(adminId);
+  // Fallback: if URL adminid is missing or invalid, use auth user id and redirect
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (!isInvalidAdminId(rawId ?? undefined)) return;
+    if (authAdminId) {
+      router.replace(`${ROUTES.ADMIN_COUNT_PAGE}/${authAdminId}`);
+    } else {
+      router.replace(ROUTES.ADMIN_DASHBOARD);
+    }
+  }, [router.isReady, rawId, authAdminId, router]);
+
+  const adminId = isInvalidAdminId(rawId ?? undefined) ? authAdminId : rawId;
+
+  const { count, loading, error, refetch } = useAdminCount(adminId);
   const [showModal, setShowModal] = React.useState(false);
+
+  // Poll every 10s so count updates when clients increment/decrement
+  useEffect(() => {
+    if (!adminId) return;
+    const id = setInterval(() => refetch(), 10_000);
+    return () => clearInterval(id);
+  }, [adminId, refetch]);
 
   return (
     <>

@@ -1,125 +1,105 @@
 /**
- * Count service (stub implementation using localStorage).
- * Replace with REST API calls when backend endpoints are ready.
+ * Count service – backend REST API.
+ * GET /api/v1/counts/today, POST /api/v1/counts (increment), POST /api/v1/counts/decrement.
+ * No auth required; frontend sends adminId / clientId.
+ * Count resets every day (UTC on server; optional date param YYYY-MM-DD).
  */
 
-const STORAGE_KEY_PREFIX = "traffix_counts_";
+import apiClient from "./apiClient";
 
 export type CountEntry = {
   countId: string;
   adminId: string;
   clientId: string;
-  created_at: string; // ISO
+  created_at: string;
 };
 
-function getStorageKey(adminId: string): string {
-  return `${STORAGE_KEY_PREFIX}${adminId}`;
-}
-
-function getEntries(adminId: string): CountEntry[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(getStorageKey(adminId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveEntries(adminId: string, entries: CountEntry[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(getStorageKey(adminId), JSON.stringify(entries));
-  } catch (e) {
-    console.warn("countService: failed to save entries", e);
-  }
-}
-
-function getDefaultTodayBounds(): { startIso: string; endIso: string } {
-  const today = new Date().toISOString().split("T")[0];
-  return {
-    startIso: `${today}T00:00:00.000Z`,
-    endIso: `${today}T23:59:59.999Z`,
-  };
+/** YYYY-MM-DD for today in local time (for optional date query/body). */
+function getTodayDateString(): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 /**
- * Get today's count for an admin (optionally with custom date range).
+ * GET /api/v1/counts/today?adminId=...&date=YYYY-MM-DD
+ * Today's count for that admin. date optional (default: server UTC today).
  */
 export async function getTodayCount(
   adminId: string,
-  range?: { startIso: string; endIso: string }
+  options?: { date?: string }
 ): Promise<{ count: number; error: null } | { count: 0; error: Error }> {
   try {
-    const { startIso, endIso } = range ?? getDefaultTodayBounds();
-    const entries = getEntries(adminId);
-    const inRange = entries.filter(
-      (e) => e.created_at >= startIso && e.created_at <= endIso
-    );
-    return { count: inRange.length, error: null };
+    const params: Record<string, string> = { adminId };
+    if (options?.date) params.date = options.date;
+    const res = await apiClient.get("/api/v1/counts/today", { params });
+    const data = res.data as { success?: boolean; count?: number };
+    const count = typeof data?.count === "number" ? data.count : 0;
+    return { count, error: null };
   } catch (err) {
-    return { count: 0, error: err as Error };
+    return { count: 0, error: err instanceof Error ? err : new Error(String(err)) };
   }
 }
 
 /**
- * Add one count entry (increment).
+ * POST /api/v1/counts – increment (create one count).
+ * Body: { adminId, clientId }. Response 201: { success, countId, adminId, clientId, created_at }.
  */
 export async function incrementCount(
   adminId: string,
   clientId: string
 ): Promise<{ data: CountEntry | null; error: Error | null }> {
   try {
-    const entries = getEntries(adminId);
-    const countId = `cnt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    const created_at = new Date().toISOString();
-    const entry: CountEntry = { countId, adminId, clientId, created_at };
-    entries.push(entry);
-    saveEntries(adminId, entries);
-    return { data: entry, error: null };
-  } catch (err) {
-    return { data: null, error: err as Error };
-  }
-}
-
-/**
- * Get the latest count entry for today (for decrement flow).
- */
-export async function getLatestEntryForToday(
-  adminId: string,
-  range?: { startIso: string; endIso: string }
-): Promise<{ data: { countId: string } | null; error: Error | null }> {
-  try {
-    const { startIso, endIso } = range ?? getDefaultTodayBounds();
-    const entries = getEntries(adminId);
-    const inRange = entries.filter(
-      (e) => e.created_at >= startIso && e.created_at <= endIso
-    );
-    inRange.sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
-    const latest = inRange[0];
-    return {
-      data: latest ? { countId: latest.countId } : null,
-      error: null,
+    const res = await apiClient.post("/api/v1/counts", { adminId, clientId });
+    const data = res.data as {
+      countId?: string;
+      adminId?: string;
+      clientId?: string;
+      created_at?: string;
     };
+    if (res.status === 201 && data?.countId) {
+      return {
+        data: {
+          countId: String(data.countId),
+          adminId: String(data.adminId ?? adminId),
+          clientId: String(data.clientId ?? clientId),
+          created_at: data.created_at ?? new Date().toISOString(),
+        },
+        error: null,
+      };
+    }
+    return { data: null, error: new Error("Invalid response") };
   } catch (err) {
-    return { data: null, error: err as Error };
+    return {
+      data: null,
+      error: err instanceof Error ? err : new Error(String(err)),
+    };
   }
 }
 
 /**
- * Delete a count entry by id (decrement).
+ * POST /api/v1/counts/decrement – delete latest count for that day.
+ * Body: { adminId, clientId, date? }. date = YYYY-MM-DD optional (default: today UTC).
+ * 404: No count entry to decrement for this day.
  */
-export async function deleteCountEntry(
+export async function decrementCount(
   adminId: string,
-  countId: string
+  clientId: string,
+  date?: string
 ): Promise<{ error: Error | null }> {
   try {
-    const entries = getEntries(adminId).filter((e) => e.countId !== countId);
-    saveEntries(adminId, entries);
+    const body: { adminId: string; clientId: string; date?: string } = {
+      adminId,
+      clientId,
+    };
+    if (date) body.date = date;
+    await apiClient.post("/api/v1/counts/decrement", body);
     return { error: null };
   } catch (err) {
-    return { error: err as Error };
+    return {
+      error: err instanceof Error ? err : new Error(String(err)),
+    };
   }
 }
