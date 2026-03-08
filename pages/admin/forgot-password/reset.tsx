@@ -12,6 +12,10 @@ import toast from "react-hot-toast";
 
 const ResetPassword: React.FC = () => {
   const router = useRouter();
+  const email =
+    router.isReady && typeof router.query.email === "string"
+      ? router.query.email
+      : "";
   const {
     password,
     confirm,
@@ -33,7 +37,12 @@ const ResetPassword: React.FC = () => {
   ];
 
   const handleProceed = async () => {
-    const res = await resetPassword();
+    if (!email) {
+      toast.error("Email is missing. Please start from the forgot password page.");
+      router.push(ROUTES.FORGOT_PASSWORD);
+      return;
+    }
+    const res = await resetPassword(email);
     if (res.success) {
       toast.success("Password updated. You can sign in.");
       router.push(ROUTES.LOGIN_PAGE);

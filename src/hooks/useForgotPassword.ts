@@ -8,6 +8,7 @@ import {
   validateHasNumber,
   validateMinLength,
 } from "@/src/utils/helpers";
+import * as authService from "@/services/authService";
 
 export type ForgotFormValues = {
   email: string;
@@ -22,7 +23,15 @@ const schema = Yup.object().shape({
 // configure OTP length in one place
 export const OTP_LENGTH = 4;
 
-export default function useForgotPassword(initialEmail = "") {
+export type UseForgotPasswordOptions = {
+  onSuccess?: (email: string) => void;
+};
+
+export default function useForgotPassword(
+  initialEmail = "",
+  options?: UseForgotPasswordOptions
+) {
+  const { onSuccess } = options ?? {};
   //
   // Email / send-verification form state (existing)
   //
@@ -41,18 +50,16 @@ export default function useForgotPassword(initialEmail = "") {
     ) => {
       setError(null);
       try {
-        // TODO: Call your real API when forgot-password endpoint is ready.
-
-        // simulate success -> clear form
-        helpers.resetForm();
-        toast.success("Verification email sent");
-      } catch (err: any) {
-        const msg = err?.message ?? "An unexpected error occurred";
+        await authService.forgotPassword(values.email);
+        toast.success("Email found. You can reset your password.");
+        onSuccess?.(values.email);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "An unexpected error occurred";
         setError(msg);
         toast.error(msg);
       }
     },
-    []
+    [onSuccess]
   );
 
   const formik = useFormik<ForgotFormValues>({
@@ -140,24 +147,25 @@ export default function useForgotPassword(initialEmail = "") {
   const passwordsMatch = password !== "" && password === confirm;
   const canReset = allValid && passwordsMatch;
 
-  const resetPassword = async () => {
-    if (!canReset)
-      return { success: false, message: "Invalid password or mismatch" };
-    try {
-      // TODO: call reset API with the new password (and token if needed)
-      // example:
-      // await api.resetPassword({ password, token });
-      // Simulate success:
-      setPassword("");
-      setConfirm("");
-      setResetError(null);
-      return { success: true };
-    } catch (err: any) {
-      const message = err?.message ?? "Reset failed";
-      setResetError(message);
-      return { success: false, message };
-    }
-  };
+  const resetPassword = useCallback(
+    async (email: string) => {
+      if (!canReset)
+        return { success: false, message: "Invalid password or mismatch" };
+      try {
+        await authService.resetPassword(email, password);
+        setPassword("");
+        setConfirm("");
+        setResetError(null);
+        return { success: true };
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Reset failed";
+        setResetError(message);
+        toast.error(message);
+        return { success: false, message };
+      }
+    },
+    [canReset, password]
+  );
 
   return {
     // email form

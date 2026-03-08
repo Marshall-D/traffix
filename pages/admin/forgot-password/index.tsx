@@ -10,21 +10,16 @@ import { useRouter } from "next/router";
 import ROUTES from "@/src/utils/routes";
 import "react-tooltip/dist/react-tooltip.css";
 import useForgotPassword from "@/src/hooks/useForgotPassword";
-import toast from "react-hot-toast";
 
 const ForgotPassword: React.FC = () => {
   const router = useRouter();
-  const { formik, isSelected, error, handleClick } = useForgotPassword();
-
-  // <-- ADDED: wrapper to call handleClick then navigate to verify page
-  const onSendVerification = () => {
-    // call your hook action (may be sync or async)
-    // If handleClick returns a promise and you want to wait for it,
-    // you can change this to:
-    // Promise.resolve(handleClick()).then(() => router.push(ROUTES.FORGOT_PASSWORD_VERIFY));
-    handleClick();
-    router.push(ROUTES.FORGOT_PASSWORD_VERIFY);
-  };
+  const { formik, isSelected, handleClick } = useForgotPassword("", {
+    onSuccess: (email: string) => {
+      router.push(
+        `${ROUTES.FORGOT_PASSWORD_RESET}?email=${encodeURIComponent(email)}`
+      );
+    },
+  });
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
@@ -77,7 +72,7 @@ const ForgotPassword: React.FC = () => {
                 isSelected ? "bg-error" : "bg-primary hover:bg-primary-light"
               }`}
               type="submit"
-              onClick={onSendVerification} // <-- CHANGED: now calls wrapper that navigates
+              onClick={handleClick}
               variant="error"
             >
               Send Verification

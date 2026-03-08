@@ -95,3 +95,31 @@ export async function logout() {
     throw err;
   }
 }
+
+/**
+ * Forgot password – confirm email exists.
+ * POST /api/v1/auth/forgot-password body: { email }
+ * 200 → { success, message }; 404 → throws Error with backend msg.
+ */
+export async function forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
+  const resp = await apiClient.post("/api/v1/auth/forgot-password", { email });
+  const data = resp.data as { success?: boolean; message?: string };
+  return { success: data.success ?? true, message: data.message ?? undefined };
+}
+
+/**
+ * Reset password – update password for the given email.
+ * POST /api/v1/auth/reset-password body: { email, newPassword }
+ * 200 → { success, message }; 4xx → throws Error with backend msg.
+ */
+export async function resetPassword(
+  email: string,
+  newPassword: string
+): Promise<{ success: boolean; message?: string }> {
+  const resp = await apiClient.post("/api/v1/auth/reset-password", {
+    email,
+    newPassword,
+  });
+  const data = resp.data as { success?: boolean; message?: string };
+  return { success: data.success ?? true, message: data.message ?? undefined };
+}
