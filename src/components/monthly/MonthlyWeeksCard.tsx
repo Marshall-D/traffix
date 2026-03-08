@@ -9,6 +9,8 @@ interface Props {
   monthNumber: number; // 1..12
   onBack: () => void;
   highlightedWeekStart?: string | null;
+  /** Real week data from daily API aggregated by week; when set, used instead of mock/synthetic. */
+  weeksOverride?: { week: number; start: string; count: number }[] | null;
 }
 
 const MonthlyWeeksCard: FC<Props> = ({
@@ -16,11 +18,13 @@ const MonthlyWeeksCard: FC<Props> = ({
   monthNumber,
   onBack,
   highlightedWeekStart = null,
+  weeksOverride = null,
 }) => {
   const { weeks, selectedRow, toggleRow } = useMonthlyWeeks({
     monthStart,
     monthNumber,
     highlightedWeekStart,
+    weeksOverride,
   });
 
   const onRowKeyDown = useCallback(

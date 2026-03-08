@@ -19,12 +19,15 @@ type UseMonthlyWeeksArgs = {
   monthStart: string; // "YYYY-MM-DD"
   monthNumber: number; // 1..12
   highlightedWeekStart?: string | null;
+  /** When provided (e.g. from daily stats aggregated by week), use this instead of mock/synthetic data. */
+  weeksOverride?: { week: number; start: string; count: number }[] | null;
 };
 
 export default function useMonthlyWeeks({
   monthStart,
   monthNumber,
   highlightedWeekStart = null,
+  weeksOverride = null,
 }: UseMonthlyWeeksArgs) {
   // derive target year from monthStart (ensure we respect the selected year's month)
   const targetYear = useMemo(() => {
@@ -34,8 +37,19 @@ export default function useMonthlyWeeks({
     return parsed.getFullYear();
   }, [monthStart]);
 
-  // derive weeks for the requested month & year from the weekly dataset
+  // When parent provides real week data (from GET /api/v1/stats/daily for the month), use it.
   const weeks = useMemo<WeekRow[]>(() => {
+    if (weeksOverride && weeksOverride.length > 0) {
+      return weeksOverride.map((r, idx) => {
+        const prev = weeksOverride[idx - 1];
+        let percentChange: number | null = null;
+        if (prev && prev.count !== 0) {
+          const change = ((r.count - prev.count) / prev.count) * 100;
+          percentChange = Number.isFinite(change) ? change : null;
+        }
+        return { week: r.week, start: r.start, count: r.count, percentChange };
+      });
+    }
     if (!targetYear) return [];
 
     // 1) Try to find matching weekly records that match both month and year.
@@ -106,7 +120,7 @@ export default function useMonthlyWeeks({
     });
 
     return computed;
-  }, [monthNumber, monthStart, targetYear]);
+  }, [monthNumber, monthStart, targetYear, weeksOverride]);
 
   // index of selected row (in the `weeks` array), or null if none
   const [selectedRow, setSelectedRow] = useState<number | null>(null);

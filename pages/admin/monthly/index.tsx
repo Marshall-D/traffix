@@ -17,21 +17,67 @@ import MonthlyPageView from "@/src/components/monthly/MonthlyPageView";
 import MonthlyWeeksCard from "@/src/components/monthly/MonthlyWeeksCard";
 import {
   monthlyData,
-  monthlySummary,
+  monthlySummary as mockMonthlySummary,
   monthlyDataByYear,
-  AVAILABLE_YEARS,
 } from "@/src/utils/data";
 import useMonthlyView from "@/src/hooks/useMonthlyView";
+import useMonthlyStats from "@/src/hooks/useMonthlyStats";
+import useDailyStats from "@/src/hooks/useDailyStats";
+
+/** Current year and the last 4 years (5 years total), oldest first. */
+function getAvailableYears(): number[] {
+  const current = new Date().getFullYear();
+  return [current - 4, current - 3, current - 2, current - 1, current];
+}
+
+/** Last day of month as YYYY-MM-DD (e.g. "2026-02-28"). */
+function getMonthEndDate(monthStart: string): string {
+  const d = new Date(monthStart + "T00:00:00");
+  d.setMonth(d.getMonth() + 1);
+  d.setDate(0);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Aggregate daily data for a month into week rows (week 1 = days 1–7, week 2 = 8–14, etc.). */
+function aggregateDailyIntoWeeks(
+  dailyData: { date: string; count: number }[],
+  monthStart: string
+): { week: number; start: string; count: number }[] {
+  const monthStartDate = new Date(monthStart + "T00:00:00");
+  const byWeek = new Map<number, { count: number; start: string }>();
+
+  for (const row of dailyData) {
+    const d = new Date(row.date + "T00:00:00");
+    const dayOfMonth = d.getDate();
+    const weekNum = Math.ceil(dayOfMonth / 7);
+    const existing = byWeek.get(weekNum);
+    if (existing) {
+      existing.count += row.count;
+    } else {
+      const weekStart = new Date(monthStartDate);
+      weekStart.setDate((weekNum - 1) * 7 + 1);
+      byWeek.set(weekNum, {
+        count: row.count,
+        start: weekStart.toISOString().slice(0, 10),
+      });
+    }
+  }
+
+  const sorted = Array.from(byWeek.entries()).sort((a, b) => a[0] - b[0]);
+  return sorted.map(([week, { start, count }]) => ({ week, start, count }));
+}
 
 const MonthlyPage: React.FC = () => {
-  // NOTE: we'll pass the year-specific dataset to the hook so title/totalCount are correct
-  const [selectedYear, setSelectedYear] = useState<number>(2024);
+  const [selectedYear, setSelectedYear] = useState<number>(() => new Date().getFullYear());
+  const availableYears = React.useMemo(() => getAvailableYears(), []);
+  const { months: apiMonths, monthlySummary: apiSummary, loading: monthlyLoading, error: monthlyError } = useMonthlyStats(selectedYear);
 
-  // determine the months dataset for the selected year
+  // Use API months when available and not loading; otherwise fallback to mock by year
   const selectedYearMonthlyData = useMemo(() => {
+    if (apiMonths.length > 0) return apiMonths;
     if (selectedYear === 2024) return monthlyData;
     return monthlyDataByYear[selectedYear] ?? [];
-  }, [selectedYear]);
+  }, [selectedYear, apiMonths]);
 
   // wire useMonthlyView with the selected year's data so title/totalCount are based on the year
   const {
@@ -45,11 +91,35 @@ const MonthlyPage: React.FC = () => {
     handleBackToMonths,
   } = useMonthlyView(selectedYearMonthlyData, selectedYear);
 
-  // build a summary for the year from the selected data (fallbacks preserved)
+  const monthEnd = useMemo(
+    () => (selectedMonthStart ? getMonthEndDate(selectedMonthStart) : null),
+    [selectedMonthStart]
+  );
+  const { dailyData: monthDailyData } = useDailyStats(
+    showWeekView && selectedMonthStart ? selectedMonthStart : undefined,
+    showWeekView && monthEnd ? monthEnd : undefined
+  );
+  const weeksFromApi = useMemo(() => {
+    if (!showWeekView || !selectedMonthStart || !monthDailyData.length)
+      return undefined;
+    return aggregateDailyIntoWeeks(monthDailyData, selectedMonthStart);
+  }, [showWeekView, selectedMonthStart, monthDailyData]);
+
+  // build a summary for the year from API monthlySummary or from selected data
   const computedMonthlySummary = useMemo(() => {
+    if (apiSummary) {
+      return [
+        { label: `Total count (${selectedYear})`, value: String(apiSummary.total ?? "—") },
+        { label: "Average monthly count", value: String(apiSummary.average ?? "—") },
+        { label: "Highest monthly count", value: String(apiSummary.highest ?? "—") },
+        { label: "Lowest monthly count", value: String(apiSummary.lowest ?? "—") },
+        { label: "Highest hourly count", value: "—" },
+        { label: "Lowest hourly count", value: "—" },
+      ];
+    }
     const items = selectedYearMonthlyData || [];
     if (!items.length) {
-      return monthlySummary;
+      return mockMonthlySummary;
     }
 
     const total = items.reduce((s, it) => s + Number(it.count || 0), 0);
@@ -63,12 +133,12 @@ const MonthlyPage: React.FC = () => {
       { label: "Average monthly count", value: avg.toLocaleString() },
       { label: "Highest monthly count", value: highest.toLocaleString() },
       { label: "Lowest monthly count", value: lowest.toLocaleString() },
-      { label: "Highest hourly count", value: "55" },
-      { label: "Lowest hourly count", value: "8" },
+      { label: "Highest hourly count", value: "—" },
+      { label: "Lowest hourly count", value: "—" },
     ];
-  }, [selectedYearMonthlyData, selectedYear]);
+  }, [selectedYearMonthlyData, selectedYear, apiSummary]);
 
-  // --- compute the four top stats based on the selected year's data ---
+  // --- compute the four top stats: "current" = calendar current month, "previous" = calendar previous month ---
   const {
     currentMonthCount,
     previousMonthCount,
@@ -85,16 +155,21 @@ const MonthlyPage: React.FC = () => {
       };
     }
 
-    // Use the last available month in the dataset as "current"
-    const lastIndex = items.length - 1;
-    const current = Number(items[lastIndex]?.count ?? 0);
-    const previous =
-      lastIndex > 0 ? Number(items[lastIndex - 1]?.count ?? 0) : null;
+    const currentCalendarMonth = new Date().getMonth() + 1; // 1..12
+    const previousCalendarMonth = currentCalendarMonth === 1 ? 12 : currentCalendarMonth - 1;
 
-    const mom =
-      previous && previous !== 0
-        ? ((current - previous) / previous) * 100
-        : null;
+    const current = Number(items.find((m) => m.month === currentCalendarMonth)?.count ?? 0);
+    const prevEntry = items.find((m) => m.month === previousCalendarMonth);
+    const previous = prevEntry != null ? Number(prevEntry.count ?? 0) : null;
+
+    let mom: number | null = null;
+    if (previous != null) {
+      if (previous !== 0) {
+        mom = ((current - previous) / previous) * 100;
+      } else {
+        mom = current > 0 ? 100 : 0;
+      }
+    }
 
     const total = items.reduce((s, it) => s + Number(it.count ?? 0), 0);
     const avg = Math.round(total / items.length);
@@ -102,7 +177,7 @@ const MonthlyPage: React.FC = () => {
     return {
       currentMonthCount: current,
       previousMonthCount: previous,
-      momPercent: mom !== null && Number.isFinite(mom) ? Number(mom) : null,
+      momPercent: mom !== null && Number.isFinite(mom) ? mom : null,
       averageMonthlyCount: avg,
     };
   }, [selectedYearMonthlyData]);
@@ -122,17 +197,24 @@ const MonthlyPage: React.FC = () => {
         monthNumber={selectedMonthNumber}
         onBack={handleBackToMonths}
         highlightedWeekStart={selectedWeekStart}
+        weeksOverride={weeksFromApi}
       />
     ) : null;
 
   const chart = <MonthlyTrendChart data={selectedYearMonthlyData} />;
 
   return (
-    <MonthlyPageView
+    <>
+      {monthlyError ? (
+        <p className="text-red-600 text-sm mx-3 mt-2" role="alert">
+          Could not load monthly stats.
+        </p>
+      ) : null}
+      <MonthlyPageView
       title={title}
       selectedYear={selectedYear}
       setSelectedYear={setSelectedYear}
-      availableYears={AVAILABLE_YEARS}
+      availableYears={availableYears}
       selectedMonthStart={selectedMonthStart}
       selectedMonthNumber={selectedMonthNumber}
       selectedWeekStart={selectedWeekStart}
@@ -149,6 +231,7 @@ const MonthlyPage: React.FC = () => {
       weeks={weeks}
       chart={chart}
     />
+    </>
   );
 };
 

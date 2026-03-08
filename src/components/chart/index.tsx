@@ -7,56 +7,54 @@ import type { ChartData, ChartOptions } from "chart.js";
 // This imports and executes src/lib/chartjs which registers ChartJS globally.
 import "@/src/lib/chartjs";
 
+export type WeeklyChartPoint = { date: string; count: number; week: number };
+
 interface Props {
   title?: string;
   subtitle?: string;
   ariaLabel?: string;
+  /** When provided, chart uses API data (weeks for the year). Otherwise shows empty state. */
+  weeklyData?: WeeklyChartPoint[] | null;
 }
 
 /**
  * WeeklyTrendChart
  *
  * - Uses the centralized chart registration at src/lib/chartjs
- * - Ensures labels/data lengths match (7 days)
+ * - When weeklyData is provided (from GET /api/v1/stats/weekly), shows weekly counts for the year
  * - Memoizes data/options for stable renders
  * - Adds accessibility attributes and a graceful empty state
  */
 const WeeklyTrendChart: FC<Props> = ({
   title = "Weekly trend",
-  subtitle = "Cars 5% ↑",
+  subtitle,
   ariaLabel = "Weekly trend chart",
+  weeklyData,
 }) => {
-  // labels for the week (7 days)
-  const labels = useMemo(
-    () => ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    []
-  );
-
-  // datasets must match labels length. The original code had arrays of length 12,
-  // which caused an implicit mismatch — we truncate/ensure to 7 points here.
-  const datasets = useMemo(() => {
-    const ds1 = [100, 200, 150, 300, 250, 400, 350];
-    const ds2 = [150, 300, 200, 250, 300, 450, 400];
-
-    return [
-      {
-        label: "Dataset 1",
-        data: ds1,
-        borderColor: "#1E3A8A",
-        backgroundColor: "rgba(30, 58, 138, 0.2)",
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: "Dataset 2",
-        data: ds2,
-        borderColor: "#64748B",
-        backgroundColor: "rgba(100, 116, 139, 0.2)",
-        tension: 0.4,
-        fill: true,
-      },
-    ] as const;
-  }, []);
+  const { labels, datasets } = useMemo(() => {
+    if (weeklyData && weeklyData.length > 0) {
+      const sorted = [...weeklyData].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+      return {
+        labels: sorted.map((w) => `W${w.week}`),
+        datasets: [
+          {
+            label: "Weekly count",
+            data: sorted.map((w) => w.count),
+            borderColor: "#1E3A8A",
+            backgroundColor: "rgba(30, 58, 138, 0.2)",
+            tension: 0.4,
+            fill: true,
+          },
+        ],
+      };
+    }
+    return {
+      labels: [] as string[],
+      datasets: [] as { label: string; data: number[]; borderColor: string; backgroundColor: string; tension: number; fill: boolean }[],
+    };
+  }, [weeklyData]);
 
   const data = useMemo<ChartData<"line">>(() => {
     return {
@@ -88,17 +86,18 @@ const WeeklyTrendChart: FC<Props> = ({
     };
   }, []);
 
-  // Graceful placeholder if no data (shouldn't happen with the defaults above)
-  if (!data || data.datasets?.length === 0) {
+  const hasData = data?.datasets?.length && (data.datasets[0] as { data?: number[] })?.data?.length;
+
+  if (!hasData) {
     return (
       <div className="p-5 bg-white rounded-xl shadow-md w-full">
         <div className="text-lg font-semibold text-gray-800 mb-2">{title}</div>
-        <div className="text-sm text-green-600 mb-4">{subtitle}</div>
+        {subtitle ? <div className="text-sm text-green-600 mb-4">{subtitle}</div> : null}
         <div
           style={{ height: 300 }}
-          className="flex items-center justify-center"
+          className="flex items-center justify-center text-grey-4"
         >
-          No data available
+          No weekly data available
         </div>
       </div>
     );
@@ -111,7 +110,7 @@ const WeeklyTrendChart: FC<Props> = ({
       aria-label={ariaLabel}
     >
       <div className="text-lg font-semibold text-gray-800 mb-2">{title}</div>
-      <div className="text-sm text-green-600 mb-4">{subtitle}</div>
+      {subtitle ? <div className="text-sm text-green-600 mb-4">{subtitle}</div> : null}
       <div style={{ height: 300 }}>
         <Line data={data} options={options} />
       </div>

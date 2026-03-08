@@ -145,9 +145,14 @@ const AdminDashboard: React.FC = () => {
 
       {adminLoginUrl && (
         <div className="mt-12 text-center">
-          <h2 className="text-xl font-medium mb-4">Admin Login URL</h2>
-          <p className="text-blue-500 underline">
-            <a href={adminLoginUrl}>{adminLoginUrl}</a>
+          <h2 className="text-xl font-medium mb-4">Client login url</h2>
+          <p className="text-blue-500 underline break-words">
+            <a
+              href={adminLoginUrl}
+              className="text-[0.5em] md:text-[1em] break-all"
+            >
+              {adminLoginUrl}
+            </a>
           </p>
         </div>
       )}

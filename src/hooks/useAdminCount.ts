@@ -4,6 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import * as countService from "@/services/countService";
 
+/** YYYY-MM-DD for today in client local time (so backend returns count for that day). */
+function getTodayDateString(): string {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`;
+}
+
 export default function useAdminCount(adminId?: string | null) {
   const [count, setCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -16,7 +22,9 @@ export default function useAdminCount(adminId?: string | null) {
     setError(null);
 
     try {
-      const result = await countService.getTodayCount(adminId);
+      const result = await countService.getTodayCount(adminId, {
+        date: getTodayDateString(),
+      });
 
       if (result.error) throw result.error;
 

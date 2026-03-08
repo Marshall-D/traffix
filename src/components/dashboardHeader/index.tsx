@@ -11,8 +11,14 @@ interface Props {
   title?: string;
   admin?: any;
   showDailySection?: boolean;
-  busiestDay?: string | null; // Accept the day string
+  busiestDay?: string | null;
+  /** Shown next to busiest day, e.g. "+23% above weekly average". */
+  busiestDayComparisonText?: string | null;
   daily?: boolean;
+  /** When daily is true, show this count (same as admin count page: GET /api/v1/counts/today). */
+  dailyCount?: number;
+  /** Optional comparison text e.g. "+12% vs yesterday". */
+  dailyCountComparisonText?: string | null;
 }
 
 const DashboardHeader: FC<Props> = ({
@@ -20,7 +26,10 @@ const DashboardHeader: FC<Props> = ({
   admin,
   showDailySection,
   busiestDay,
+  busiestDayComparisonText,
   daily,
+  dailyCount,
+  dailyCountComparisonText,
 }) => {
   const [isTitleVisible, setIsTitleVisible] = useState(true);
 
@@ -54,12 +63,12 @@ const DashboardHeader: FC<Props> = ({
             <p className="text-lg my-2">{title}</p>
             {showDailySection && busiestDay && (
               <div className="hidden lg:block">
-                <BusiestDay day={busiestDay} />{" "}
+                <BusiestDay day={busiestDay} comparisonText={busiestDayComparisonText} />
               </div>
             )}
             {daily && (
               <div className="hidden lg:block">
-                <TodaysCount count={128} />{" "}
+                <TodaysCount count={dailyCount} comparisonText={dailyCountComparisonText} />
               </div>
             )}
           </div>

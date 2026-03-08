@@ -79,11 +79,13 @@ export function useWeeklyCountCard({
     return arr.map((item, idx) => {
       const prev = arr[idx - 1];
       let percentChange: number | null = null;
-      if (prev && typeof prev.count === "number" && prev.count !== 0) {
-        const change = ((item.count - prev.count) / prev.count) * 100;
-        percentChange = Number.isFinite(change) ? change : null;
-      } else {
-        percentChange = null;
+      if (prev && typeof prev.count === "number") {
+        if (prev.count !== 0) {
+          const change = ((item.count - prev.count) / prev.count) * 100;
+          percentChange = Number.isFinite(change) ? change : null;
+        } else {
+          percentChange = item.count > 0 ? 100 : 0;
+        }
       }
       return {
         ...item,

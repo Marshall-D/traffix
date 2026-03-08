@@ -9,14 +9,23 @@ import { Button } from "../button";
 import useDailySection from "@/src/hooks/useDailySection";
 import { dailyData as sampleDailyData } from "@/src/utils/data";
 
+export type DailyRow = { date: string; count: number; day?: string };
+
 interface Props {
   onTableItemClick: (date: string) => void;
+  /** When provided, used instead of mock data (e.g. from GET /api/v1/stats/daily). */
+  dailyData?: DailyRow[] | null;
+  loading?: boolean;
 }
 
 const cx = (...parts: Array<string | false | undefined>) =>
   parts.filter(Boolean).join(" ");
 
-const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
+const DailySectionOne: FC<Props> = ({
+  onTableItemClick,
+  dailyData: dailyDataProp,
+  loading = false,
+}) => {
   const {
     showModal,
     setShowModal,
@@ -29,7 +38,7 @@ const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
     handleRowClick,
   } = useDailySection(onTableItemClick);
 
-  const data = sampleDailyData; // reuse the data you already have in utils/data.ts
+  const data = dailyDataProp != null ? dailyDataProp : sampleDailyData;
 
   return (
     <div className="flex lg:h-full flex-col w-full rounded-2xl p-8 border-2 border-grey shadow-lg hover:bg-grey">
@@ -66,7 +75,10 @@ const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
         <hr />
 
         <div id="table-body">
-          {data.map((row, index) => {
+          {loading ? (
+            <p className="text-grey-4 text-sm py-4">Loading…</p>
+          ) : (
+          data.map((row, index) => {
             const isSelected = selectedRow === index;
             const base =
               "flex justify-between text-sm text-black-2 my-8 cursor-pointer p-2 rounded-md";
@@ -85,7 +97,7 @@ const DailySectionOne: FC<Props> = ({ onTableItemClick }) => {
                 <p className="font-semibold">{row.count}</p>
               </div>
             );
-          })}
+          }))}
         </div>
       </div>
 
