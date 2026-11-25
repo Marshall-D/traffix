@@ -3,6 +3,7 @@
  * Base: /api/v1/stats
  */
 
+// statsService.ts
 import apiClient from "./apiClient";
 
 const BASE = "/api/v1/stats";
@@ -21,7 +22,11 @@ export type DashboardStats = {
 };
 
 export type DailyDataItem = { date: string; count: number; day?: string };
-export type DailySummary = { average?: number; highest?: number; lowest?: number };
+export type DailySummary = {
+  average?: number;
+  highest?: number;
+  lowest?: number;
+};
 
 export type HourlyItem = { hour: string; count: number };
 
@@ -43,7 +48,10 @@ export type MonthlySummary = {
 };
 
 export const statsService = {
-  getDashboard: async (): Promise<{ data: DashboardStats | null; error: unknown }> => {
+  getDashboard: async (): Promise<{
+    data: DashboardStats | null;
+    error: unknown;
+  }> => {
     try {
       const res = await apiClient.get(`${BASE}/dashboard`);
       return { data: res.data as DashboardStats, error: null };
@@ -54,7 +62,7 @@ export const statsService = {
 
   getDaily: async (
     from?: string,
-    to?: string
+    to?: string,
   ): Promise<{
     data: { dailyData?: DailyDataItem[]; dailySummary?: DailySummary } | null;
     error: unknown;
@@ -64,17 +72,28 @@ export const statsService = {
       if (from) params.from = from;
       if (to) params.to = to;
       const res = await apiClient.get(`${BASE}/daily`, { params });
-      return { data: res.data as { dailyData?: DailyDataItem[]; dailySummary?: DailySummary }, error: null };
+      return {
+        data: res.data as {
+          dailyData?: DailyDataItem[];
+          dailySummary?: DailySummary;
+        },
+        error: null,
+      };
     } catch (err) {
       return { data: null, error: err };
     }
   },
 
   getDailyHourly: async (
-    date: string
-  ): Promise<{ data: { hourlyData?: HourlyItem[] } | null; error: unknown }> => {
+    date: string,
+  ): Promise<{
+    data: { hourlyData?: HourlyItem[] } | null;
+    error: unknown;
+  }> => {
     try {
-      const res = await apiClient.get(`${BASE}/daily/${encodeURIComponent(date)}/hourly`);
+      const res = await apiClient.get(
+        `${BASE}/daily/${encodeURIComponent(date)}/hourly`,
+      );
       return { data: res.data as { hourlyData?: HourlyItem[] }, error: null };
     } catch (err) {
       return { data: null, error: err };
@@ -82,7 +101,7 @@ export const statsService = {
   },
 
   getWeekly: async (
-    year?: number
+    year?: number,
   ): Promise<{
     data: { weeks?: WeekItem[]; weeklySummary?: WeeklySummary } | null;
     error: unknown;
@@ -91,14 +110,17 @@ export const statsService = {
       const params: Record<string, number> = {};
       if (year != null) params.year = year;
       const res = await apiClient.get(`${BASE}/weekly`, { params });
-      return { data: res.data as { weeks?: WeekItem[]; weeklySummary?: WeeklySummary }, error: null };
+      return {
+        data: res.data as { weeks?: WeekItem[]; weeklySummary?: WeeklySummary },
+        error: null,
+      };
     } catch (err) {
       return { data: null, error: err };
     }
   },
 
   getMonthly: async (
-    year?: number
+    year?: number,
   ): Promise<{
     data: { months?: MonthItem[]; monthlySummary?: MonthlySummary } | null;
     error: unknown;
@@ -107,7 +129,13 @@ export const statsService = {
       const params: Record<string, number> = {};
       if (year != null) params.year = year;
       const res = await apiClient.get(`${BASE}/monthly`, { params });
-      return { data: res.data as { months?: MonthItem[]; monthlySummary?: MonthlySummary }, error: null };
+      return {
+        data: res.data as {
+          months?: MonthItem[];
+          monthlySummary?: MonthlySummary;
+        },
+        error: null,
+      };
     } catch (err) {
       return { data: null, error: err };
     }

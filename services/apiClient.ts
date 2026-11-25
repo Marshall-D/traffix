@@ -5,7 +5,6 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
-import ROUTES from "@/src/utils/routes";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -24,14 +23,13 @@ apiClient.interceptors.request.use(
       const token = localStorage.getItem("token");
       if (token) {
         config.headers = config.headers ?? {};
-        (config.headers as Record<string, string>)[
-          "Authorization"
-        ] = `Bearer ${token}`;
+        (config.headers as Record<string, string>)["Authorization"] =
+          `Bearer ${token}`;
       }
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 apiClient.interceptors.response.use(
@@ -59,7 +57,7 @@ apiClient.interceptors.response.use(
     // (If you want an automatic redirect specifically for token-expiry only,
     //  have the server include a specific flag in the response and check it here.)
     return Promise.reject(new Error(String(serverMessage)));
-  }
+  },
 );
 
 export function setAuthToken(token: string | null) {
