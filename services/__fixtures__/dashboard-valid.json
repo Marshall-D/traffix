@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "averageCountByHour": 1.25,
+  "averageCountByDay": 30,
+  "averageCountByWeek": 210,
+  "averageCountByMonth": 900,
+  "busiestDays": [120, 130, 125, 130, 130, 135, 130],
+  "lineChart": {
+    "labels": [
+      "Nov 19",
+      "Nov 20",
+      "Nov 21",
+      "Nov 22",
+      "Nov 23",
+      "Nov 24",
+      "Nov 25"
+    ],
+    "currentPeriod": [10, 12, 8, 11, 9, 13, 7],
+    "previousPeriod": [8, 9, 10, 8, 12, 7, 9]
+  }
+}

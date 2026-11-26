@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "averageCountByHour": 1.25,
+  "averageCountByDay": 30,
+  "averageCountByWeek": 210,
+  "averageCountByMonth": 900,
+  "busiestDays": [2, 4, 1, 5, 3]
+}
